@@ -2,7 +2,12 @@
   "name": "amp-client",
   "version": "1.0.0",
   "description": "JS Client for 68publishers/amp",
+  "homepage": "http://www.68publishers.io/",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/68publishers/projects/amp-client"
+  },
   "scripts": {
     "build:dev": "webpack --config webpack.config.dev.js --progress --profile --colors",
     "build:prod": "webpack --config webpack.config.prod.js --progress --profile --colors",
