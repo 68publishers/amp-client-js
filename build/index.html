@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>AMP - Js Client</title>
+    <script src="./amp-client.js" type="text/javascript"></script>
+
+    <style>
+        .container {
+            max-width: 1000px;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .amp-banner__content {
+            display: block;
+        }
+
+        .amp-banner__content--img > img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .amp-banner__list {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script>
+        var AMPClient = AMPClientFactory.create({
+            url: 'http://www.amp.local',
+            channel: 'demo',
+            resources: {
+                roles: 'guest'
+            }
+        });
+
+        // Events, dump info to the console
+        AMPClient.on(AMPClient.EVENTS.ON_BANNER_ATTACHED, function (banner) {
+            console.log('Banner on position ' + banner.position + ' was attached.');
+        });
+
+        AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGER, function (banner) {
+            console.log('State for banner on position ' + banner.position + ' was changed to ' + banner.getState() + '. Info: ' + banner.getStateInfo() + ' Position info: ' + JSON.stringify(banner.positionInfo));
+        });
+
+        AMPClient.on(AMPClient.EVENTS.ON_BEFORE_FETCH, function () {
+            console.log('Before fetch.');
+        });
+
+        AMPClient.on(AMPClient.EVENTS.ON_FETCH_SUCCESS, function (response) {
+            console.log(response);
+        });
+
+        AMPClient.on(AMPClient.EVENTS.ON_FETCH_ERROR, function (response) {
+            console.log('Fetch error! ' + response.data.code + ': ' + response.data.error);
+        });
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Banners:</h1>
+        <div>
+            <h2>First (added manually, single):</h2>
+            <div id="banner1"></div>
+            <script>
+                AMPClient.createBanner('#banner1', 'demo.first');
+            </script>
+        </div>
+        <div>
+            <h2>Second (added manually, random):</h2>
+            <div id="banner2"></div>
+            <script>
+                AMPClient.createBanner(document.getElementById('banner2'), 'demo.second', {
+                    roles: ['vip'],
+                    product: "shop/buy-iphone/iphone-xs"
+                });
+            </script>
+        </div>
+        <div>
+            <h2>Third (added via data-* attributes, multiple):</h2>
+            <div data-amp-banner="demo.third" data-amp-resource-roles="employee, vip" data-amp-resource-product="shop/buy-iphone/iphone-xs"></div>
+        </div>
+    </div>
+
+    <script>
+        AMPClient.attachBanners();
+        AMPClient.fetch();
+    </script>
+</body>
+</html>

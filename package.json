@@ -1,0 +1,33 @@
+{
+  "name": "amp-client",
+  "version": "1.0.0",
+  "description": "JS Client for 68publishers/amp",
+  "main": "index.js",
+  "scripts": {
+    "build:dev": "webpack --config webpack.config.dev.js --progress --profile --colors",
+    "build:prod": "webpack --config webpack.config.prod.js --progress --profile --colors",
+    "start:dev": "webpack --config webpack.config.dev.js --progress --profile --colors && webpack-dev-server --config webpack.config.dev.js"
+  },
+  "keywords": [
+    "68publishers",
+    "amp",
+    "js-client",
+    "amp-js-client"
+  ],
+  "author": "68publishers",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/polyfill": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "babel-loader": "^8.0.6",
+    "path": "^0.12.7",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.8.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15"
+  }
+}
