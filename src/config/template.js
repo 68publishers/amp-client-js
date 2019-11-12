@@ -28,13 +28,13 @@
         random: `<div class="amp-banner amp-banner--random">${singleBannerContent('data')}</div>`,
         multiple: `
             <div class="amp-banner amp-banner--multiple">
-                <ul class="amp-banner__list">
+                <div class="amp-banner__list">
                     <% _.forEach(data, function(b) { %>
-                        <li class="amp-banner__item">
+                        <div class="amp-banner__item">
                             ${singleBannerContent('b')}
-                        </li>
+                        </div>
                     <% }); %>
-                </ul>
+                </div>
             </div>
         `
     }
