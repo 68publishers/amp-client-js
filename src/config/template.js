@@ -10,7 +10,7 @@
                 </a>
             <% } else if ('html' === ${d}.content.type) { %>
                 <div class="amp-banner__content amp-banner__content--html">
-                    <%= ${d}.content.content %>
+                    <%= ${d}.content.html %>
                 </div>
             <% } %>
         `;
