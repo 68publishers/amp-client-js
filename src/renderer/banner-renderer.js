@@ -1,4 +1,4 @@
-(function (_) {
+(function (_, Randomizer) {
 
     class TemplateLoader {
 
@@ -32,7 +32,7 @@
             }
 
             if ('random' === positionInfo.displayType) {
-                data = _.sample(data);
+                data = Randomizer.randomByWeights(data, 'score');
             }
 
             if ('multiple' === positionInfo.displayType) {
@@ -55,4 +55,4 @@
 
     module.exports = BannerRenderer;
 
-})(require('lodash'));
+})(require('lodash'), require('../utils/randomizer'));
