@@ -31,9 +31,9 @@
     <script>
         var AMPClient = AMPClientFactory.create({
             url: 'http://www.amp.local',
-            channel: 'demo',
+            channel: 'amp-demo',
             resources: {
-                roles: 'guest'
+                role: 'guest'
             }
         });
 
@@ -67,22 +67,22 @@
             <h2>First (added manually, single):</h2>
             <div id="banner1"></div>
             <script>
-                AMPClient.createBanner('#banner1', 'demo.first');
+                AMPClient.createBanner('#banner1', 'homepage.center_left');
             </script>
         </div>
         <div>
             <h2>Second (added manually, random):</h2>
             <div id="banner2"></div>
             <script>
-                AMPClient.createBanner(document.getElementById('banner2'), 'demo.second', {
-                    roles: ['vip'],
+                AMPClient.createBanner(document.getElementById('banner2'), 'homepage.info_box_1', {
+                    role: ['vip'],
                     product: "shop/buy-iphone/iphone-xs"
                 });
             </script>
         </div>
         <div>
             <h2>Third (added via data-* attributes, multiple):</h2>
-            <div data-amp-banner="demo.third" data-amp-resource-roles="employee, vip" data-amp-resource-product="shop/buy-iphone/iphone-xs"></div>
+            <div data-amp-banner="homepage.top" data-amp-resource-role="employee, vip" data-amp-resource-product="shop/buy-iphone/iphone-xs"></div>
         </div>
     </div>
 
