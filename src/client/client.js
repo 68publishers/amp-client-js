@@ -1,6 +1,6 @@
 'use strict';
 
-(function (document, _, _config, _gateway, RequestFactory, BannerManager, EventBus, Events, BannerRenderer) {
+(function (document, _, internal, _config, _gateway, RequestFactory, BannerManager, EventBus, Events, BannerRenderer) {
 
     class Client {
 
@@ -8,32 +8,36 @@
             // constants
             this.EVENTS = Events;
 
+            const privateProperties = internal(this);
+
             options = _config(options);
-            this._eventBus = new EventBus();
-            this._requestFactory = new RequestFactory(
+            privateProperties.eventBus = new EventBus();
+            privateProperties.requestFactory = new RequestFactory(
                 options.url,
                 options.version,
                 options.channel
             );
-            this._bannerManager = new BannerManager(this._eventBus);
-            this._bannerRenderer = new BannerRenderer(options.template);
+
+            privateProperties.bannerManager = new BannerManager(privateProperties.eventBus);
+            privateProperties.bannerRenderer = new BannerRenderer(options.template);
 
             this.setLocale(options.locale);
 
             let resourceName;
+
             for (resourceName in options.resources) {
                 if (options.resources.hasOwnProperty(resourceName)) {
-                    this._requestFactory.addDefaultResource(resourceName, options.resources[resourceName]);
+                    privateProperties.requestFactory.addDefaultResource(resourceName, options.resources[resourceName]);
                 }
             }
         }
 
         on(event, callback, scope = null) {
-            return this._eventBus.subscribe(event, callback, scope);
+            return internal(this).eventBus.subscribe(event, callback, scope);
         }
 
         setLocale(locale) {
-            this._requestFactory.setLocale(locale);
+            internal(this).requestFactory.locale = locale;
         }
 
         setGateway(gateway) {
@@ -41,7 +45,7 @@
                 throw new TypeError('Argument gateway mut be instance of AbstractGateway.');
             }
 
-            this._gateway = gateway;
+            internal(this).gateway = gateway;
         }
 
         getGateway() {
@@ -49,14 +53,16 @@
                 this.setGateway(_gateway.create());
             }
 
-            return this._gateway;
+            return internal(this).gateway;
         }
 
         createBanner(element, position, resources = {}) {
-            return this._bannerManager.addBanner(element, position, resources);
+            return internal(this).bannerManager.addBanner(element, position, resources);
         }
 
         attachBanners(snippet = document) {
+            const privateProperties = internal(this);
+
             _.forEach(snippet.querySelectorAll('[data-amp-banner]:not([data-amp-attached])'), element => {
                 const position = element.getAttribute('data-amp-banner');
                 const resources = {};
@@ -77,18 +83,19 @@
                         resources[attr.name.slice(18)] = _.map(attr.value.split(','), _.trim);
                     }
                 );
-                this._eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, this.createBanner(element, position, resources));
+                privateProperties.eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, this.createBanner(element, position, resources));
             });
         }
 
         fetch() {
-            const banners = this._bannerManager.getBannersByState(this._bannerManager.STATE.NEW);
+            const privateProperties = internal(this);
+            const banners = privateProperties.bannerManager.getBannersByState(privateProperties.bannerManager.STATE.NEW);
 
             if (!banners.length) {
                 return;
             }
 
-            const request = this._requestFactory.create();
+            const request = privateProperties.requestFactory.create();
 
             _.forEach(banners, (banner) =>  {
                 request.addPosition(banner.position, banner.resources)
@@ -102,42 +109,36 @@
                         || !data[banner.position].hasOwnProperty('banners')
                         || _.isEmpty(data[banner.position]['banners'])) {
 
-                        banner.setState(this._bannerManager.STATE.NOT_FOUND, 'Banner not found in fetched response.');
+                        banner.setState(privateProperties.bannerManager.STATE.NOT_FOUND, 'Banner not found in fetched response.');
 
                         return;
                     }
 
-                    const position = data[banner.position];
-                    const positionInfo = {
-                        rotationSeconds: position['rotation_seconds'] || 0,
-                        displayType: position['display_type'] || 'unknown'
-                    };
-
-                    banner.positionInfo = positionInfo;
+                    banner.setResponseData(data[banner.position]);
 
                     try {
-                        this._bannerRenderer.render(banner, positionInfo, data[banner.position]['banners']);
+                        privateProperties.bannerRenderer.render(banner);
                     } catch (e) {
-                        banner.setState(this._bannerManager.STATE.ERROR, 'Render error: ' + e.message);
+                        banner.setState(privateProperties.bannerManager.STATE.ERROR, 'Render error: ' + e.message);
 
                         return;
                     }
 
-                    banner.setState(this._bannerManager.STATE.RENDERED, 'Banner was successfully rendered.');
+                    banner.setState(privateProperties.bannerManager.STATE.RENDERED, 'Banner was successfully rendered.');
                 });
 
-                this._eventBus.dispatch(this.EVENTS.ON_FETCH_SUCCESS, response);
+                privateProperties.eventBus.dispatch(this.EVENTS.ON_FETCH_SUCCESS, response);
             };
 
             const error = (response) => {
                 _.forEach(banners, (banner) =>  {
-                    banner.setState(this._bannerManager.STATE.ERROR, 'Request on api failed.');
+                    banner.setState(privateProperties.bannerManager.STATE.ERROR, 'Request on api failed.');
                 });
 
-                this._eventBus.dispatch(this.EVENTS.ON_FETCH_ERROR, response);
+                privateProperties.eventBus.dispatch(this.EVENTS.ON_FETCH_ERROR, response);
             };
 
-            this._eventBus.dispatch(this.EVENTS.ON_BEFORE_FETCH);
+            privateProperties.eventBus.dispatch(this.EVENTS.ON_BEFORE_FETCH);
             this.getGateway().fetch(request, success, error);
         }
     }
@@ -147,6 +148,7 @@
 })(
     document,
     require('lodash'),
+    require('../utils/internal-state')(),
     require('../config/index'),
     require('../gateway/index'),
     require('../request/request-factory'),

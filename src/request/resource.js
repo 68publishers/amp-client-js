@@ -1,6 +1,6 @@
 'use strict';
 
-(function (_) {
+(function (_, internal) {
 
     function getValueArray(value) {
         return _.isArray(value) ? value : [ value ];
@@ -8,17 +8,23 @@
 
     class Resource {
         constructor(name, value) {
-            value = getValueArray(value);
-
-            this.name = name;
-            this.value = value;
+            internal(this).name = name;
+            internal(this).value = getValueArray(value);
         }
 
-        withValues (value) {
-            return new Resource(name, _.union(getValueArray(value), this.value));
+        get name() {
+            return internal(this).name;
+        }
+
+        get value() {
+            return internal(this).value;
+        }
+
+        withValues(value) {
+            return new Resource(this.name, _.union(getValueArray(value), this.value));
         }
     }
 
     module.exports = Resource;
 
-})(require('lodash'));
+})(require('lodash'), require('../utils/internal-state')());

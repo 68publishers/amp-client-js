@@ -1,28 +1,30 @@
 'use strict';
 
-(function (Resource, Request) {
+(function (Resource, Request, internal) {
 
     class RequestFactory {
 
         constructor (url, version, channel) {
-            this._endpoint = `${url}/api/v${version}/content/${channel}`;
-            this._locale = null;
-            this._defaultResources = [];
+            internal(this).endpoint = `${url}/api/v${version}/content/${channel}`;
+            internal(this).locale = null;
+            internal(this).defaultResources = [];
         }
 
-        setLocale(locale) {
-            this._locale = locale;
+        set locale(locale) {
+            internal(this).locale = locale;
         }
 
         addDefaultResource(name, value) {
-            this._defaultResources.push(new Resource(name, value));
+            internal(this).defaultResources.push(new Resource(name, value));
         }
 
         create() {
-            return new Request(this._endpoint, this._locale, this._defaultResources);
+            const _internal = internal(this);
+
+            return new Request(_internal.endpoint, _internal.locale, _internal.defaultResources);
         }
     }
 
     module.exports = RequestFactory;
 
-})(require('./resource'), require('./request'));
+})(require('./resource'), require('./request'), require('../utils/internal-state')());

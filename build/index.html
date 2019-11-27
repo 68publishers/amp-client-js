@@ -42,8 +42,8 @@
             console.log('Banner on position ' + banner.position + ' was attached.');
         });
 
-        AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGER, function (banner) {
-            console.log('State for banner on position ' + banner.position + ' was changed to ' + banner.getState() + '. Info: ' + banner.getStateInfo() + ' Position info: ' + JSON.stringify(banner.positionInfo));
+        AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGED, function (banner) {
+            console.log('State for banner on position ' + banner.position + ' was changed to ' + banner.state + '. Info: ' + banner.stateInfo);
         });
 
         AMPClient.on(AMPClient.EVENTS.ON_BEFORE_FETCH, function () {

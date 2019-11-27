@@ -14,7 +14,7 @@
         /**
          * Arguments: ({Banner} banner)
          */
-        static get ON_BANNER_STATE_CHANGER() {
+        static get ON_BANNER_STATE_CHANGED() {
             return 'amp:banner:state-changed';
         }
 

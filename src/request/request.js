@@ -1,6 +1,6 @@
 'use strict';
 
-(function (Resource) {
+(function (Resource, internal) {
 
     const parseQueryParameter = (query) => {
         const json = Object.assign({}, query);
@@ -26,28 +26,28 @@
     class Request {
 
         constructor(endpoint, locale = null, defaultResources = []) {
-            this._method = 'GET';
-            this._endpoint = endpoint;
-            this._locale = locale;
-            this._query = {};
-            this._defaultResources = defaultResources;
+            internal(this).method = 'GET';
+            internal(this).endpoint = endpoint;
+            internal(this).locale = locale;
+            internal(this).query = {};
+            internal(this).defaultResources = defaultResources;
         }
 
         addPosition(position, resources = []) {
-            if (position in this._query) {
+            const query = internal(this).query;
+
+            if (position in query) {
                 throw new Error('Position "' + position + '" already exists.');
             }
 
-            this._query[position] = {};
+            query[position] = {};
 
-            this.addPositionResources(position, this._defaultResources);
+            this.addPositionResources(position, internal(this).defaultResources);
             this.addPositionResources(position, resources);
         }
 
         addPositionResources(position, resources) {
-            let index;
-
-            for (index in resources) {
+            for (let index in resources) {
                 if (!resources.hasOwnProperty(index)) {
                     continue;
                 }
@@ -61,11 +61,13 @@
                 throw new TypeError('Argument resource must be instance of Resource class.');
             }
 
-            if (!(position in this._query)) {
+            const query = internal(this).query;
+
+            if (!(position in query)) {
                 throw new Error('Missing position "' + position + '".');
             }
 
-            const queryPosition = this._query[position];
+            const queryPosition = query[position];
 
             if (resource.name in queryPosition) {
                 queryPosition[resource.name] = queryPosition[resource.name].withValues(resource.value);
@@ -76,25 +78,25 @@
             queryPosition[resource.name] = resource;
         }
 
-        getMethod() {
-            return this._method;
+        get method() {
+            return internal(this).method;
         }
 
-        getEndpoint() {
-            return this._endpoint;
+        get endpoint() {
+            return internal(this).endpoint;
         }
 
-        getLocale() {
-            return this._locale;
+        get locale() {
+            return internal(this).locale;
         }
 
-        getParameters() {
+        get parameters() {
             const params = {
-                query: parseQueryParameter(this._query)
+                query: parseQueryParameter(internal(this).query)
             };
 
-            if (null !== this._locale) {
-                params.locale = this._locale;
+            if (null !== this.locale) {
+                params.locale = this.locale;
             }
 
             return params;
@@ -103,4 +105,4 @@
 
     module.exports = Request;
 
-})(require('./resource'));
+})(require('./resource'), require('../utils/internal-state')());

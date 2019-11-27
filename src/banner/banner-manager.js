@@ -1,6 +1,6 @@
 'use strict';
 
-(function (document, _, Banner, State, Resource) {
+(function (document, _, internal, Banner, State, Resource) {
 
     const getElement = (el) => {
         if (el instanceof HTMLElement) {
@@ -32,8 +32,8 @@
             // constants
             this.STATE = State;
 
-            this._eventBus = eventBus;
-            this._banners = [];
+            internal(this).eventBus = eventBus;
+            internal(this).banners = [];
         }
 
         addBanner(element, position, resources = {}) {
@@ -49,20 +49,20 @@
                 }
             }
 
-            const banner = new Banner(this._eventBus, element, position, resourceArr);
+            const banner = new Banner(internal(this).eventBus, element, position, resourceArr);
 
-            this._banners.push(banner);
+            internal(this).banners.push(banner);
 
             return banner;
         }
 
         getBannersByState(state) {
-            return _.filter(this._banners, banner => {
-                return banner.getState() === state;
+            return _.filter(internal(this).banners, banner => {
+                return banner.state === state;
             });
         }
     }
 
     module.exports = BannerManager;
 
-})(document, require('lodash'), require('./banner'), require('./state'), require('../request/resource'));
+})(document, require('lodash'), require('../utils/internal-state')(), require('./banner'), require('./state'), require('../request/resource'));

@@ -1,58 +1,40 @@
-(function (_, Randomizer) {
+(function (_, internal) {
 
     class TemplateLoader {
 
         constructor (templates) {
-            this._templates = templates;
-            this._compiled = {};
+            internal(this).templates = templates;
+            internal(this).compiled = {};
         }
 
         getTemplate(displayType) {
-            if (this._compiled.hasOwnProperty(displayType)) {
-                return this._compiled[displayType];
+            const privateProperties = internal(this);
+
+            if (privateProperties.compiled.hasOwnProperty(displayType)) {
+                return privateProperties.compiled[displayType];
             }
 
-            if (!this._templates.hasOwnProperty(displayType)) {
+            if (!privateProperties.templates.hasOwnProperty(displayType)) {
                 throw new Error(`Template with type "${displayType}" not found.`);
             }
 
-            return this._compiled[displayType] = _.template(this._templates[displayType]);
+            return privateProperties.compiled[displayType] = _.template(privateProperties.templates[displayType]);
         }
     }
 
     class BannerRenderer {
 
         constructor (templates) {
-            this._loader = new TemplateLoader(templates);
+            internal(this).loader = new TemplateLoader(templates);
         }
 
-        render(banner, positionInfo, data) {
-            if ('single' === positionInfo.displayType) {
-                data = _.maxBy(data, 'score');
-            }
-
-            if ('random' === positionInfo.displayType) {
-                data = Randomizer.randomByWeights(data, 'score');
-            }
-
-            if ('multiple' === positionInfo.displayType) {
-                data = _.orderBy(data, ['score'], ['desc']);
-            }
-
-            if (_.isEmpty(data)) {
-                throw new Error('Banner\'s data is empty.');
-            }
-
-            const html = this._loader.getTemplate(positionInfo.displayType)({
-                banner: banner,
-                positionInfo: positionInfo,
-                data: data
+        render(banner) {
+            banner.html = internal(this).loader.getTemplate(banner.data.displayType)({
+                data: banner.data.resolveBannerData()
             });
-
-            banner.setHtml(html);
         }
     }
 
     module.exports = BannerRenderer;
 
-})(require('lodash'), require('../utils/randomizer'));
+})(require('lodash'), require('../utils/internal-state')());

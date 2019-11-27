@@ -1,6 +1,6 @@
 'use strict';
 
-(function (State, Events) {
+(function (State, Events, ResponseData, internal) {
 
     class Banner {
 
@@ -8,18 +8,45 @@
             // constants
             this.STATE = State;
 
-            this._eventBus = eventBus;
-
-            this.element = element;
-            this.position = position;
-            this.resources = resources;
-            this.positionInfo = {};
+            internal(this).eventBus = eventBus;
+            internal(this).element = element;
+            internal(this).position = position;
+            internal(this).resources = resources;
+            internal(this).responseData = undefined;
 
             this.setState(this.STATE.NEW, 'Banner created.');
         }
 
-        setHtml(html) {
-            this.element.innerHTML = html;
+        get element() {
+            return internal(this).element;
+        }
+
+        set html(html) {
+            internal(this).element.innerHTML = html;
+        }
+
+        get state() {
+            return internal(this).state;
+        }
+
+        get stateInfo() {
+            return internal(this).stateInfo;
+        }
+
+        get position () {
+            return internal(this).position;
+        }
+
+        get data() {
+            return internal(this).responseData;
+        }
+
+        setResponseData(responseData) {
+            if (undefined !== internal(this).responseData) {
+                throw new Error(`Data for banner on position ${this.position} is already set.`);
+            }
+
+            internal(this).responseData = new ResponseData(responseData);
         }
 
         setState(state, info = '') {
@@ -27,21 +54,13 @@
                 throw new TypeError(`${state} is not valid state.`);
             }
 
-            this._state = state;
-            this._stateInfo = info.toString();
+            internal(this).state = state;
+            internal(this).stateInfo = info.toString();
 
-            this._eventBus.dispatch(Events.ON_BANNER_STATE_CHANGER, this);
-        }
-
-        getState() {
-            return this._state;
-        }
-
-        getStateInfo() {
-            return this._stateInfo;
+            internal(this).eventBus.dispatch(Events.ON_BANNER_STATE_CHANGED, this);
         }
     }
 
     module.exports = Banner;
 
-})(require('./state'), require('../event/events'));
+})(require('./state'), require('../event/events'), require('./response-data'), require('../utils/internal-state')());

@@ -32,8 +32,8 @@
             };
 
             xhr.open(
-                request.getMethod(),
-                `${request.getEndpoint()}?${querystring.stringify(request.getParameters())}`,
+                request.method,
+                `${request.endpoint}?${querystring.stringify(request.parameters)}`,
                 true
             );
 
