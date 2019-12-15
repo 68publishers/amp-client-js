@@ -1,6 +1,6 @@
 'use strict';
 
-(function (document, _, internal, _config, _gateway, RequestFactory, BannerManager, EventBus, Events, BannerRenderer) {
+(function (document, window, _, internal, _config, _gateway, RequestFactory, BannerManager, EventBus, Events, BannerRenderer) {
 
     class Client {
 
@@ -30,6 +30,18 @@
                     privateProperties.requestFactory.addDefaultResource(resourceName, options.resources[resourceName]);
                 }
             }
+
+            window.addEventListener('resize', () => {
+                const banners = privateProperties.bannerManager.getBannersByState(privateProperties.bannerManager.STATE.RENDERED);
+
+                for (let i in banners) {
+                    if (!banners.hasOwnProperty(i) || !banners[i].needRedraw()) {
+                        continue;
+                    }
+
+                    this.renderBanner(banners[i]);
+                }
+            });
         }
 
         on(event, callback, scope = null) {
@@ -115,16 +127,7 @@
                     }
 
                     banner.setResponseData(data[banner.position]);
-
-                    try {
-                        privateProperties.bannerRenderer.render(banner);
-                    } catch (e) {
-                        banner.setState(privateProperties.bannerManager.STATE.ERROR, 'Render error: ' + e.message);
-
-                        return;
-                    }
-
-                    banner.setState(privateProperties.bannerManager.STATE.RENDERED, 'Banner was successfully rendered.');
+                    this.renderBanner(banner);
                 });
 
                 privateProperties.eventBus.dispatch(this.EVENTS.ON_FETCH_SUCCESS, response);
@@ -141,12 +144,27 @@
             privateProperties.eventBus.dispatch(this.EVENTS.ON_BEFORE_FETCH);
             this.getGateway().fetch(request, success, error);
         }
+
+        renderBanner(banner) {
+            const privateProperties = internal(this);
+
+            try {
+                privateProperties.bannerRenderer.render(banner);
+            } catch (e) {
+                banner.setState(privateProperties.bannerManager.STATE.ERROR, 'Render error: ' + e.message);
+
+                return;
+            }
+
+            banner.setState(privateProperties.bannerManager.STATE.RENDERED, 'Banner was successfully rendered.');
+        }
     }
 
     module.exports = Client;
 
 })(
     document,
+    window,
     require('lodash'),
     require('../utils/internal-state')(),
     require('../config/index'),

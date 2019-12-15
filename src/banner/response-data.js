@@ -8,8 +8,9 @@
             internal(this).positionInfo = {
                 rotationSeconds: response['rotation_seconds'],
                 displayType: response['display_type'],
-                breakpointType: response['breakpoint_type']
+                breakpointType: response['breakpoint_type'],
             };
+            internal(this).resolvedBannerData = null;
 
             const banners = [];
 
@@ -36,7 +37,11 @@
             return internal(this).positionInfo.breakpointType;
         }
 
-        resolveBannerData() {
+        get bannerData() {
+            if (null !== internal(this).resolvedBannerData) {
+                return internal(this).resolvedBannerData;
+            }
+
             let data = null;
 
             switch (this.displayType) {
@@ -56,6 +61,8 @@
             if (null === data) {
                 throw new Error('Banner\'s data is empty.');
             }
+
+            internal(this).resolvedBannerData = data;
 
             return data;
         }

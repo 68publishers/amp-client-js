@@ -30,7 +30,7 @@
 
         render(banner) {
             banner.html = internal(this).loader.getTemplate(banner.data.displayType)({
-                data: banner.data.resolveBannerData()
+                data: banner.data.bannerData
             });
         }
     }

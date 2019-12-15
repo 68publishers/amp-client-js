@@ -59,6 +59,26 @@
 
             internal(this).eventBus.dispatch(Events.ON_BANNER_STATE_CHANGED, this);
         }
+
+        needRedraw() {
+            let data = this.data.bannerData;
+
+            if ('[object Array]' !== Object.prototype.toString.call(data)) {
+                data = [ data ];
+            }
+
+            for (let i in data) {
+                if (!data.hasOwnProperty(i)) {
+                    continue;
+                }
+
+                if (data[i].needRedraw()) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     module.exports = Banner;
