@@ -1,17 +1,31 @@
-# Integration
+# Integration Guide
 
-## Script Import
+## Table of Contents
 
-Preferred way to import AMP script is CDN link. We providing two scripts:
+* [Script Import](#script-import)
+* [Options and Definitions](#options-and-definitions)
+  * [Client Options](#client-options)
+  * [Events](#events)
+  * [Banner States](#banner-states)
+* [Client Initialization](#client-initialization)
+* [Create Banner](#create-banner)
+  * [Manual](#manual)
+  * [Via Data Attributes](#via-data-attributes)
+* [Data Fetching and Rendering](#data-fetching-and-rendering)
+
+## Import Script
+
+The preferred way to import AMP script is CDN link. Two versions are available:
 
 * `https://unpkg.com/amp-client/dist/amp-client.min.js`
 * `https://unpkg.com/amp-client/dist/amp-client.standalone.min.js`
 
-he only difference is the first one also contains [lodash](https://lodash.com/) library and the standalone version not. So if you are using the *lodash* on your website then use the *standalone* version of our client.
+The only difference is the first one also contains [lodash](https://lodash.com/) library and the standalone version not.
+If you are using the *lodash* on your website then use the *standalone* version of our client.
 
 Prefer to use CDN links with a labeled version to prevent BC breaks e.g. `https://unpkg.com/amp-client@1.0/dist/amp-client.min.js`.
 
-So for example
+For example
 
 ```html
 <script src="https://unpkg.com/amp-client@1.0/dist/amp-client.min.js"></script>
@@ -25,25 +39,25 @@ So for example
 
 | Name | Type | Default | Required (must be defined by user) | Description |
 | ----- | :-----: | :-----: | :-----: | ----- |
-| url | String | - | Yes | Host URL of your amp application |
-| channel | String | - | Yes | Project's code |
-| version | Integer | 1 | No | Version of API |
-| locale | String\|Null | Null | No | Locale string, a default locale will be used if the option is null |
-| resources | Object | {} | No | Default resources that can be used for all positions on the page |
-| template | Object | {} | No |  |
-| template.single | String | *HTML template* | No | Template for banners with display type `single` |
-| template.random | String | *HTML template* | No | Template for banners with display type `random` |
-| template.multiple | String | *HTML template* | No | Template for banners with display type `multiple` (sliders) |
+| **url** | `String` | - | Yes | Host URL of your amp application |
+| **channel** | `String` | - | Yes | Project's code |
+| **version** | `Integer` | 1 | No | Version of API |
+| **locale** | `String`, `Null` | No | No | Locale string (`en_US`, `cs_CZ` etc.), a default locale will be used if the option is null |
+| **resources** | `Object` | {} | No | Default resources that can be used for all positions on the page |
+| **template** | `Object` | {} | No |  |
+| **template.single** | `String` | *HTML template* | No | Template for banners with display type `single` |
+| **template.random** | `String` | *HTML template* | No | Template for banners with display type `random` |
+| **template.multiple** | `String` | *HTML template* | No | Template for banners with display type `multiple` (sliders) |
 
 ### Events
 
 | Name | Constant | Arguments | Description |
 | ----- | ----- | ----- | ----- |
-| amp:banner:attached | EVENTS.ON_BANNER_ATTACHED | {Object\|Banner} banner | The event is fired when a banner defined with `[data-amp-banner]` is attached into Client |
-| amp:banner:state-changed | EVENTS.ON_BANNER_STATE_CHANGED | {Object\|Banner} banner | The event is fired when a banner's state is changed - the banner object is created or rendered etc. |
-| amp:fetch:before | EVENTS.ON_BEFORE_FETCH |  | The event is fired before calling of AMP API |
-| amp:fetch:error | EVENTS.ON_BEFORE_ERROR | {Object} response | The event is fired when an API request failed or an error response was returned |
-| amp:fetch:success | EVENTS.ON_BEFORE_SUCCESS | {Object} response | The event is fired when an API returned a success response |
+| `amp:banner:attached` | `EVENTS.ON_BANNER_ATTACHED`| `{Object} banner` | Fired when a banner defined with `[data-amp-banner]` is attached into Client |
+| `amp:banner:state-changed` | `EVENTS.ON_BANNER_STATE_CHANGED` | `{Object} banner` | Fired when a banner's state is changed - the banner object is created or rendered etc. |
+| `amp:fetch:before` | `EVENTS.ON_BEFORE_FETCH` |  | Fired before calling of AMP API |
+| `amp:fetch:error` | `EVENTS.ON_BEFORE_ERROR` | `{Object} response` | Fired when an API request failed or an error response was returned |
+| `amp:fetch:success`| `EVENTS.ON_BEFORE_SUCCESS` | `{Object} response` | Fired when an API returned a success response |
 
 Events can be attached in this way:
 
@@ -61,12 +75,10 @@ AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGED, function (banner) {
 
 ### Banner States
 
-| Name |
-| ----- |
-| NEW |
-| RENDERED |
-| NOT_FOUND |
-| ERROR |
+- `NEW`
+- `RENDERED`
+- `NOT_FOUND`
+- `ERROR`
 
 ## Client Initialization
 
@@ -84,9 +96,9 @@ var AMPClient = AMPClientFactory.create({
 });
 ```
 
-## Banners
+## Create Banner
 
-### Manual creation
+### Manual
 
 ```html
 <div id="my-banner"></div>
@@ -99,7 +111,7 @@ var AMPClient = AMPClientFactory.create({
 </script>
 ```
 
-### Creation via data attributes
+### Via Data Attributes
 
 ```html
 <div data-amp-banner="homepage.top" data-amp-resource-a_resource="A" data-amp-resource-b_resource="B, C"></div>
@@ -115,17 +127,17 @@ AMPClient.attachBanners();
 AMPClient.attachBanners(document.getElementById('container'));
 ```
 
-## Fetching data & rendering
+## Data Fetching and Rendering
 
-After all this initializations (probably before `</body>` closing tag) just simply call:
+After all these initializations (probably before `</body>` closing tag) just simply call:
 
 ```javascript
 AMPClient.fetch();
 ```
 
-That is everything! 😊
+That's all!
 
-So here is a full example of a HTML document:
+Here is a full example of an HTML document:
 
 ```html
 <!DOCTYPE html>
