@@ -2,7 +2,8 @@
 
 ## Table of Contents
 
-* [Script Import](#script-import)
+* [Import Script](#import-script)
+  * [Install via NPM](#install-via-npm)
 * [Options and Definitions](#options-and-definitions)
   * [Client Options](#client-options)
   * [Events](#events)
@@ -15,23 +16,34 @@
 
 ## Import Script
 
-The preferred way to import AMP script is CDN link. Two versions are available:
+The preferred way to import AMP Client is CDN link. Two versions are available:
 
 * `https://unpkg.com/amp-client/dist/amp-client.min.js`
 * `https://unpkg.com/amp-client/dist/amp-client.standalone.min.js`
 
-The only difference is the first one also contains [lodash](https://lodash.com/) library and the standalone version not.
-If you are using the *lodash* on your website then use the *standalone* version of our client.
+The only difference is the first one contains [lodash](https://lodash.com/) library and the standalone version not.
+If you are using the *lodash* on your website then use the *standalone* version of AMP client.
+In that case, lodash has to be imported as a first.
 
-Prefer to use CDN links with a labeled version to prevent BC breaks e.g. `https://unpkg.com/amp-client@1.0/dist/amp-client.min.js`.
-
-For example
+Prefer to use CDN links with a labeled version to prevent BC breaks e.g.:
 
 ```html
 <script src="https://unpkg.com/amp-client@1.0/dist/amp-client.min.js"></script>
 <!-- OR if you are using lodash on your website -->
 <script src="https://unpkg.com/amp-client@1.0/dist/amp-client.standalone.min.js"></script>
 ```
+
+### Install via NPM
+
+If you're don't want to use CDN, you can install AMP Client manually via NPM.
+
+```bash
+$ npm install amp-client
+# OR using yarn
+$ yarn add amp-client
+```
+
+After that, you can require AMP Client like any other JavaScript library.
 
 ## Options and Definitions
 
@@ -183,5 +195,4 @@ Here is a full example of an HTML document:
   </script>
 </body>
 </html>
-
 ```

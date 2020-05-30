@@ -35,13 +35,13 @@ $ npm install
 
 ## Build and Demo
 
-Use this predefined commands for the application's build:
+Use predefined commands for the application's build:
 
 ```sh
 $ npm run build:dev # or prod
 ```
 
-Paths of an output files are
+Paths of an output files are:
  - `~/build/amp-client.js` (dev mode)
  - `~/dist/amp-client.min.js` (production mode) respectively `~/dist/amp-client.standalone.min.js`.
 
