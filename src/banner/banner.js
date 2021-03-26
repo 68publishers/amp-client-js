@@ -37,6 +37,10 @@
             return internal(this).position;
         }
 
+        get resources () {
+            return internal(this).resources;
+        }
+
         get data() {
             return internal(this).responseData;
         }
