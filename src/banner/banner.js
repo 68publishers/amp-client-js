@@ -54,7 +54,7 @@
         }
 
         setState(state, info = '') {
-            if (!this.STATE.STATES.includes(state)) {
+            if (-1 === this.STATE.STATES.indexOf(state)) {
                 throw new TypeError(`${state} is not valid state.`);
             }
 
