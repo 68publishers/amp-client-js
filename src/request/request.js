@@ -20,13 +20,13 @@
             }
         }
 
-        return JSON.stringify(json);
+        return json;
     };
 
     class Request {
 
-        constructor(endpoint, locale = null, defaultResources = []) {
-            internal(this).method = 'GET';
+        constructor(method, endpoint, locale = null, defaultResources = []) {
+            internal(this).method = method;
             internal(this).endpoint = endpoint;
             internal(this).locale = locale;
             internal(this).query = {};
@@ -91,8 +91,9 @@
         }
 
         get parameters() {
+            const queryParameter = parseQueryParameter(internal(this).query);
             const params = {
-                query: parseQueryParameter(internal(this).query)
+                query: 'GET' === this.method ? JSON.stringify(queryParameter) : queryParameter,
             };
 
             if (null !== this.locale) {

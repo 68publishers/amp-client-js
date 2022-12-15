@@ -4,6 +4,7 @@
 
     module.exports = function config(options) {
         const defaults = {
+            method: 'GET',
             url: null,
             version: 1,
             channel: null,

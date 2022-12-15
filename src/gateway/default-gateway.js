@@ -8,7 +8,7 @@
             const xhr = new XMLHttpRequest();
 
             xhr.onreadystatechange = () => {
-                if (4 !== xhr.readyState || 0 === xhr.status) {
+                if (XMLHttpRequest.DONE !== xhr.readyState || 0 === xhr.status) {
                     return false;
                 }
 
@@ -31,14 +31,16 @@
                 });
             };
 
-            xhr.open(
-                request.method,
-                `${request.endpoint}?${querystring.stringify(request.parameters)}`,
-                true
-            );
+            let endpoint = request.endpoint;
 
+            if ('GET' === request.method) {
+                endpoint += `?${querystring.stringify(request.parameters)}`;
+            }
+
+            xhr.open(request.method, endpoint, true);
+            xhr.setRequestHeader('Accept', 'application/json');
             xhr.overrideMimeType('application/json');
-            xhr.send();
+            xhr.send('POST' === request.method ? JSON.stringify(request.parameters) : null);
         }
     }
 

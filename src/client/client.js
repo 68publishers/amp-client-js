@@ -13,6 +13,7 @@
             options = _config(options);
             privateProperties.eventBus = new EventBus();
             privateProperties.requestFactory = new RequestFactory(
+                options.method,
                 options.url,
                 options.version,
                 options.channel
