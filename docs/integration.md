@@ -4,6 +4,7 @@
 
 * [Import Script](#import-script)
   * [Install via NPM](#install-via-npm)
+* [Versions compatibility matrix](#versions-compatibility-matrix)
 * [Options and Definitions](#options-and-definitions)
   * [Client Options](#client-options)
   * [Events](#events)
@@ -35,7 +36,7 @@ Prefer to use CDN links with a labeled version to prevent BC breaks e.g.:
 
 ### Install via NPM
 
-If you're don't want to use CDN, you can install AMP Client manually via NPM.
+If you don't want to use CDN, you can install AMP Client manually via NPM.
 
 ```bash
 $ npm install amp-client
@@ -44,6 +45,14 @@ $ yarn add amp-client
 ```
 
 After that, you can require AMP Client like any other JavaScript library.
+
+## Versions compatibility matrix
+
+| Client Version |  AMP version  | API version | Note                                                                    |
+|:--------------:|:-------------:|:-----------:|-------------------------------------------------------------------------|
+|     `^1.0`     | `>=1.0 <=2.7` |     `1`     |                                                                         |
+|     `^1.1`     | `>=1.0 <=2.7` |     `1`     | API supports only GET requests (cannot set the `method: "POST"` option) |
+|     `^1.1`     |    `>2.8`     |     `1`     |                                                                         |
 
 ## Options and Definitions
 
