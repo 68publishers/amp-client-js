@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.0] - 2022-12-16
+## [1.1.0] - 2023-01-04
 
 ### Added
 
@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added missing getter `Banner.resources`.
 
-[unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.1.0...dev
+[unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.1.0...master
 [1.1.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.0.10...v1.1.0
 [1.0.10]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.0.9...v1.0.10
 [1.0.9]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.0.8...v1.0.9
