@@ -43,7 +43,6 @@ const defaultConfig = Object.assign({}, config, {
         library: {
             type: 'var',
             name: 'AMPClientFactory',
-            export: 'default',
         },
     }
 });
@@ -56,7 +55,6 @@ const standaloneConfig = Object.assign({}, config,{
         library: {
             type: 'var',
             name: 'AMPClientFactory',
-            export: 'default',
         },
     },
     externals: {
