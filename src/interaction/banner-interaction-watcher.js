@@ -3,15 +3,6 @@ const Fingerprint = require('../banner/fingerprint');
 const Events = require('../event/events');
 const internal = require('../utils/internal-state')();
 
-const createBannerFingerprint = (element, fingerprint) => {
-    return {
-        element: element,
-        fingerprint: Fingerprint.createFromValue(fingerprint),
-        alreadySeen: false,
-        firstSeenTimeoutId: null,
-    };
-}
-
 class BannerInteractionWatcher {
     constructor (bannerManager, eventBus, interactionOptions) {
         const firstSeenTimeout = interactionOptions.firstSeenTimeout;
@@ -39,7 +30,7 @@ class BannerInteractionWatcher {
 
                 const fingerprintArgs = {
                     fingerprint: fingerprintMetadata.fingerprint,
-                    element: fingerprintMetadata.element,
+                    element: entry.target,
                     banner: banner,
                 }
 
@@ -82,13 +73,28 @@ class BannerInteractionWatcher {
                 const fingerprint = element.dataset.ampBannerFingerprint;
 
                 if (!(fingerprint in internal(self).fingerprints)) {
-                    internal(self).fingerprints[fingerprint] = createBannerFingerprint(element, fingerprint);
+                    internal(self).fingerprints[fingerprint] = {
+                        fingerprint: Fingerprint.createFromValue(fingerprint),
+                        alreadySeen: false,
+                        firstSeenTimeoutId: null,
+                    };
+                }
+
+                if (undefined === element.dataset.ampBannerFingerprintObserved) {
+                    element.dataset.ampBannerFingerprintObserved = 'true';
                     internal(self).observer.observe(element);
                 }
 
                 const linkElements = element.getElementsByTagName('a');
 
                 for (let linkElement of linkElements) {
+                    // prevent multiple events
+                    if (undefined !== linkElement.dataset.ampClickingAttached) {
+                        continue;
+                    }
+
+                    linkElement.dataset.ampClickingAttached = 'true';
+
                     linkElement.addEventListener('click', function(event) {
                         const fingerprintMetadata = internal(self).fingerprints[fingerprint];
 
@@ -106,7 +112,7 @@ class BannerInteractionWatcher {
 
                         const fingerprintArgs = {
                             fingerprint: fingerprintMetadata.fingerprint,
-                            element: fingerprintMetadata.element,
+                            element: this.closest('[data-amp-banner-fingerprint]'),
                             banner: banner,
                             target: this,
                             clickEvent: event,

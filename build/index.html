@@ -3,8 +3,19 @@
 <head>
     <meta charset="utf-8">
     <title>AMP - Js Client</title>
+
+    <!-- AMP Client -->
     <script src="./amp-client.js" type="text/javascript"></script>
 
+    <!-- Splide slider -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+
+    <!-- Swiper slider -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+
+    <!-- Custom styles -->
     <style>
         .container {
             max-width: 1000px;
@@ -26,8 +37,16 @@
             margin: 0;
             padding: 0;
         }
+
+        .splide__pagination__page {
+            background-color: #ccc !important;
+        }
+        .splide__pagination__page.is-active, .splide__arrow {
+            background-color: #fff !important;
+        }
     </style>
 
+    <!-- AMP Client initialization -->
     <script>
         var AMPClient = AMPClientFactory.create({
             url: 'http://localhost:8888',
@@ -86,11 +105,115 @@
         </div>
         <div>
             <h2>Third (added via data-* attributes, multiple):</h2>
-            <div data-amp-banner="homepage.top" data-amp-resource-roles="employee, vip" data-amp-resource-apple_products="shop/buy-iphone/iphone-xs"></div>
+            <div data-amp-banner="homepage.top" data-amp-resource-roles="employee, vip" data-amp-resource-apple_products="shop/buy-iphone/iphone-xs" class="slider--splide"></div>
         </div>
     </div>
 
+    <!-- Sliders initialization + attach and fetch banners -->
     <script>
+        function initSplide(banner) {
+            banner.element.querySelector('.amp-banner').classList.add('splide__track')
+            banner.element.querySelector('.amp-banner__list').classList.add('splide__list');
+            banner.element.querySelectorAll('.amp-banner__item').forEach(item => {
+                item.classList.add('splide__slide');
+            });
+            banner.element.classList.add('splide');
+
+            new Splide(banner.element, {
+                type: 'loop',
+                autoplay: true,
+                interval: banner.data.rotationSeconds * 1000,
+            }).mount();
+        }
+
+        function initSwiper(banner) {
+            const lists = banner.element.getElementsByClassName('amp-banner__list');
+
+            for (let list of lists) {
+                const wrapper = document.createElement('div');
+                const items = Array.from(list.getElementsByClassName('amp-banner__item'));
+
+                list.innerHTML = '';
+                list.classList.add('swiper');
+                wrapper.classList.add('swiper-wrapper');
+
+                for (let item of items) {
+                    item.classList.add('swiper-slide');
+                    wrapper.insertAdjacentElement('beforeend', item);
+                }
+
+                list.insertAdjacentElement('beforeend', wrapper);
+
+                const prevButton = document.createElement('a');
+                const nextButton = document.createElement('a');
+                const pagination = document.createElement('div');
+
+                prevButton.href = 'javascript:;';
+                nextButton.href = 'javascript:;';
+                prevButton.classList.add('swiper-button-prev');
+                nextButton.classList.add('swiper-button-next');
+                pagination.classList.add('swiper-pagination');
+
+                list.insertAdjacentElement('beforeend', prevButton);
+                list.insertAdjacentElement('beforeend', nextButton);
+                list.insertAdjacentElement('beforeend', pagination);
+
+                new Swiper(list, {
+                    autoplay: {
+                        delay: 5e3,
+                        pauseOnMouseEnter: false,
+                        disableOnInteraction: false
+                    },
+                    watchSlidesProgress: true,
+                    slidesPerView: 1,
+                    grabCursor: true,
+                    speed: 900,
+                    keyboard: {
+                        enabled: true
+                    },
+                    pagination: {
+                        el: '.swiper-pagination'
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev'
+                    },
+                    breakpoints: {
+                        320: {
+                            slidesPerView: 'auto',
+                            spaceBetween: 10
+                        },
+                        640: {
+                            slidesPerView: 1,
+                            spaceBetween: 0
+                        },
+                        1e3: {
+                            slidesPerView: 1,
+                            spaceBetween: 0
+                        }
+                    },
+                    rewind: false,
+                    loop: true,
+                    cssMode: false,
+                    loopedSlides: 1,
+                });
+            }
+        }
+
+        window.AMPClient.on('amp:banner:state-changed', function (banner) {
+            if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
+                return;
+            }
+
+            if (banner.element.classList.contains('slider--splide')) {
+                initSplide(banner);
+            }
+
+            if (banner.element.classList.contains('slider--swiper')) {
+                initSwiper(banner);
+            }
+        });
+
         AMPClient.attachBanners();
         AMPClient.fetch();
     </script>
