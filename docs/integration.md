@@ -58,36 +58,53 @@ After that, you can require AMP Client like any other JavaScript library.
 
 ### Client Options
 
-| Name                  |       Type       |     Default     | Required (must be defined by user) | Description                                                                                |
-|-----------------------|:----------------:|:---------------:|:----------------------------------:|--------------------------------------------------------------------------------------------|
-| **url**               |     `String`     |        -        |                Yes                 | Host URL of your amp application                                                           |
-| **channel**           |     `String`     |        -        |                Yes                 | Project's code                                                                             |
-| **method**            |     `String`     |      `GET`      |                 No                 | HTTP method, allowed values are `GET` and `POST`                                           |
-| **version**           |    `Integer`     |       `1`       |                 No                 | Version of API                                                                             |
-| **locale**            | `String`, `Null` |     `Null`      |                 No                 | Locale string (`en_US`, `cs_CZ` etc.), a default locale will be used if the option is null |
-| **resources**         |     `Object`     |      `{}`       |                 No                 | Default resources that can be used for all positions on the page                           |
-| **template**          |     `Object`     |      `{}`       |                 No                 |                                                                                            |
-| **template.single**   |     `String`     | *HTML template* |                 No                 | Template for banners with display type `single`                                            |
-| **template.random**   |     `String`     | *HTML template* |                 No                 | Template for banners with display type `random`                                            |
-| **template.multiple** |     `String`     | *HTML template* |                 No                 | Template for banners with display type `multiple` (sliders)                                |
+| Name                                  |                     Type                      |     Default     | Required (must be defined by user) | Description                                                                                                                                                                                                                                                                                                 |
+|---------------------------------------|:---------------------------------------------:|:---------------:|:----------------------------------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **url**                               |                   `string`                    |        -        |                Yes                 | Host URL of your amp application                                                                                                                                                                                                                                                                            |
+| **channel**                           |                   `string`                    |        -        |                Yes                 | Project's code                                                                                                                                                                                                                                                                                              |
+| **method**                            |                   `string`                    |      `GET`      |                 No                 | HTTP method, allowed values are `GET` and `POST`                                                                                                                                                                                                                                                            |
+| **version**                           |                   `integer`                   |       `1`       |                 No                 | Version of API                                                                                                                                                                                                                                                                                              |
+| **locale**                            |                 `null/string`                 |     `null`      |                 No                 | Locale string (`en_US`, `cs_CZ` etc.), a default locale will be used if the option is null                                                                                                                                                                                                                  |
+| **resources**                         |                   `object`                    |      `{}`       |                 No                 | Default resources that can be used for all positions on the page                                                                                                                                                                                                                                            |
+| **template**                          |                   `object`                    |      `{}`       |                 No                 |                                                                                                                                                                                                                                                                                                             |
+| **template.single**                   |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `single`                                                                                                                                                                                                                                                             |
+| **template.random**                   |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `random`                                                                                                                                                                                                                                                             |
+| **template.multiple**                 |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `multiple` (sliders)                                                                                                                                                                                                                                                 |
+| **interaction.intersectionThreshold** |                    `float`                    |      `0.5`      |                 No                 | The value specifies how much of the banner must be in the user's viewport for the banner to be evaluated as visible/invisible. The value must be a decimal number between 0 and 1.                                                                                                                          |
+| **interaction.firstSeenTimeout**      |                   `integer`                   |     `1000`      |                 No                 | The value indicates, in milliseconds, how long the banner must be visible in the user's viewport before it is evaluated as having been seen for the first time.                                                                                                                                             |
+| **metrics.receiver**                  | `null/string/function/array<string/function>` |     `null`      |                 No                 | Metrics are sent to the selected receiver if the value is set. The value can be a custom function, or one of the following strings: `"plausible"`, `"gtag"` or `"gtm"`. Alternatively, an array can be passed if we would like to send metrics to multiple receivers. For example, `["plausible", "gtag"]`. |
+| **metrics.disabledEvents**            |                `array<string>`                |      `[]`       |                 No                 | Names of metric events that should not be sent.                                                                                                                                                                                                                                                             |
+
+### Banner states
+
+| Name        | Description                                                                                           |
+|-------------|-------------------------------------------------------------------------------------------------------|
+| `NEW`       | New banner is created.                                                                                |
+| `RENDERED`  | Banner has been successfully rendered.                                                                |
+| `NOT_FOUND` | The banner was not found in AMP's response.                                                           |
+| `ERROR`     | Something went wrong. For example, the API returned an error, or a banner template contains an error. |
+
 
 ### Events
 
-| Name                       | Constant                         | Arguments           | Description                                                                            |
-|----------------------------|----------------------------------|---------------------|----------------------------------------------------------------------------------------|
-| `amp:banner:attached`      | `EVENTS.ON_BANNER_ATTACHED`      | `{Object} banner`   | Fired when a banner defined with `[data-amp-banner]` is attached into Client           |
-| `amp:banner:state-changed` | `EVENTS.ON_BANNER_STATE_CHANGED` | `{Object} banner`   | Fired when a banner's state is changed - the banner object is created or rendered etc. |
-| `amp:fetch:before`         | `EVENTS.ON_BEFORE_FETCH`         |                     | Fired before calling of AMP API                                                        |
-| `amp:fetch:error`          | `EVENTS.ON_BEFORE_ERROR`         | `{Object} response` | Fired when an API request failed or an error response was returned                     |
-| `amp:fetch:success`        | `EVENTS.ON_BEFORE_SUCCESS`       | `{Object} response` | Fired when an API returned a success response                                          |
+| Name                              | Constant                                | Function declaration                                                                                                             | Description                                                                            |
+|-----------------------------------|-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| `amp:banner:attached`             | `EVENTS.ON_BANNER_ATTACHED`             | `( banner: Banner ) => void`                                                                                                     | Fired when a banner defined with `[data-amp-banner]` is attached into Client           |
+| `amp:banner:state-changed`        | `EVENTS.ON_BANNER_STATE_CHANGED`        | `( banner: Banner ) => void`                                                                                                     | Fired when a banner's state is changed - the banner object is created or rendered etc. |
+| `amp:banner:intersection-changed` | `EVENTS.ON_BANNER_INTERSECTION_CHANGED` | `( params: { fingerprint: Fingerprint, element: HtmlElement, banner: Banner, entry: IntersectionObserverEntry } ) => void`       | Fired when a banner's intersection is changed.                                         |
+| `amp:banner:first-seen`           | `EVENTS.ON_BANNER_FIRST_SEEN`           | `( params: { fingerprint: Fingerprint, element: HtmlElement, banner: Banner } ) => void`                                         | Fired when the user sees a banner for the first time                                   |
+| `amp:banner:link-clicked`         | `EVENTS.ON_BANNER_LINK_CLICKED`         | `( params: { fingerprint: Fingerprint, element: HtmlElement, banner: Banner, target: HtmlElement, clickEvent: Event } ) => void` | Fired when the user clicks on any link in a banner.                                    |
+| `amp:fetch:before`                | `EVENTS.ON_BEFORE_FETCH`                | `() => void`                                                                                                                     | Fired before calling of AMP API                                                        |
+| `amp:fetch:error`                 | `EVENTS.ON_BEFORE_ERROR`                | `( response: Object ) => void`                                                                                                   | Fired when an API request failed or an error response was returned                     |
+| `amp:fetch:success`               | `EVENTS.ON_BEFORE_SUCCESS`              | `( response: Object ) => void`                                                                                                   | Fired when an API returned a success response                                          |
 
 Events can be attached in this way:
 
 ```javascript
 var AMPClient = AMPClientFactory.create({...});
 
-AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGED, function (banner) {
-  if (banner.STATE.RENDERED !== banner.state || 'multiple' !== banner.data.displayType) {
+AMPClient.on('amp:banner:state-changed', function (banner) {
+  if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
     return;
   }
 
@@ -95,12 +112,13 @@ AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGED, function (banner) {
 });
 ```
 
-### Banner States
+### Metrics events
 
-- `NEW`
-- `RENDERED`
-- `NOT_FOUND`
-- `ERROR`
+| Name                   | Properties                                                                                                     | Description                                                   |
+|------------------------|----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| `amp:banner:loaded`    | `{ banner_id: string, channel_code: string, position_code: string, campaign_code: string/null }`               | A banner has been successfully loaded (rendered) on the page. |
+| `amp:banner:displayed` | `{ banner_id: string, channel_code: string, position_code: string, campaign_code: string/null }`               | The user has seen a banner                                    |
+| `amp:banner:clicked`   | `{ banner_id: string, channel_code: string, position_code: string, campaign_code: string/null, link: string }` | The user clicked on a link in a banner.                       |
 
 ## Client Initialization
 
