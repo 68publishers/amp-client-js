@@ -2,6 +2,7 @@ const internal = require('../utils/internal-state')();
 const plausibleReceiver = require('./plausible-receiver');
 const gtagReceiver = require('./gtag-receiver');
 const gtmReceiver = require('./gtm-receiver');
+const debugReceiver = require('./debug-receiver');
 
 class MetricsSender {
     constructor(callbacks) {
@@ -31,6 +32,9 @@ class MetricsSender {
                     break;
                 case 'gtm':
                     callbacks.push(gtmReceiver);
+                    break;
+                case 'debug':
+                    callbacks.push(debugReceiver);
                     break;
                 default:
                     console.warn(`Unable to send metrics to a receiver of unknown type`, receiver);

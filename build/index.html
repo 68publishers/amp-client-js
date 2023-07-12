@@ -55,9 +55,7 @@
                 role: 'guest'
             },
             metrics: {
-                receiver: (eventName, eventArgs) => {
-                    console.log('Sending metrics.', {eventName, eventArgs});
-                },
+                receiver: 'debug',
             }
         });
 

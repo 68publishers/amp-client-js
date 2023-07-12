@@ -58,22 +58,22 @@ After that, you can require AMP Client like any other JavaScript library.
 
 ### Client Options
 
-| Name                                  |                     Type                      |     Default     | Required (must be defined by user) | Description                                                                                                                                                                                                                                                                                                 |
-|---------------------------------------|:---------------------------------------------:|:---------------:|:----------------------------------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **url**                               |                   `string`                    |        -        |                Yes                 | Host URL of your amp application                                                                                                                                                                                                                                                                            |
-| **channel**                           |                   `string`                    |        -        |                Yes                 | Project's code                                                                                                                                                                                                                                                                                              |
-| **method**                            |                   `string`                    |      `GET`      |                 No                 | HTTP method, allowed values are `GET` and `POST`                                                                                                                                                                                                                                                            |
-| **version**                           |                   `integer`                   |       `1`       |                 No                 | Version of API                                                                                                                                                                                                                                                                                              |
-| **locale**                            |                 `null/string`                 |     `null`      |                 No                 | Locale string (`en_US`, `cs_CZ` etc.), a default locale will be used if the option is null                                                                                                                                                                                                                  |
-| **resources**                         |                   `object`                    |      `{}`       |                 No                 | Default resources that can be used for all positions on the page                                                                                                                                                                                                                                            |
-| **template**                          |                   `object`                    |      `{}`       |                 No                 |                                                                                                                                                                                                                                                                                                             |
-| **template.single**                   |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `single`                                                                                                                                                                                                                                                             |
-| **template.random**                   |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `random`                                                                                                                                                                                                                                                             |
-| **template.multiple**                 |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `multiple` (sliders)                                                                                                                                                                                                                                                 |
-| **interaction.intersectionThreshold** |                    `float`                    |      `0.5`      |                 No                 | The value specifies how much of the banner must be in the user's viewport for the banner to be evaluated as visible/invisible. The value must be a decimal number between 0 and 1.                                                                                                                          |
-| **interaction.firstSeenTimeout**      |                   `integer`                   |     `1000`      |                 No                 | The value indicates, in milliseconds, how long the banner must be visible in the user's viewport before it is evaluated as having been seen for the first time.                                                                                                                                             |
-| **metrics.receiver**                  | `null/string/function/array<string/function>` |     `null`      |                 No                 | Metrics are sent to the selected receiver if the value is set. The value can be a custom function, or one of the following strings: `"plausible"`, `"gtag"` or `"gtm"`. Alternatively, an array can be passed if we would like to send metrics to multiple receivers. For example, `["plausible", "gtag"]`. |
-| **metrics.disabledEvents**            |                `array<string>`                |      `[]`       |                 No                 | Names of metric events that should not be sent.                                                                                                                                                                                                                                                             |
+| Name                                  |                     Type                      |     Default     | Required (must be defined by user) | Description                                                                                                                                                                                                                                                                                                            |
+|---------------------------------------|:---------------------------------------------:|:---------------:|:----------------------------------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **url**                               |                   `string`                    |        -        |                Yes                 | Host URL of your amp application                                                                                                                                                                                                                                                                                       |
+| **channel**                           |                   `string`                    |        -        |                Yes                 | Project's code                                                                                                                                                                                                                                                                                                         |
+| **method**                            |                   `string`                    |      `GET`      |                 No                 | HTTP method, allowed values are `GET` and `POST`                                                                                                                                                                                                                                                                       |
+| **version**                           |                   `integer`                   |       `1`       |                 No                 | Version of API                                                                                                                                                                                                                                                                                                         |
+| **locale**                            |                 `null/string`                 |     `null`      |                 No                 | Locale string (`en_US`, `cs_CZ` etc.), a default locale will be used if the option is null                                                                                                                                                                                                                             |
+| **resources**                         |                   `object`                    |      `{}`       |                 No                 | Default resources that can be used for all positions on the page                                                                                                                                                                                                                                                       |
+| **template**                          |                   `object`                    |      `{}`       |                 No                 |                                                                                                                                                                                                                                                                                                                        |
+| **template.single**                   |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `single`                                                                                                                                                                                                                                                                        |
+| **template.random**                   |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `random`                                                                                                                                                                                                                                                                        |
+| **template.multiple**                 |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `multiple` (sliders)                                                                                                                                                                                                                                                            |
+| **interaction.intersectionThreshold** |                    `float`                    |      `0.5`      |                 No                 | The value specifies how much of the banner must be in the user's viewport for the banner to be evaluated as visible/invisible. The value must be a decimal number between 0 and 1.                                                                                                                                     |
+| **interaction.firstSeenTimeout**      |                   `integer`                   |     `1000`      |                 No                 | The value indicates, in milliseconds, how long the banner must be visible in the user's viewport before it is evaluated as having been seen for the first time.                                                                                                                                                        |
+| **metrics.receiver**                  | `null/string/function/array<string/function>` |     `null`      |                 No                 | Metrics are sent to the selected receiver if the value is set. The value can be a custom function, or one of the following strings: `"plausible"`, `"gtag"`, `"gtm"` or `"debug"`. Alternatively, an array can be passed if we would like to send metrics to multiple receivers. For example, `["plausible", "gtag"]`. |
+| **metrics.disabledEvents**            |                `array<string>`                |      `[]`       |                 No                 | Names of metric events that should not be sent.                                                                                                                                                                                                                                                                        |
 
 ### Banner states
 
@@ -83,7 +83,6 @@ After that, you can require AMP Client like any other JavaScript library.
 | `RENDERED`  | Banner has been successfully rendered.                                                                |
 | `NOT_FOUND` | The banner was not found in AMP's response.                                                           |
 | `ERROR`     | Something went wrong. For example, the API returned an error, or a banner template contains an error. |
-
 
 ### Events
 
@@ -107,6 +106,8 @@ AMPClient.on('amp:banner:state-changed', function (banner) {
   if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
     return;
   }
+
+  var element = banner.element; // HtmlElement
 
   // initialize your favourite slider here :-)
 });
@@ -161,16 +162,16 @@ var AMPClient = AMPClientFactory.create({
 If you are using an initialization via data attributes please remember to call this function:
 
 ```javascript
-AMPClient.attachBanners();
+AMPClient.attachBanners(); // attach all banners on the page
 
 // or
 
-AMPClient.attachBanners(document.getElementById('container'));
+AMPClient.attachBanners(document.getElementById('container')); // attach all baners inside the .container
 ```
 
 ## Data Fetching and Rendering
 
-After all these initializations (probably before `</body>` closing tag) just simply call:
+After all these initializations (probably before the `</body>` closing tag) just simply call:
 
 ```javascript
 AMPClient.fetch();
@@ -198,13 +199,16 @@ Here is a full example of an HTML document:
         foo: ['bar', 'baz']
       }
     });
-    
-    AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGED, function (banner) {
-      if (banner.STATE.RENDERED !== banner.state || 'multiple' !== banner.data.displayType) {
+
+    AMPClient.on('amp:banner:state-changed', function (banner) {
+      if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
         return;
       }
+
+      var element = banner.element; // HtmlElement
+
       // initialize your favourite slider here :-)
-    });  
+    }); 
   </script>
 </head>
 <body>
