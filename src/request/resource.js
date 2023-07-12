@@ -1,30 +1,27 @@
-'use strict';
+const _ = require('lodash');
+const internal = require('../utils/internal-state')()
 
-(function (_, internal) {
+function getValueArray(value) {
+    return _.isArray(value) ? value : [ value ];
+}
 
-    function getValueArray(value) {
-        return _.isArray(value) ? value : [ value ];
+class Resource {
+    constructor(name, value) {
+        internal(this).name = name;
+        internal(this).value = getValueArray(value);
     }
 
-    class Resource {
-        constructor(name, value) {
-            internal(this).name = name;
-            internal(this).value = getValueArray(value);
-        }
-
-        get name() {
-            return internal(this).name;
-        }
-
-        get value() {
-            return internal(this).value;
-        }
-
-        withValues(value) {
-            return new Resource(this.name, _.union(getValueArray(value), this.value));
-        }
+    get name() {
+        return internal(this).name;
     }
 
-    module.exports = Resource;
+    get value() {
+        return internal(this).value;
+    }
 
-})(require('lodash'), require('../utils/internal-state')());
+    withValues(value) {
+        return new Resource(this.name, _.union(getValueArray(value), this.value));
+    }
+}
+
+module.exports = Resource;

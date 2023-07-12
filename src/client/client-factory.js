@@ -1,13 +1,9 @@
-'use strict';
+const Client = require('./client');
 
-(function (Client) {
-
-    class ClientFactory {
-        static create(options = {}) {
-            return new Client(options);
-        }
+class ClientFactory {
+    static create(options = {}) {
+        return new Client(options);
     }
+}
 
-    module.exports = ClientFactory;
-
-})(require('./client'));
+module.exports = ClientFactory;

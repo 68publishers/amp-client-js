@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const internal = require('../utils/internal-state')();
 const Banner = require('./banner');
@@ -32,7 +30,6 @@ const getElement = (el) => {
 };
 
 class BannerManager {
-
     constructor(eventBus) {
         // constants
         this.STATE = State;

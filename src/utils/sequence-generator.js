@@ -1,18 +1,14 @@
-'use strict';
+const internal = require('./internal-state')();
 
-(function (internal) {
+class SequenceGenerator {
 
-    class SequenceGenerator {
-
-        constructor (start = 1) {
-            internal(this).lastId = start -1;
-        }
-
-        getNextIdentifier() {
-            return internal(this).lastId++;
-        }
+    constructor (start = 1) {
+        internal(this).lastId = start -1;
     }
 
-    module.exports = SequenceGenerator;
+    getNextIdentifier() {
+        return internal(this).lastId++;
+    }
+}
 
-})(require('./internal-state')());
+module.exports = SequenceGenerator;

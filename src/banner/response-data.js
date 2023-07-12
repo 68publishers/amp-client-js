@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const internal = require('../utils/internal-state')();
 const BannerData = require('./banner-data');

@@ -1,17 +1,11 @@
-'use strict';
+const AbstractGateway = require('./abstract-gateway');
+const DefaultGateway = require('./default-gateway');
 
-(function (AbstractGateway, DefaultGateway) {
-
-    const _createGateway = () => {
-        // @todo: resolve JqueryAjaxGateway and NetteAjaxGateway here.
+module.exports = {
+    isGateway: (gateway) => {
+        return gateway instanceof AbstractGateway;
+    },
+    create: () => {
         return new DefaultGateway();
-    };
-
-    module.exports = {
-        isGateway: (gateway) => {
-            return gateway instanceof AbstractGateway;
-        },
-        create: _createGateway
-    };
-
-})(require('./abstract-gateway'), require('./default-gateway'));
+    }
+};

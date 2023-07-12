@@ -1,41 +1,38 @@
-(function (_, internal) {
+const _ = require('lodash');
+const internal = require('../utils/internal-state')();
 
-    class TemplateLoader {
-
-        constructor (templates) {
-            internal(this).templates = templates;
-            internal(this).compiled = {};
-        }
-
-        getTemplate(displayType) {
-            const privateProperties = internal(this);
-
-            if (privateProperties.compiled.hasOwnProperty(displayType)) {
-                return privateProperties.compiled[displayType];
-            }
-
-            if (!privateProperties.templates.hasOwnProperty(displayType)) {
-                throw new Error(`Template with type "${displayType}" not found.`);
-            }
-
-            return privateProperties.compiled[displayType] = _.template(privateProperties.templates[displayType]);
-        }
+class TemplateLoader {
+    constructor (templates) {
+        internal(this).templates = templates;
+        internal(this).compiled = {};
     }
 
-    class BannerRenderer {
+    getTemplate(displayType) {
+        const privateProperties = internal(this);
 
-        constructor (templates) {
-            internal(this).loader = new TemplateLoader(templates);
+        if (privateProperties.compiled.hasOwnProperty(displayType)) {
+            return privateProperties.compiled[displayType];
         }
 
-        render(banner) {
-            banner.html = internal(this).loader.getTemplate(banner.data.displayType)({
-                banner: banner,
-                data: banner.data.bannerData
-            });
+        if (!privateProperties.templates.hasOwnProperty(displayType)) {
+            throw new Error(`Template with type "${displayType}" not found.`);
         }
+
+        return privateProperties.compiled[displayType] = _.template(privateProperties.templates[displayType]);
+    }
+}
+
+class BannerRenderer {
+    constructor (templates) {
+        internal(this).loader = new TemplateLoader(templates);
     }
 
-    module.exports = BannerRenderer;
+    render(banner) {
+        banner.html = internal(this).loader.getTemplate(banner.data.displayType)({
+            banner: banner,
+            data: banner.data.bannerData
+        });
+    }
+}
 
-})(require('lodash'), require('../utils/internal-state')());
+module.exports = BannerRenderer;

@@ -1,24 +1,17 @@
-'use strict';
-
-(function () {
-
-    class AbstractGateway {
-
-        constructor() {
-            if (this.constructor === AbstractGateway) {
-                throw new TypeError('Can not construct abstract class AbstractGateway.');
-            }
-
-            if (this.fetch === AbstractGateway.prototype.fetch) {
-                throw new TypeError('Please implement abstract method ::fetch().');
-            }
+class AbstractGateway {
+    constructor() {
+        if (this.constructor === AbstractGateway) {
+            throw new TypeError('Can not construct abstract class AbstractGateway.');
         }
 
-        fetch(request, callback) {
-            throw new TypeError('Do not call abstract method ::fetch() from child.');
+        if (this.fetch === AbstractGateway.prototype.fetch) {
+            throw new TypeError('Please implement abstract method ::fetch().');
         }
     }
 
-    module.exports = AbstractGateway;
+    fetch(request, callback) {
+        throw new TypeError('Do not call abstract method ::fetch() from child.');
+    }
+}
 
-})();
+module.exports = AbstractGateway;
