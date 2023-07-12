@@ -19,6 +19,48 @@
         }
 
         /**
+         * Arguments: (
+         *     {
+         *         fingerprint: {Fingerprint},
+         *         element: {HtmlElement},
+         *         banner: {Banner},
+         *         entry: {IntersectionObserverEntry},
+         *     },
+         * )
+         */
+        static get ON_BANNER_INTERSECTION_CHANGED() {
+            return 'amp:banner:intersection-changed';
+        }
+
+        /**
+         * Arguments: (
+         *     {
+         *         fingerprint: {Fingerprint},
+         *         element: {HtmlElement},
+         *         banner: {Banner},
+         *     },
+         * )
+         */
+        static get ON_BANNER_FIRST_SEEN() {
+            return 'amp:banner:first-seen';
+        }
+
+        /**
+         * Arguments: (
+         *     {
+         *         fingerprint: {Fingerprint},
+         *         element: {HtmlElement},
+         *         banner: {Banner},
+         *         target: {HtmlElement},
+         *         clickEvent: {Event},
+         *     },
+         * )
+         */
+        static get ON_BANNER_LINK_CLICKED() {
+            return 'amp:banner:link-clicked';
+        }
+
+        /**
          * No arguments
          */
         static get ON_BEFORE_FETCH() {

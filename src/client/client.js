@@ -1,6 +1,6 @@
 'use strict';
 
-(function (document, window, _, internal, _config, _gateway, RequestFactory, BannerManager, EventBus, Events, BannerRenderer) {
+(function (document, window, _, internal, _config, _gateway, RequestFactory, BannerManager, EventBus, Events, BannerRenderer, BannerInteractionWatcher, MetricsEventListener) {
 
     class Client {
 
@@ -21,6 +21,16 @@
 
             privateProperties.bannerManager = new BannerManager(privateProperties.eventBus);
             privateProperties.bannerRenderer = new BannerRenderer(options.template);
+            privateProperties.bannerInterractionWatcher = new BannerInteractionWatcher(
+                privateProperties.bannerManager,
+                privateProperties.eventBus,
+                options.interaction
+            );
+            privateProperties.metricsEventListener = new MetricsEventListener(
+                privateProperties.eventBus,
+                options.channel,
+                options.metrics,
+            );
 
             this.setLocale(options.locale);
 
@@ -43,6 +53,9 @@
                     this.renderBanner(banners[i]);
                 }
             });
+
+            privateProperties.metricsEventListener.attach();
+            privateProperties.bannerInterractionWatcher.start();
         }
 
         on(event, callback, scope = null) {
@@ -174,5 +187,7 @@
     require('../banner/banner-manager'),
     require('../event/event-bus'),
     require('../event/events'),
-    require('../renderer/banner-renderer')
+    require('../renderer/banner-renderer'),
+    require('../interaction/banner-interaction-watcher'),
+    require('../metrics/metrics-events-listener'),
 );

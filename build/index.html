@@ -34,6 +34,11 @@
             channel: 'amp-demo',
             resources: {
                 role: 'guest'
+            },
+            metrics: {
+                receiver: (eventName, eventArgs) => {
+                    console.log('Sending metrics.', {eventName, eventArgs});
+                },
             }
         });
 
@@ -57,7 +62,6 @@
         AMPClient.on(AMPClient.EVENTS.ON_FETCH_ERROR, function (response) {
             console.log('Fetch error! ' + response.data.code + ': ' + response.data.error);
         });
-
     </script>
 </head>
 <body>

@@ -13,6 +13,7 @@
             internal(this).position = position;
             internal(this).resources = resources;
             internal(this).responseData = undefined;
+            internal(this).htmlChangedCounter = 0;
 
             this.setState(this.STATE.NEW, 'Banner created.');
         }
@@ -23,6 +24,11 @@
 
         set html(html) {
             internal(this).element.innerHTML = html;
+            internal(this).htmlChangedCounter++;
+        }
+
+        get htmlChangedCounter() {
+            return internal(this).htmlChangedCounter;
         }
 
         get state() {
@@ -45,12 +51,18 @@
             return internal(this).responseData;
         }
 
+        get fingerprints() {
+            const bannerData = this.data;
+
+            return (!(bannerData instanceof ResponseData)) ? [] : bannerData.fingerprints;
+        }
+
         setResponseData(responseData) {
             if (undefined !== internal(this).responseData) {
                 throw new Error(`Data for banner on position ${this.position} is already set.`);
             }
 
-            internal(this).responseData = new ResponseData(responseData);
+            internal(this).responseData = new ResponseData(this.position, responseData);
         }
 
         setState(state, info = '') {

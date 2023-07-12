@@ -10,7 +10,15 @@
             channel: null,
             locale: null,
             resources: {},
-            template: require('./template')
+            template: require('./template'),
+            interaction: {
+                intersectionThreshold: 0.5,
+                firstSeenTimeout: 1000,
+            },
+            metrics: {
+                receiver: null,
+                disabledEvents: [],
+            }
         };
 
         return _.merge(defaults, options);

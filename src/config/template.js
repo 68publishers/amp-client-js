@@ -17,20 +17,19 @@
     };
 
     /**
-     * Arguments: ({Banner} banner, {Object} positionInfo, {Array[Object]|Object} data)
+     * Arguments: ({Banner} banner, {Array[Object]|Object} data)
      *
-     * - positionInfo contains keys `displayType` and `rotationSeconds`
      * - data contains single banner(s) data
      *
      */
     module.exports = {
-        single: `<div class="amp-banner amp-banner--single">${singleBannerContent('data')}</div>`,
-        random: `<div class="amp-banner amp-banner--random">${singleBannerContent('data')}</div>`,
+        single: `<div class="amp-banner amp-banner--single" data-amp-banner-fingerprint="<%= data.fingerprint %>">${singleBannerContent('data')}</div>`,
+        random: `<div class="amp-banner amp-banner--random" data-amp-banner-fingerprint="<%= data.fingerprint %>">${singleBannerContent('data')}</div>`,
         multiple: `
             <div class="amp-banner amp-banner--multiple">
                 <div class="amp-banner__list">
                     <% _.forEach(data, function(b) { %>
-                        <div class="amp-banner__item">
+                        <div class="amp-banner__item" data-amp-banner-fingerprint="<%= b.fingerprint %>">
                             ${singleBannerContent('b')}
                         </div>
                     <% }); %>
