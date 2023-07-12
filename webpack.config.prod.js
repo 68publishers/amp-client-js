@@ -1,8 +1,8 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
 
 const config = {
-    mode: "production",
+    mode: 'production',
     entry: './index.js',
     module: {
         rules: [
@@ -25,11 +25,12 @@ const config = {
             'node_modules',
             path.resolve(__dirname, 'src')
         ],
-        extensions: [".js", ".json", ".jsx", ".css"],
+        extensions: ['.js', '.cjs', '.mjs'],
     },
     optimization: {
+        minimize: true,
         minimizer: [
-            new UglifyJsPlugin()
+            new TerserWebpackPlugin(),
         ],
     },
 };
@@ -39,7 +40,11 @@ const defaultConfig = Object.assign({}, config, {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'amp-client.min.js',
-        library: 'AMPClientFactory'
+        library: {
+            type: 'var',
+            name: 'AMPClientFactory',
+            export: 'default',
+        },
     }
 });
 
@@ -48,7 +53,11 @@ const standaloneConfig = Object.assign({}, config,{
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'amp-client.standalone.min.js',
-        library: 'AMPClientFactory'
+        library: {
+            type: 'var',
+            name: 'AMPClientFactory',
+            export: 'default',
+        },
     },
     externals: {
         'lodash': '_'

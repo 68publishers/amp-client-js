@@ -17,10 +17,6 @@ class ResponseData {
         const banners = [];
 
         for (let i in response.banners) {
-            if (!response.banners.hasOwnProperty(i)) {
-                continue;
-            }
-
             banners.push(new BannerData(response.banners[i], this.breakpointType));
         }
 

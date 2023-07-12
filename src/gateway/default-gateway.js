@@ -1,5 +1,5 @@
 const AbstractGateway = require('./abstract-gateway');
-const querystring = require('querystring');
+const querystring = require('query-string').default;
 
 class DefaultGateway extends AbstractGateway {
     fetch(request, success, error) {
@@ -24,8 +24,8 @@ class DefaultGateway extends AbstractGateway {
                 status: 'error',
                 data: {
                     code: xhr.status,
-                    error: xhr.statusText || 'unknown'
-                }
+                    error: xhr.statusText || 'unknown',
+                },
             });
         };
 

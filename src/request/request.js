@@ -6,15 +6,7 @@ const parseQueryParameter = (query) => {
     let position, resource;
 
     for (position in json) {
-        if (!json.hasOwnProperty(position)) {
-            continue;
-        }
-
         for (resource in json[position]) {
-            if (!json[position].hasOwnProperty(resource)) {
-                continue;
-            }
-
             json[position][resource] = json[position][resource].value;
         }
     }
@@ -46,16 +38,12 @@ class Request {
 
     addPositionResources(position, resources) {
         for (let index in resources) {
-            if (!resources.hasOwnProperty(index)) {
-                continue;
-            }
-
             this.addPositionResource(position, resources[index]);
         }
     }
 
     addPositionResource(position, resource) {
-        if (!resource instanceof Resource) {
+        if (!(resource instanceof Resource)) {
             throw new TypeError('Argument resource must be instance of Resource class.');
         }
 

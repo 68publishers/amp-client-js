@@ -9,10 +9,12 @@
     "url": "git+https://gitlab.com/68publishers/projects/amp-client"
   },
   "scripts": {
-    "build:dev": "webpack --config webpack.config.dev.js --progress --profile --colors",
-    "build:prod": "webpack --config webpack.config.prod.js --progress --profile --colors",
-    "start:dev": "webpack --config webpack.config.dev.js --progress --profile --colors && webpack-dev-server --config webpack.config.dev.js",
-    "prepublish": "npm run build:prod"
+    "build:dev": "webpack --config webpack.config.dev.js --progress --profile",
+    "build:prod": "webpack --config webpack.config.prod.js --progress --profile",
+    "start:dev": "webpack --config webpack.config.dev.js --progress --profile && webpack-dev-server --config webpack.config.dev.js",
+    "prepublish": "npm run build:prod",
+    "eslint:fix": "eslint ./index.js ./src --ext .js --fix",
+    "eslint": "eslint ./index.js ./src --ext .js"
   },
   "keywords": [
     "68publishers",
@@ -23,18 +25,20 @@
   "author": "68publishers",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.6.0",
-    "@babel/polyfill": "^7.6.0",
-    "@babel/preset-env": "^7.6.0",
-    "babel-loader": "^8.0.6",
+    "@babel/core": "^7.22.8",
+    "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.22.7",
+    "babel-loader": "^8.3.0",
+    "eslint": "^8.44.0",
     "path": "^0.12.7",
-    "uglifyjs-webpack-plugin": "^2.2.0",
-    "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.8.0"
+    "terser-webpack-plugin": "^5.3.9",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.21",
+    "query-string": "^8.1.0"
   },
   "files": [
     "src",

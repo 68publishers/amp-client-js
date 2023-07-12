@@ -6,10 +6,6 @@ const getWidth = () => {
 
 const iterate = (data, cb) => {
     for (let i in data) {
-        if (!data.hasOwnProperty(i)) {
-            continue;
-        }
-
         cb(data[i], i);
     }
 };
@@ -24,7 +20,7 @@ class BannerData {
             max: null,
             reset: function () {
                 this.min = this.max = null;
-            }
+            },
         };
     }
 

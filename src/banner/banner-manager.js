@@ -22,7 +22,7 @@ const getElement = (el) => {
         htmlEl = document.querySelector(el);
     }
 
-    if (!htmlEl instanceof HTMLElement) {
+    if (!(htmlEl instanceof HTMLElement)) {
         throw new TypeError('Selector ' + el + ' is invalid.');
     }
 
@@ -46,9 +46,7 @@ class BannerManager {
         element.setAttribute('data-amp-attached', '');
 
         for (key in resources) {
-            if (resources.hasOwnProperty(key)) {
-                resourceArr.push(new Resource(key, resources[key]));
-            }
+            resourceArr.push(new Resource(key, resources[key]));
         }
 
         const banner = new Banner(internal(this).eventBus, element, position, resourceArr);

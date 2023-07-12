@@ -23,15 +23,16 @@ class Client {
             options.method,
             options.url,
             options.version,
-            options.channel
+            options.channel,
         );
 
+        privateProperties.gateway = null;
         privateProperties.bannerManager = new BannerManager(privateProperties.eventBus);
         privateProperties.bannerRenderer = new BannerRenderer(options.template);
         privateProperties.bannerInterractionWatcher = new BannerInteractionWatcher(
             privateProperties.bannerManager,
             privateProperties.eventBus,
-            options.interaction
+            options.interaction,
         );
         privateProperties.metricsEventListener = new MetricsEventListener(
             privateProperties.eventBus,
@@ -44,16 +45,14 @@ class Client {
         let resourceName;
 
         for (resourceName in options.resources) {
-            if (options.resources.hasOwnProperty(resourceName)) {
-                privateProperties.requestFactory.addDefaultResource(resourceName, options.resources[resourceName]);
-            }
+            privateProperties.requestFactory.addDefaultResource(resourceName, options.resources[resourceName]);
         }
 
         window.addEventListener('resize', () => {
             const banners = privateProperties.bannerManager.getBannersByState(privateProperties.bannerManager.STATE.RENDERED);
 
             for (let i in banners) {
-                if (!banners.hasOwnProperty(i) || !banners[i].needRedraw()) {
+                if (!banners[i].needRedraw()) {
                     continue;
                 }
 
@@ -82,7 +81,7 @@ class Client {
     }
 
     getGateway() {
-        if (!this.hasOwnProperty('gateway')) {
+        if (null === internal(this).gateway) {
             this.setGateway(_gateway.create());
         }
 
@@ -114,7 +113,7 @@ class Client {
                     }
 
                     resources[attr.name.slice(18)] = _.map(attr.value.split(','), _.trim);
-                }
+                },
             );
             privateProperties.eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, this.createBanner(element, position, resources));
         });
@@ -138,8 +137,8 @@ class Client {
             const data = response.data;
 
             _.forEach(banners, (banner) =>  {
-                if (!data.hasOwnProperty(banner.position)
-                    || !data[banner.position].hasOwnProperty('banners')
+                if (!(banner.position in data)
+                    || !('banners' in data[banner.position])
                     || _.isEmpty(data[banner.position]['banners'])) {
 
                     banner.setState(privateProperties.bannerManager.STATE.NOT_FOUND, 'Banner not found in fetched response.');

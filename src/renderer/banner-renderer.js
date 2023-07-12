@@ -10,11 +10,11 @@ class TemplateLoader {
     getTemplate(displayType) {
         const privateProperties = internal(this);
 
-        if (privateProperties.compiled.hasOwnProperty(displayType)) {
+        if (displayType in privateProperties.compiled) {
             return privateProperties.compiled[displayType];
         }
 
-        if (!privateProperties.templates.hasOwnProperty(displayType)) {
+        if (!(displayType in privateProperties.templates)) {
             throw new Error(`Template with type "${displayType}" not found.`);
         }
 
@@ -30,7 +30,7 @@ class BannerRenderer {
     render(banner) {
         banner.html = internal(this).loader.getTemplate(banner.data.displayType)({
             banner: banner,
-            data: banner.data.bannerData
+            data: banner.data.bannerData,
         });
     }
 }

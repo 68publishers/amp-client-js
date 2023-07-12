@@ -22,7 +22,7 @@ class Randomizer {
 
         key--;
 
-        return items.hasOwnProperty(key) ? items[key] : items[0];
+        return items[key] ? items[key] : items[0];
     }
 }
 

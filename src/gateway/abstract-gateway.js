@@ -9,6 +9,7 @@ class AbstractGateway {
         }
     }
 
+    // eslint-disable-next-line no-unused-vars
     fetch(request, callback) {
         throw new TypeError('Do not call abstract method ::fetch() from child.');
     }

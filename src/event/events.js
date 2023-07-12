@@ -4,7 +4,7 @@ class Events {
      */
     static get ON_BANNER_ATTACHED() {
         return 'amp:banner:attached';
-    };
+    }
 
     /**
      * Arguments: ({Banner} banner)
@@ -60,7 +60,7 @@ class Events {
      */
     static get ON_BEFORE_FETCH() {
         return 'amp:fetch:before';
-    };
+    }
 
     /**
      * Arguments: ({Object} response)

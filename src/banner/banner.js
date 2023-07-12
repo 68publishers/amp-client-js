@@ -84,10 +84,6 @@ class Banner {
         }
 
         for (let i in data) {
-            if (!data.hasOwnProperty(i)) {
-                continue;
-            }
-
             if (data[i].needRedraw()) {
                 return true;
             }

@@ -16,7 +16,7 @@ module.exports = options => {
         metrics: {
             receiver: null,
             disabledEvents: [],
-        }
+        },
     };
 
     return _.merge(defaults, options);

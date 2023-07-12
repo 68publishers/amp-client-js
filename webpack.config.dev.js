@@ -1,12 +1,12 @@
 const path = require('path');
 
 module.exports = {
-    mode: "development",
+    mode: 'development',
     entry: './index.js',
     output: {
         path: path.resolve(__dirname, 'build'),
         filename: 'amp-client.js',
-        library: 'AMPClientFactory'
+        library: 'AMPClientFactory',
     },
     module: {
         rules: [
@@ -14,12 +14,12 @@ module.exports = {
                 loader:  'babel-loader',
                 test: /\.js$/,
                 include: [
-                    path.resolve(__dirname, 'src')
+                    path.resolve(__dirname, 'src'),
                 ],
                 options: {
                     presets: [
-                        '@babel/preset-env'
-                    ]
+                        '@babel/preset-env',
+                    ],
                 },
             }
         ],
@@ -29,11 +29,13 @@ module.exports = {
             'node_modules',
             path.resolve(__dirname, 'src')
         ],
-        extensions: [".js", ".json", ".jsx", ".css"],
+        extensions: ['.js', '.cjs', '.mjs'],
     },
     devServer: {
-        contentBase: path.join(__dirname, 'build'),
+        static: {
+            directory: path.join(__dirname, 'build'),
+        },
         compress: true,
-        port: 3000
-    }
+        port: 3000,
+    },
 };
