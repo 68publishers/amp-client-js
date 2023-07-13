@@ -1,4 +1,5 @@
 const internal = require('../utils/internal-state')();
+const Fingerprint = require('./fingerprint');
 
 const getWidth = () => {
     return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -13,6 +14,7 @@ const iterate = (data, cb) => {
 class BannerData {
     constructor(data, breakpointType) {
         internal(this).data = data;
+        internal(this).fingerprint = null;
         internal(this).breakpointType = breakpointType;
         internal(this).resolvedContent = null;
         internal(this).resolvedContentBounds = {
@@ -24,16 +26,47 @@ class BannerData {
         };
     }
 
+    set fingerprint(fingerprint) {
+        if (!(fingerprint instanceof Fingerprint)) {
+            throw new TypeError(`The value must be instance of Fingerprint object.`);
+        }
+
+        internal(this).fingerprint = fingerprint;
+    }
+
+    get fingerprint() {
+        return internal(this).fingerprint;
+    }
+
     get id() {
         return internal(this).data.id;
+    }
+
+    get name() {
+        return internal(this).data.name || null;
     }
 
     get score() {
         return internal(this).data.score;
     }
 
+    /**
+     * @deprecated use `.campaignCode` instead
+     */
     get campaign() {
-        return internal(this).data.campaign;
+        return this.campaignCode();
+    }
+
+    get campaignId() {
+        return internal(this).data.campaignId || null;
+    }
+
+    get campaignCode() {
+        return internal(this).data.campaignCode || internal(this).data.campaign || null;
+    }
+
+    get campaignName() {
+        return internal(this).data.campaignName || null;
     }
 
     get content() {

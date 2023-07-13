@@ -1,51 +1,28 @@
-const internal = require('../utils/internal-state')();
-
 class Fingerprint {
-    constructor(value, bannerId, positionCode, campaignCode) {
-        internal(this).value = value;
-        internal(this).bannerId = bannerId;
-        internal(this).positionCode = positionCode;
-        internal(this).campaignCode = campaignCode;
+    constructor(value, { bannerId, bannerName, positionId, positionCode, positionName, campaignId, campaignCode, campaignName }) {
+        this.value = value;
+        this.bannerId = bannerId;
+        this.bannerName = bannerName;
+        this.positionId = positionId;
+        this.positionCode = positionCode;
+        this.positionName = positionName;
+        this.campaignId = campaignId;
+        this.campaignCode = campaignCode;
+        this.campaignName = campaignName;
     }
 
-    static createFromProperties(bannerId, positionCode, campaignCode) {
+    static createFromProperties(properties) {
         return new Fingerprint(
-            btoa(JSON.stringify({ bannerId, positionCode, campaignCode })),
-            bannerId,
-            positionCode,
-            campaignCode,
+            btoa(JSON.stringify(properties)),
+            properties,
         );
     }
 
     static createFromValue(value) {
-        const properties = JSON.parse(atob(value));
-
-        if (!('bannerId' in properties) || !('positionCode' in properties)) {
-            throw new Error(`Malformed banner fingerprint "${value}".`);
-        }
-
         return new Fingerprint(
             value,
-            properties.bannerId,
-            properties.positionCode,
-            properties.campaignCode || null,
+            JSON.parse(atob(value)),
         );
-    }
-
-    get value() {
-        return internal(this).value;
-    }
-
-    get bannerId() {
-        return internal(this).bannerId;
-    }
-
-    get positionCode() {
-        return internal(this).positionCode;
-    }
-
-    get campaignCode() {
-        return internal(this).campaignCode;
     }
 
     toString() {

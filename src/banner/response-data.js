@@ -6,7 +6,9 @@ const Fingerprint = require('./fingerprint');
 class ResponseData {
     constructor(positionCode, response) {
         internal(this).positionInfo = {
+            id: response['position_id'] || null,
             code: positionCode,
+            name: response['position_name'] || null,
             rotationSeconds: response['rotation_seconds'],
             displayType: response['display_type'],
             breakpointType: response['breakpoint_type'],
@@ -58,22 +60,36 @@ class ResponseData {
         }
 
         let data = null;
-        const positionCode = this.positionCode;
+        const positionInfo = internal(this).positionInfo;
+        const positionId = positionInfo.id;
+        const positionCode = positionInfo.code;
+        const positionName = positionInfo.name;
+
+        const createFingerprint = bannerData => Fingerprint.createFromProperties({
+            bannerId: bannerData.id,
+            bannerName: bannerData.name,
+            positionId,
+            positionCode,
+            positionName,
+            campaignId: bannerData.campaignId,
+            campaignCode: bannerData.campaignCode,
+            campaignName: bannerData.campaignName,
+        });
 
         switch (this.displayType) {
             case 'single':
                 data = internal(this).banners.reduce((a, b) => a.score >= b.score ? a : b)
-                data.fingerprint = Fingerprint.createFromProperties(data.id, positionCode, data.campaign);
+                data.fingerprint = createFingerprint(data);
                 break;
             case 'random':
                 data = Randomizer.randomByWeights(internal(this).banners, 'score');
-                data.fingerprint = Fingerprint.createFromProperties(data.id, positionCode, data.campaign);
+                data.fingerprint = createFingerprint(data);
                 break;
             case 'multiple':
                 data = internal(this).banners.sort((a, b) => b.score - a.score);
 
                 for (let row of data) {
-                    row.fingerprint = Fingerprint.createFromProperties(row.id, positionCode, row.campaign);
+                    row.fingerprint = createFingerprint(row);
                 }
 
                 break;
