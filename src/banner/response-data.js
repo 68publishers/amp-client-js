@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const internal = require('../utils/internal-state')();
 const BannerData = require('./banner-data');
 const Randomizer = require('../utils/randomizer');
@@ -54,12 +53,16 @@ class ResponseData {
             return internal(this).resolvedBannerData;
         }
 
+        if (!internal(this).banners.length) {
+            throw new Error('Banner\'s data is empty.');
+        }
+
         let data = null;
         const positionCode = this.positionCode;
 
         switch (this.displayType) {
             case 'single':
-                data = _.maxBy(internal(this).banners, 'score');
+                data = internal(this).banners.reduce((a, b) => a.score >= b.score ? a : b)
                 data.fingerprint = Fingerprint.createFromProperties(data.id, positionCode, data.campaign);
                 break;
             case 'random':
@@ -67,7 +70,7 @@ class ResponseData {
                 data.fingerprint = Fingerprint.createFromProperties(data.id, positionCode, data.campaign);
                 break;
             case 'multiple':
-                data = _.orderBy(internal(this).banners, ['score'], ['desc']);
+                data = internal(this).banners.sort((a, b) => b.score - a.score);
 
                 for (let row of data) {
                     row.fingerprint = Fingerprint.createFromProperties(row.id, positionCode, row.campaign);

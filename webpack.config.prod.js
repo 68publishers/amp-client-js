@@ -58,7 +58,8 @@ const standaloneConfig = Object.assign({}, config,{
         },
     },
     externals: {
-        'lodash': '_'
+        'lodash/template': '_.template',
+        'lodash/merge': '_.merge',
     }
 });
 

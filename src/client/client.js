@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const internal = require('../utils/internal-state')();
 const _config = require('../config/index');
 const _gateway = require('../gateway/index');
@@ -94,8 +93,9 @@ class Client {
 
     attachBanners(snippet = document) {
         const privateProperties = internal(this);
+        const elements = snippet.querySelectorAll('[data-amp-banner]:not([data-amp-attached])');
 
-        _.forEach(snippet.querySelectorAll('[data-amp-banner]:not([data-amp-attached])'), element => {
+        for (let element of elements) {
             const position = element.getAttribute('data-amp-banner');
             const resources = {};
 
@@ -103,20 +103,18 @@ class Client {
                 return; // the empty position, throw an error?
             }
 
-            _.forEach(
-                [].filter.call(element.attributes, attr => {
-                    return /^data-amp-resource-[\S]+/.test(attr.name);
-                }),
-                attr => {
-                    if (!attr.value) {
-                        return;
-                    }
+            const attributes = [].filter.call(element.attributes, attr => {
+                return /^data-amp-resource-[\S]+/.test(attr.name);
+            });
 
-                    resources[attr.name.slice(18)] = _.map(attr.value.split(','), _.trim);
-                },
-            );
+            for (let attr of attributes) {
+                if (attr.value) {
+                    resources[attr.name.slice(18)] = attr.value.split(',').map(v => v.trim());
+                }
+            }
+
             privateProperties.eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, this.createBanner(element, position, resources));
-        });
+        }
     }
 
     fetch() {
@@ -129,17 +127,17 @@ class Client {
 
         const request = privateProperties.requestFactory.create();
 
-        _.forEach(banners, (banner) =>  {
+        for (let banner of banners) {
             request.addPosition(banner.position, banner.resources)
-        });
+        }
 
         const success = (response) => {
             const data = response.data;
 
-            _.forEach(banners, (banner) =>  {
+            for (let banner of banners) {
                 if (!(banner.position in data)
                     || !('banners' in data[banner.position])
-                    || _.isEmpty(data[banner.position]['banners'])) {
+                    || !data[banner.position]['banners'].length) {
 
                     banner.setState(privateProperties.bannerManager.STATE.NOT_FOUND, 'Banner not found in fetched response.');
 
@@ -148,15 +146,15 @@ class Client {
 
                 banner.setResponseData(data[banner.position]);
                 this.renderBanner(banner);
-            });
+            }
 
             privateProperties.eventBus.dispatch(this.EVENTS.ON_FETCH_SUCCESS, response);
         };
 
         const error = (response) => {
-            _.forEach(banners, (banner) =>  {
+            for (let banner of banners) {
                 banner.setState(privateProperties.bannerManager.STATE.ERROR, 'Request on api failed.');
-            });
+            }
 
             privateProperties.eventBus.dispatch(this.EVENTS.ON_FETCH_ERROR, response);
         };

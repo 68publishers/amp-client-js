@@ -79,8 +79,8 @@ class Banner {
     needRedraw() {
         let data = this.data.bannerData;
 
-        if ('[object Array]' !== Object.prototype.toString.call(data)) {
-            data = [ data ];
+        if (!Array.isArray(data)) {
+            data = [data];
         }
 
         for (let i in data) {

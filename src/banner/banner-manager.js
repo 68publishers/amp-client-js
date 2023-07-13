@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const internal = require('../utils/internal-state')();
 const Banner = require('./banner');
 const State = require('./state');
@@ -16,7 +15,7 @@ const getElement = (el) => {
 
     let htmlEl;
 
-    if (_.startsWith(el, '#')) {
+    if ('#' === el.charAt(0)) {
         htmlEl = document.getElementById(el.slice(1));
     } else {
         htmlEl = document.querySelector(el);
@@ -57,7 +56,7 @@ class BannerManager {
     }
 
     getBannersByState(state) {
-        return _.filter(internal(this).banners, banner => {
+        return internal(this).banners.filter(banner => {
             return banner instanceof Banner && banner.state === state;
         });
     }

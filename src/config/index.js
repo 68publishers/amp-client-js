@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const merge = require('lodash/merge');
 
 module.exports = options => {
     const defaults = {
@@ -19,5 +19,5 @@ module.exports = options => {
         },
     };
 
-    return _.merge(defaults, options);
+    return merge(defaults, options);
 };

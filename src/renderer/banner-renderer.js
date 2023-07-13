@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const template = require('lodash/template');
 const internal = require('../utils/internal-state')();
 
 class TemplateLoader {
@@ -18,7 +18,7 @@ class TemplateLoader {
             throw new Error(`Template with type "${displayType}" not found.`);
         }
 
-        return privateProperties.compiled[displayType] = _.template(privateProperties.templates[displayType]);
+        return privateProperties.compiled[displayType] = template(privateProperties.templates[displayType]);
     }
 }
 

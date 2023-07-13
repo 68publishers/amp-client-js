@@ -6,7 +6,7 @@ const debugReceiver = require('./debug-receiver');
 
 class MetricsSender {
     constructor(callbacks) {
-        internal(this).callbacks = '[object Array]' !== Object.prototype.toString.call(callbacks) ? [callbacks] : callbacks;
+        internal(this).callbacks = Array.isArray(callbacks) ? callbacks : [callbacks];
     }
 
     static createFromReceivers(receivers) {
@@ -14,7 +14,7 @@ class MetricsSender {
             return new MetricsSender([]);
         }
 
-        receivers = 'object' === typeof receivers && '[object Array]' === Object.prototype.toString.call(receivers) ? receivers : [receivers];
+        receivers = Array.isArray(receivers) ? receivers : [receivers];
         const callbacks = [];
 
         for (let receiver of receivers) {

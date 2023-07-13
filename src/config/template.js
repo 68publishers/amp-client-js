@@ -16,7 +16,6 @@ const singleBannerContent = d => {
  * Arguments: ({Banner} banner, {Array[Object]|Object} data)
  *
  * - data contains single banner(s) data
- *
  */
 module.exports = {
     single: `<div class="amp-banner amp-banner--single" data-amp-banner-fingerprint="<%= data.fingerprint %>">${singleBannerContent('data')}</div>`,
@@ -24,7 +23,7 @@ module.exports = {
     multiple: `
         <div class="amp-banner amp-banner--multiple">
             <div class="amp-banner__list">
-                <% _.forEach(data, function(b) { %>
+                <% data.forEach(function(b) { %>
                     <div class="amp-banner__item" data-amp-banner-fingerprint="<%= b.fingerprint %>">
                         ${singleBannerContent('b')}
                     </div>

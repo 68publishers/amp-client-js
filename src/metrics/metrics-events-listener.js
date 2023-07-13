@@ -8,7 +8,7 @@ class MetricsEventsListener {
     constructor(eventBus, channelCode, metricsOptions) {
         const receivers = metricsOptions.receiver;
         let disabledEvents = metricsOptions.disabledEvents || [];
-        disabledEvents = '[object Array]' !== Object.prototype.toString.call(disabledEvents) ? [disabledEvents] : disabledEvents;
+        disabledEvents = Array.isArray(disabledEvents) ? disabledEvents : [disabledEvents];
 
         internal(this).attached = false;
         internal(this).eventBus = eventBus;
