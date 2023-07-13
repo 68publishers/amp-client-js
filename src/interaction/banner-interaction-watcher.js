@@ -13,6 +13,9 @@ class BannerInteractionWatcher {
         internal(this).eventBus = eventBus;
         internal(this).fingerprints = {};
         internal(this).observer = new IntersectionObserver(entries => {
+            const intersectionChangesEventArgs = [];
+            let firstSeenMetadata = {};
+
             for (let entry of entries) {
                 const isIntersecting = entry.isIntersecting;
                 const fingerprint = entry.target.dataset.ampBannerFingerprint;
@@ -34,6 +37,23 @@ class BannerInteractionWatcher {
                     banner: banner,
                 }
 
+                intersectionChangesEventArgs.push({
+                    ...fingerprintArgs,
+                    entry,
+                });
+
+                if (fingerprintMetadata.alreadySeen) {
+                    continue;
+                }
+
+                firstSeenMetadata[fingerprint] = (!(fingerprint in firstSeenMetadata) || (!firstSeenMetadata[fingerprint].isIntersecting && isIntersecting))
+                    ? { fingerprintArgs, fingerprintMetadata, isIntersecting }
+                    : firstSeenMetadata[fingerprint];
+            }
+
+            for (let firstSeenRow of Object.values(firstSeenMetadata)) {
+                const { fingerprintArgs, fingerprintMetadata, isIntersecting } = firstSeenRow;
+
                 if (isIntersecting && !fingerprintMetadata.alreadySeen && null === fingerprintMetadata.firstSeenTimeoutId) {
                     fingerprintMetadata.firstSeenTimeoutId = setTimeout(() => {
                         fingerprintMetadata.alreadySeen = true;
@@ -43,11 +63,10 @@ class BannerInteractionWatcher {
                     clearTimeout(fingerprintMetadata.firstSeenTimeoutId);
                     fingerprintMetadata.firstSeenTimeoutId = null;
                 }
+            }
 
-                internal(this).eventBus.dispatch(Events.ON_BANNER_INTERSECTION_CHANGED, {
-                    ...fingerprintArgs,
-                    entry,
-                });
+            for (let eventArgs of intersectionChangesEventArgs) {
+                internal(this).eventBus.dispatch(Events.ON_BANNER_INTERSECTION_CHANGED, eventArgs);
             }
         }, {
             threshold: intersectionThreshold,
