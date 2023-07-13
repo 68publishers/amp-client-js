@@ -137,11 +137,15 @@ class Client {
             for (let banner of banners) {
                 if (!(banner.position in data)
                     || !('banners' in data[banner.position])
-                    || !data[banner.position]['banners'].length) {
+                    || !Object.values(data[banner.position]['banners']).length) {
 
                     banner.setState(privateProperties.bannerManager.STATE.NOT_FOUND, 'Banner not found in fetched response.');
 
                     return;
+                }
+
+                if (!Array.isArray(data[banner.position]['banners'])) {
+                    data[banner.position]['banners'] = Object.values(data[banner.position]['banners']);
                 }
 
                 banner.setResponseData(data[banner.position]);
