@@ -33,17 +33,26 @@ class MetricsEventsListener {
             return;
         }
 
-        const createBaseMetricsArgs = fingerprint => ({
-            channel_code: channelCode,
-            banner_id: fingerprint.bannerId,
-            banner_name: fingerprint.bannerName,
-            position_id: fingerprint.positionId,
-            position_code: fingerprint.positionCode,
-            position_name: fingerprint.positionName,
-            campaign_id: fingerprint.campaignId,
-            campaign_code: fingerprint.campaignCode,
-            campaign_name: fingerprint.campaignName,
-        });
+        const createBaseMetricsArgs = (fingerprint, banner) => {
+            let bannerData = banner.data.bannerData;
+            let breakpoint = 'default';
+
+            bannerData = Array.isArray(bannerData) ? bannerData.find(row => row.fingerprint && row.fingerprint.value === fingerprint.value) : bannerData;
+            bannerData && bannerData.content.breakpoint && (breakpoint = `${'min' === banner.data.breakpointType ? '>=' : '<='}${bannerData.content.breakpoint}`);
+
+            return {
+                channel_code: channelCode,
+                banner_id: fingerprint.bannerId,
+                banner_name: fingerprint.bannerName,
+                position_id: fingerprint.positionId,
+                position_code: fingerprint.positionCode,
+                position_name: fingerprint.positionName,
+                campaign_id: fingerprint.campaignId,
+                campaign_code: fingerprint.campaignCode,
+                campaign_name: fingerprint.campaignName,
+                breakpoint: breakpoint,
+            }
+        };
 
         if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_LOADED)) {
             eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, banner => {
@@ -52,21 +61,21 @@ class MetricsEventsListener {
                 }
 
                 for (let fingerprint of banner.fingerprints) {
-                    metricsSender.send(MetricsEvents.BANNER_LOADED, createBaseMetricsArgs(fingerprint));
+                    metricsSender.send(MetricsEvents.BANNER_LOADED, createBaseMetricsArgs(fingerprint, banner));
                 }
             });
         }
 
         if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_DISPLAYED)) {
-            eventBus.subscribe(Events.ON_BANNER_FIRST_SEEN, ({ fingerprint }) => {
-                metricsSender.send(MetricsEvents.BANNER_DISPLAYED, createBaseMetricsArgs(fingerprint));
+            eventBus.subscribe(Events.ON_BANNER_FIRST_SEEN, ({ fingerprint, banner }) => {
+                metricsSender.send(MetricsEvents.BANNER_DISPLAYED, createBaseMetricsArgs(fingerprint, banner));
             });
         }
 
         if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_CLICKED)) {
-            eventBus.subscribe(Events.ON_BANNER_LINK_CLICKED, ({ fingerprint, target }) => {
+            eventBus.subscribe(Events.ON_BANNER_LINK_CLICKED, ({ fingerprint, banner, target }) => {
                 metricsSender.send(MetricsEvents.BANNER_CLICKED, {
-                    ...createBaseMetricsArgs(fingerprint),
+                    ...createBaseMetricsArgs(fingerprint, banner),
                     link: target.href || '',
                 })
             });

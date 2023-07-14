@@ -66,7 +66,6 @@ After that, you can require AMP Client like any other JavaScript library.
 | **version**                           |                   `integer`                   |       `1`       |                 No                 | Version of API                                                                                                                                                                                                                                                                                                         |
 | **locale**                            |                 `null/string`                 |     `null`      |                 No                 | Locale string (`en_US`, `cs_CZ` etc.), a default locale will be used if the option is null                                                                                                                                                                                                                             |
 | **resources**                         |                   `object`                    |      `{}`       |                 No                 | Default resources that can be used for all positions on the page                                                                                                                                                                                                                                                       |
-| **template**                          |                   `object`                    |      `{}`       |                 No                 |                                                                                                                                                                                                                                                                                                                        |
 | **template.single**                   |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `single`                                                                                                                                                                                                                                                                        |
 | **template.random**                   |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `random`                                                                                                                                                                                                                                                                        |
 | **template.multiple**                 |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `multiple` (sliders)                                                                                                                                                                                                                                                            |
@@ -115,11 +114,28 @@ AMPClient.on('amp:banner:state-changed', function (banner) {
 
 ### Metrics events
 
-| Name                   | Properties                                                                                                     | Description                                                   |
-|------------------------|----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
-| `amp:banner:loaded`    | `{ banner_id: string, channel_code: string, position_code: string, campaign_code: string/null }`               | A banner has been successfully loaded (rendered) on the page. |
-| `amp:banner:displayed` | `{ banner_id: string, channel_code: string, position_code: string, campaign_code: string/null }`               | The user has seen a banner                                    |
-| `amp:banner:clicked`   | `{ banner_id: string, channel_code: string, position_code: string, campaign_code: string/null, link: string }` | The user clicked on a link in a banner.                       |
+Common properties for all metrics events are:
+
+```json5
+{
+  channel_code: 'string',
+  banner_id: 'string',
+  banner_name: 'string', // the value may be NULL in older AMP versions
+  position_id: 'string', // the value may be NULL in older AMP versions
+  position_code: 'string',
+  position_name: 'string', // the value may be NULL in older AMP versions
+  campaign_id: 'string', // the value may be NULL in older AMP versions
+  campaign_code: 'string',
+  campaign_name: 'string', // the value may be NULL in older AMP versions
+  breakpoint: 'string',
+}
+```
+
+| Name                   | Event specific properties | Description                                                   |
+|------------------------|---------------------------|---------------------------------------------------------------|
+| `amp:banner:loaded`    | -                         | A banner has been successfully loaded (rendered) on the page. |
+| `amp:banner:displayed` | -                         | The user has seen a banner                                    |
+| `amp:banner:clicked`   | `{ link: 'string' }`      | The user clicked on a link in a banner.                       |
 
 ## Client Initialization
 
@@ -187,7 +203,7 @@ Here is a full example of an HTML document:
 <head>
   <meta charset="utf-8">
   <title>AMP Example</title>
-  <script src="https://unpkg.com/amp-client@1.0/dist/amp-client.min.js"></script>
+  <script src="https://unpkg.com/amp-client/dist/amp-client.min.js"></script>
   
   <script>
     var AMPClient = AMPClientFactory.create({
