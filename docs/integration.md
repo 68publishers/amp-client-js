@@ -137,6 +137,8 @@ Common properties for all metrics events are:
 | `amp:banner:displayed` | -                         | The user has seen a banner                                    |
 | `amp:banner:clicked`   | `{ link: 'string' }`      | The user clicked on a link in a banner.                       |
 
+If you want to send data to GA via GTM please see [GTM Metrics Guide](./gtm-metrics.md).
+
 ## Client Initialization
 
 Initialization example:
