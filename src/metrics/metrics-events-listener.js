@@ -6,15 +6,11 @@ const State = require('../banner/state');
 
 class MetricsEventsListener {
     constructor(eventBus, channelCode, metricsOptions) {
-        const receivers = metricsOptions.receiver;
-        let disabledEvents = metricsOptions.disabledEvents || [];
-        disabledEvents = Array.isArray(disabledEvents) ? disabledEvents : [disabledEvents];
-
         internal(this).attached = false;
         internal(this).eventBus = eventBus;
         internal(this).channelCode = channelCode;
-        internal(this).metricsSender = MetricsSender.createFromReceivers(receivers);
-        internal(this).disabledEvents = disabledEvents;
+        internal(this).metricsSender = MetricsSender.createFromReceivers(metricsOptions.receiver);
+        internal(this).disabledEvents = metricsOptions.disabledEvents;
     }
 
     attach() {
@@ -67,8 +63,14 @@ class MetricsEventsListener {
         }
 
         if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_DISPLAYED)) {
-            eventBus.subscribe(Events.ON_BANNER_FIRST_SEEN, ({ fingerprint, banner }) => {
+            eventBus.subscribe(Events.ON_BANNER_FIRST_TIME_SEEN, ({ fingerprint, banner }) => {
                 metricsSender.send(MetricsEvents.BANNER_DISPLAYED, createBaseMetricsArgs(fingerprint, banner));
+            });
+        }
+
+        if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_FULLY_DISPLAYED)) {
+            eventBus.subscribe(Events.ON_BANNER_FIRST_TIME_FULLY_SEEN, ({ fingerprint, banner }) => {
+                metricsSender.send(MetricsEvents.BANNER_FULLY_DISPLAYED, createBaseMetricsArgs(fingerprint, banner));
             });
         }
 

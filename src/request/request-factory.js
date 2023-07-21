@@ -4,11 +4,7 @@ const internal = require('../utils/internal-state')();
 
 class RequestFactory {
     constructor (method, url, version, channel) {
-        if (!(method.toUpperCase() in {GET: 1, POST: 1})) {
-            throw new Error(`Invalid request method "${method}". Supported methods are GET and POST.`);
-        }
-
-        internal(this).method = method.toUpperCase();
+        internal(this).method = method;
         internal(this).endpoint = `${url}/api/v${version}/content/${channel}`;
         internal(this).locale = null;
         internal(this).defaultResources = [];

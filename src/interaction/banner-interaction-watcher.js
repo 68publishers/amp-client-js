@@ -2,75 +2,22 @@ const State = require('../banner/state');
 const Fingerprint = require('../banner/fingerprint');
 const Events = require('../event/events');
 const internal = require('../utils/internal-state')();
+const intersectionObserverFactory = require('./intersection-observer-factory');
 
 class BannerInteractionWatcher {
     constructor (bannerManager, eventBus, interactionOptions) {
-        const firstSeenTimeout = interactionOptions.firstSeenTimeout;
-        const intersectionThreshold = interactionOptions.intersectionThreshold
-
         internal(this).started = false;
         internal(this).bannerManager = bannerManager;
         internal(this).eventBus = eventBus;
         internal(this).fingerprints = {};
-        internal(this).observer = new IntersectionObserver(entries => {
-            const intersectionChangesEventArgs = [];
-            let firstSeenMetadata = {};
-
-            for (let entry of entries) {
-                const isIntersecting = entry.isIntersecting;
-                const fingerprint = entry.target.dataset.ampBannerFingerprint;
-                const banner = internal(this).bannerManager.getBannerByFingerprint(fingerprint);
-
-                if (!banner) {
-                    continue;
-                }
-
-                const fingerprintMetadata = internal(this).fingerprints[fingerprint];
-
-                if (!fingerprintMetadata) {
-                    continue;
-                }
-
-                const fingerprintArgs = {
-                    fingerprint: fingerprintMetadata.fingerprint,
-                    element: entry.target,
-                    banner: banner,
-                }
-
-                intersectionChangesEventArgs.push({
-                    ...fingerprintArgs,
-                    entry,
-                });
-
-                if (fingerprintMetadata.alreadySeen) {
-                    continue;
-                }
-
-                firstSeenMetadata[fingerprint] = (!(fingerprint in firstSeenMetadata) || (!firstSeenMetadata[fingerprint].isIntersecting && isIntersecting))
-                    ? { fingerprintArgs, fingerprintMetadata, isIntersecting }
-                    : firstSeenMetadata[fingerprint];
-            }
-
-            for (let firstSeenRow of Object.values(firstSeenMetadata)) {
-                const { fingerprintArgs, fingerprintMetadata, isIntersecting } = firstSeenRow;
-
-                if (isIntersecting && !fingerprintMetadata.alreadySeen && null === fingerprintMetadata.firstSeenTimeoutId) {
-                    fingerprintMetadata.firstSeenTimeoutId = setTimeout(() => {
-                        fingerprintMetadata.alreadySeen = true;
-                        internal(this).eventBus.dispatch(Events.ON_BANNER_FIRST_SEEN, fingerprintArgs);
-                    }, firstSeenTimeout);
-                } else if (!isIntersecting && !fingerprintMetadata.alreadySeen && null !== fingerprintMetadata.firstSeenTimeoutId) {
-                    clearTimeout(fingerprintMetadata.firstSeenTimeoutId);
-                    fingerprintMetadata.firstSeenTimeoutId = null;
-                }
-            }
-
-            for (let eventArgs of intersectionChangesEventArgs) {
-                internal(this).eventBus.dispatch(Events.ON_BANNER_INTERSECTION_CHANGED, eventArgs);
-            }
-        }, {
-            threshold: intersectionThreshold,
-        });
+        internal(this).intersectionObserver = intersectionObserverFactory(
+            bannerManager,
+            eventBus,
+            internal(this).fingerprints,
+            interactionOptions.defaultIntersectionRatio,
+            interactionOptions.intersectionRatioMap,
+            interactionOptions.firstTimeSeenTimeout,
+        );
     }
 
     start() {
@@ -91,17 +38,31 @@ class BannerInteractionWatcher {
             for (let element of elements) {
                 const fingerprint = element.dataset.ampBannerFingerprint;
 
+                // save new fingerprint is does not exist
                 if (!(fingerprint in internal(self).fingerprints)) {
                     internal(self).fingerprints[fingerprint] = {
                         fingerprint: Fingerprint.createFromValue(fingerprint),
                         alreadySeen: false,
-                        firstSeenTimeoutId: null,
+                        alreadyFullySeen: false,
+                        firstTimeSeenTimeoutId: null,
+                        firstTimeFullySeenTimeoutId: null,
                     };
                 }
 
+                // when fingerprint element is not attached yet
                 if (undefined === element.dataset.ampBannerFingerprintObserved) {
-                    element.dataset.ampBannerFingerprintObserved = 'true';
-                    internal(self).observer.observe(element);
+                    // wait for all images to be completed or failed
+                    Promise.all(
+                        [].slice.call(element.getElementsByTagName('img'))
+                            .filter(img => !img.complete)
+                            .map(img => new Promise(resolve => { img.onload = img.onerror = resolve; })),
+                    ).then(() => {
+                        // prevent double observing
+                        if (undefined === element.dataset.ampBannerFingerprintObserved) {
+                            element.dataset.ampBannerFingerprintObserved = 'true';
+                            internal(self).intersectionObserver.observe(element);
+                        }
+                    });
                 }
 
                 const linkElements = element.getElementsByTagName('a');
@@ -140,7 +101,7 @@ class BannerInteractionWatcher {
                         // a banner was not visible, but the user clicked on it
                         if (!fingerprintMetadata.alreadySeen) {
                             fingerprintMetadata.alreadySeen = true;
-                            internal(self).eventBus.dispatch(Events.ON_BANNER_FIRST_SEEN, fingerprintArgs);
+                            internal(self).eventBus.dispatch(Events.ON_BANNER_FIRST_TIME_SEEN, fingerprintArgs);
                         }
 
                         internal(self).eventBus.dispatch(Events.ON_BANNER_LINK_CLICKED, fingerprintArgs);

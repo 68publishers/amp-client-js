@@ -7,6 +7,10 @@ class Events {
         return 'amp:banner:displayed';
     }
 
+    static get BANNER_FULLY_DISPLAYED() {
+        return 'amp:banner:fully-displayed';
+    }
+
     static get BANNER_CLICKED() {
         return 'amp:banner:clicked';
     }

@@ -23,6 +23,12 @@
             margin: 0 auto;
         }
 
+        .wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .amp-banner__content {
             display: block;
         }
@@ -56,7 +62,13 @@
             },
             metrics: {
                 receiver: 'debug',
-            }
+            },
+            interaction: {
+                defaultIntersectionRatio: 0.5,
+                intersectionRatioMap: {
+                    242500: 0.3,
+                },
+            },
         });
 
         // Events, dump info to the console
@@ -86,14 +98,14 @@
         <h1>Banners:</h1>
         <div>
             <h2>First (added manually, single):</h2>
-            <div id="banner1"></div>
+            <div id="banner1" class="wrapper"></div>
             <script>
                 AMPClient.createBanner('#banner1', 'homepage.center_left');
             </script>
         </div>
         <div>
             <h2>Second (added manually, random):</h2>
-            <div id="banner2"></div>
+            <div id="banner2" class="wrapper"></div>
             <script>
                 AMPClient.createBanner(document.getElementById('banner2'), 'homepage.info_box_1', {
                     role: ['vip'],

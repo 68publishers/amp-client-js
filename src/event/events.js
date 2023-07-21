@@ -36,8 +36,21 @@ class Events {
      *     },
      * )
      */
-    static get ON_BANNER_FIRST_SEEN() {
-        return 'amp:banner:first-seen';
+    static get ON_BANNER_FIRST_TIME_SEEN() {
+        return 'amp:banner:first-time-seen';
+    }
+
+    /**
+     * Arguments: (
+     *     {
+     *         fingerprint: {Fingerprint},
+     *         element: {HtmlElement},
+     *         banner: {Banner},
+     *     },
+     * )
+     */
+    static get ON_BANNER_FIRST_TIME_FULLY_SEEN() {
+        return 'amp:banner:first-time-fully-seen';
     }
 
     /**
