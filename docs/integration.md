@@ -48,11 +48,13 @@ After that, you can require AMP Client like any other JavaScript library.
 
 ## Versions compatibility matrix
 
-| Client Version |  AMP version  | API version | Note                                                                    |
-|:--------------:|:-------------:|:-----------:|-------------------------------------------------------------------------|
-|     `^1.0`     | `>=1.0 <=2.7` |     `1`     |                                                                         |
-|     `^1.1`     | `>=1.0 <=2.7` |     `1`     | API supports only GET requests (cannot set the `method: "POST"` option) |
-|     `^1.1`     |    `>2.8`     |     `1`     |                                                                         |
+| Client Version |   AMP version    | API version | Note                                                                                                                                  |
+|:--------------:|:----------------:|:-----------:|---------------------------------------------------------------------------------------------------------------------------------------|
+|     `~1.0`     |  `>=1.0 <=2.7`   |     `1`     |                                                                                                                                       |
+|     `~1.1`     |  `>=1.0 <=2.7`   |     `1`     | API supports only GET requests (cannot set the `method: "POST"` option)                                                               |
+|     `~1.1`     |     `>=2.8`      |     `1`     |                                                                                                                                       |
+|     `~1.2`     | `>= 2.8 <= 2.10` |     `1`     | Limited metrics functionality - `banner_name`, `position_id`, `position_name`, `campaign_id` and `campaign_name` fields are not sent. |
+|     `~1.2`     |     `>=2.11`     |     `1`     |                                                                                                                                       |
 
 ## Options and Definitions
 
