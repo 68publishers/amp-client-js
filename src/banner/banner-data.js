@@ -58,15 +58,15 @@ class BannerData {
     }
 
     get campaignId() {
-        return internal(this).data.campaignId || null;
+        return internal(this).data.campaign_id || null;
     }
 
     get campaignCode() {
-        return internal(this).data.campaignCode || internal(this).data.campaign || null;
+        return internal(this).data.campaign_code || internal(this).data.campaign || null;
     }
 
     get campaignName() {
-        return internal(this).data.campaignName || null;
+        return internal(this).data.campaign_name || null;
     }
 
     get content() {
