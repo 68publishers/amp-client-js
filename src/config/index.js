@@ -100,8 +100,8 @@ module.exports = options => {
         config.interaction.intersectionRatioMap[key] = roundRatio(value, 'interaction.intersectionRatioMap.' + key);
     }
 
-    if (!Number.isInteger(config.interaction.firstTimeSeenTimeout) || 1000 > config.interaction.firstTimeSeenTimeout) {
-        throw new Error(`The option "interaction.firstTimeSeenTimeout" must be a int with a minimum value of 1000, "${config.interaction.firstTimeSeenTimeout}" passed.`);
+    if (!Number.isInteger(config.interaction.firstTimeSeenTimeout) || 500 > config.interaction.firstTimeSeenTimeout) {
+        throw new Error(`The option "interaction.firstTimeSeenTimeout" must be a int with a minimum value of 500, "${config.interaction.firstTimeSeenTimeout}" passed.`);
     }
 
     // metrics

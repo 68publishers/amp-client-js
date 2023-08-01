@@ -71,9 +71,9 @@ After that, you can require AMP Client like any other JavaScript library.
 | **template.single**                      |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `single`                                                                                                                                                                                                                                                                        |
 | **template.random**                      |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `random`                                                                                                                                                                                                                                                                        |
 | **template.multiple**                    |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `multiple` (sliders)                                                                                                                                                                                                                                                            |
-| **interaction.defaultIntersectionRatio** |                    `float`                    |      `0.5`      |                 No                 | The value specifies how much of the banner must be in the user's viewport for the banner to be evaluated as visible/invisible. The value must be a decimal number between 0.1 and 1 in increments of 0.1 [e.g. 0.1, 0.2, 0.3, ...].                                                                                    |
+| **interaction.defaultIntersectionRatio** |                    `float`                    |      `0.5`      |                 No                 | How much of the banner must be in the user's viewport for the banner to be evaluated as visible. The value must be a decimal number between 0.1 and 1 in increments of 0.1 [e.g. 0.1, 0.2, 0.3, ...].                                                                                                                  |
 | **interaction.intersectionRatioMap**     |                   `object`                    |      `{}`       |                 No                 | The "map" of intersection ratios. Keys must be numeric and represents a number of pixels. The values must match the same criteria as the option `interaction.defaultIntersectionRatio`. If a banner does not have an equal or greater pixel count than any option, then `defaultIntersectionRatio` is used.            |
-| **interaction.firstTimeSeenTimeout**     |                   `integer`                   |     `1000`      |                 No                 | The value indicates, in milliseconds, how long the banner must be visible in the user's viewport before it is evaluated as having been seen for the first time. The minimum allowed value is 1000.                                                                                                                     |
+| **interaction.firstTimeSeenTimeout**     |                   `integer`                   |     `1000`      |                 No                 | The value indicates, in milliseconds, how long the banner must be visible in the user's viewport before it is evaluated as having been seen for the first time. The minimum allowed value is 500.                                                                                                                      |
 | **metrics.receiver**                     | `null/string/function/array<string/function>` |     `null`      |                 No                 | Metrics are sent to the selected receiver if the value is set. The value can be a custom function, or one of the following strings: `"plausible"`, `"gtag"`, `"gtm"` or `"debug"`. Alternatively, an array can be passed if we would like to send metrics to multiple receivers. For example, `["plausible", "gtag"]`. |
 | **metrics.disabledEvents**               |                `array<string>`                |      `[]`       |                 No                 | Names of metric events that should not be sent.                                                                                                                                                                                                                                                                        |
 
@@ -154,13 +154,13 @@ Common properties for all metrics events are:
 {
   channel_code: 'string',
   banner_id: 'string',
-  banner_name: 'string', // the value may be NULL in older AMP versions
-  position_id: 'string', // the value may be NULL in older AMP versions
+  banner_name: 'string', // the value may be NULL in AMP versions before v2.11
+  position_id: 'string', // the value may be NULL in AMP versions before v2.11
   position_code: 'string',
-  position_name: 'string', // the value may be NULL in older AMP versions
-  campaign_id: 'string', // the value may be NULL in older AMP versions
+  position_name: 'string', // the value may be NULL in AMP versions before v2.11
+  campaign_id: 'string', // the value may be NULL in AMP versions before v2.11
   campaign_code: 'string',
-  campaign_name: 'string', // the value may be NULL in older AMP versions
+  campaign_name: 'string', // the value may be NULL in AMP versions before v2.11
   breakpoint: 'string',
 }
 ```
@@ -168,8 +168,8 @@ Common properties for all metrics events are:
 | Name                         | Event specific properties | Description                                                   |
 |------------------------------|---------------------------|---------------------------------------------------------------|
 | `amp:banner:loaded`          | -                         | A banner has been successfully loaded (rendered) on the page. |
-| `amp:banner:displayed`       | -                         | The user has seen a banner                                    |
-| `amp:banner:fully-displayed` | -                         | The user has seen a fully banner                              |
+| `amp:banner:displayed`       | -                         | The user has seen a banner.                                   |
+| `amp:banner:fully-displayed` | -                         | The user has seen a fully banner.                             |
 | `amp:banner:clicked`         | `{ link: 'string' }`      | The user clicked on a link in a banner.                       |
 
 If you want to send data to GA via GTM please see [GTM Metrics Guide](./gtm-metrics.md).
@@ -219,7 +219,7 @@ AMPClient.attachBanners(); // attach all banners on the page
 
 // or
 
-AMPClient.attachBanners(document.getElementById('container')); // attach all baners inside the .container
+AMPClient.attachBanners(document.getElementById('container')); // attach all banners inside the .container
 ```
 
 ## Data Fetching and Rendering

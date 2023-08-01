@@ -9,25 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- added support for watching interactions with banners (intersection in the viewport and clicks) and metrics.
-- added new configuration options for interaction:
+- Added support for watching interactions with banners (intersection in the viewport and clicks) and metrics.
+- Added new configuration options for interaction:
   - `interaction.defaultIntersectionRatio`
   - `interaction.intersectionRatioMap`
   - `interaction.firstTimeSeenTimeout`
-- added new configuration options for metrics:
+- Added new configuration options for metrics:
   - `metrics.receiver`
   - `metrics.disabledEvents`
-- added new client events:
+- Added new client events:
   - `amp:banner:intersection-changed`
   - `amp:banner:first-time-seen`
   - `amp:banner:first-time-fully-seen`
   - `amp:banner:link-clicked`
-- added automatically sending of metrics events:
+- Added automatically sending of metrics events:
   - `amp:banner:loaded`
   - `amp:banner:displayed`
   - `amp:banner:fully-displayed`
   - `amp:banner:clicked`
-- added preconfigured receivers for handling metrics events:
+- Added preconfigured receivers for handling metrics events:
   - `debug`
   - `plausible`
   - `gtag`
