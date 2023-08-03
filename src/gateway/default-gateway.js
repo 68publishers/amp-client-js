@@ -36,8 +36,13 @@ class DefaultGateway extends AbstractGateway {
         }
 
         xhr.open(request.method, endpoint, true);
-        xhr.setRequestHeader('Accept', 'application/json');
         xhr.overrideMimeType('application/json');
+        xhr.setRequestHeader('Accept', 'application/json');
+
+        for (let header of request.headers) {
+            xhr.setRequestHeader(header.name, header.value);
+        }
+
         xhr.send('POST' === request.method ? JSON.stringify(request.parameters) : null);
     }
 }

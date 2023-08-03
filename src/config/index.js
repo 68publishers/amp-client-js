@@ -18,6 +18,7 @@ module.exports = options => {
         channel: null,
         locale: null,
         resources: {},
+        origin: null,
         template: require('./template'),
         interaction: {
             defaultIntersectionRatio: 0.5,
@@ -44,7 +45,7 @@ module.exports = options => {
 
     // version
     if ('number' !== typeof config.version) {
-        throw new Error(`The option "version" contains be a number, ${config.version} passed.`);
+        throw new Error(`The option "version" must be a number, ${config.version} passed.`);
     }
 
     // channel
@@ -54,12 +55,17 @@ module.exports = options => {
 
     // locale
     if (null !== config.locale && 'string' !== typeof config.locale) {
-        throw new Error(`The option "version" contains be a number, ${config.version} passed.`);
+        throw new Error(`The option "locale" must be a string, ${config.version} passed.`);
     }
 
     // resources
     if ('object' !== typeof config.resources) {
         throw new Error(`The option "resources" must be an object of that describes resources, ${config.resources} passed.`);
+    }
+
+    // origin
+    if (null !== config.origin && 'string' !== typeof config.origin) {
+        throw new Error(`The option "origin" must be a valid URL, ${config.origin} passed.`);
     }
 
     // template

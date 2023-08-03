@@ -40,6 +40,7 @@ class Client {
         );
 
         this.setLocale(options.locale);
+        privateProperties.requestFactory.origin = options.origin;
 
         let resourceName;
 

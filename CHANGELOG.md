@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added new optional configuration option `origin` that is used as a value for the header `X-Amp-Origin`.
+
 ## [1.2.0] - 2023-08-14
 
 ### Added

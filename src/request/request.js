@@ -15,12 +15,13 @@ const parseQueryParameter = (query) => {
 };
 
 class Request {
-    constructor(method, endpoint, locale = null, defaultResources = []) {
+    constructor(method, endpoint, locale = null, defaultResources = [], headers = []) {
         internal(this).method = method;
         internal(this).endpoint = endpoint;
         internal(this).locale = locale;
         internal(this).query = {};
         internal(this).defaultResources = defaultResources;
+        internal(this).headers = headers;
     }
 
     addPosition(position, resources = []) {
@@ -87,6 +88,10 @@ class Request {
         }
 
         return params;
+    }
+
+    get headers() {
+        return internal(this).headers;
     }
 }
 
