@@ -141,7 +141,7 @@ class Client {
 
                     banner.setState(privateProperties.bannerManager.STATE.NOT_FOUND, 'Banner not found in fetched response.');
 
-                    return;
+                    continue;
                 }
 
                 if (!Array.isArray(data[banner.position]['banners'])) {
