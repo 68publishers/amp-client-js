@@ -2,7 +2,12 @@ const singleBannerContent = d => {
     return `
         <% if('img' === ${d}.content.type) { %>
             <a class="amp-banner__content amp-banner__content--img" href="<%= ${d}.content.href %>" <% if(null !== ${d}.content.target) { print('target="' + ${d}.content.target + '"'); } %>>
-                <img srcset="<%= ${d}.content.srcset %>" src="<%= ${d}.content.src %>" sizes="<%- ${d}.content.sizes %>" alt="<%- ${d}.content.alt %>" <% if('' !== ${d}.content.title) { print('title="' + ${d}.content.title + '"'); } %>>
+                <picture>
+                    <% (${d}.content.sources || []).forEach(function(source) { %>
+                        <source type="<%= source.type %>" srcset="<%= source.srcset %>" sizes="<%- ${d}.content.sizes %>">
+                    <% }); %>
+                    <img srcset="<%= ${d}.content.srcset %>" src="<%= ${d}.content.src %>" sizes="<%- ${d}.content.sizes %>" alt="<%- ${d}.content.alt %>" <% if('' !== ${d}.content.title) { print('title="' + ${d}.content.title + '"'); } %>>
+                </picture>
             </a>
         <% } else if ('html' === ${d}.content.type) { %>
             <div class="amp-banner__content amp-banner__content--html">
