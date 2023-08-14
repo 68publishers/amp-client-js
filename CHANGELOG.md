@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2023-08-14
+
 ### Added
 
 - Added support for watching interactions with banners (intersection in the viewport and clicks) and metrics.
@@ -72,7 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added missing getter `Banner.resources`.
 
-[unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.1.0...master
+[unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.2.0...master
+[1.2.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.1.0...v1.2.0
 [1.1.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.0.10...v1.1.0
 [1.0.10]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.0.9...v1.0.10
 [1.0.9]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.0.8...v1.0.9
