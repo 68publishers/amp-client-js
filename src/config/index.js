@@ -55,7 +55,7 @@ module.exports = options => {
 
     // locale
     if (null !== config.locale && 'string' !== typeof config.locale) {
-        throw new Error(`The option "locale" must be a string, ${config.version} passed.`);
+        throw new Error(`The option "locale" must be a string, ${config.locale} passed.`);
     }
 
     // resources
@@ -70,7 +70,7 @@ module.exports = options => {
 
     // template
     if ('object' !== typeof config.template) {
-        throw new Error(`The option "template" must be an object with the shape { single: string, random: string, multiple: string }, ${config.template} passed.`);
+        throw new Error(`The option "template" must be an object of the format { single: string, random: string, multiple: string }, ${config.template} passed.`);
     }
 
     for (const [key, value] of Object.entries(config.template)) {
@@ -81,7 +81,7 @@ module.exports = options => {
 
     // interaction
     if ('object' !== typeof config.interaction) {
-        throw new Error(`The option "interaction" must be an object with the shape { intersectionRatio: int|float, firstTimeSeenTimeout: int }, ${config.interaction} passed.`);
+        throw new Error(`The option "interaction" must be an object of the format { intersectionRatio: int|float, firstTimeSeenTimeout: int }, ${config.interaction} passed.`);
     }
 
     if ('number' !== typeof config.interaction.defaultIntersectionRatio || 0.1 > config.interaction.defaultIntersectionRatio || 1 < config.interaction.defaultIntersectionRatio) {
@@ -112,7 +112,7 @@ module.exports = options => {
 
     // metrics
     if ('object' !== typeof config.metrics) {
-        throw new Error(`The option "metrics" must be an object with the shape { receiver: null|string|function|array<string|function>, disabledEvents: array<string> }, ${config.metrics} passed.`);
+        throw new Error(`The option "metrics" must be an object of the format { receiver: null|string|function|array<string|function>, disabledEvents: array<string> }, ${config.metrics} passed.`);
     }
 
     if (null !== config.metrics.receiver && -1 === ['string', 'function'].indexOf(typeof config.metrics.receiver) && !Array.isArray(config.metrics.receiver)) {
