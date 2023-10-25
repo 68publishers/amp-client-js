@@ -13,7 +13,7 @@ class Fingerprint {
 
     static createFromProperties(properties) {
         return new Fingerprint(
-            btoa(JSON.stringify(properties)),
+            btoa(encodeURIComponent(JSON.stringify(properties))),
             properties,
         );
     }
@@ -21,7 +21,7 @@ class Fingerprint {
     static createFromValue(value) {
         return new Fingerprint(
             value,
-            JSON.parse(atob(value)),
+            JSON.parse(decodeURIComponent(atob(value))),
         );
     }
 

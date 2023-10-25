@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2023-10-25
+
+### Fixed
+
+- Fixed issue with unicode characters when creating banner fingerprint.
+
+## [1.2.1] - 2023-10-25
+
+### Fixed
+
+- Fixed issue with unicode characters when creating banner fingerprint.
+
 ## [1.3.0] - 2023-10-24
 
 ### Added
@@ -84,8 +96,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added missing getter `Banner.resources`.
 
-[unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.3.0...master
+[unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.3.1...master
+[1.3.1]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.3.0...v1.3.1
 [1.3.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.2.0...v1.3.0
+[1.2.1]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.2.0...v1.2.1
 [1.2.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.1.0...v1.2.0
 [1.1.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.0.10...v1.1.0
 [1.0.10]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.0.9...v1.0.10
