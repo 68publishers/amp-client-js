@@ -132,7 +132,7 @@
             new Splide(banner.element, {
                 type: 'loop',
                 autoplay: true,
-                interval: banner.data.rotationSeconds * 1000,
+                interval: banner.positionData.rotationSeconds * 1000,
             }).mount();
         }
 
@@ -211,7 +211,7 @@
         }
 
         window.AMPClient.on('amp:banner:state-changed', function (banner) {
-            if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
+            if ('RENDERED' !== banner.state || !banner.positionData.isMultiple()) {
                 return;
             }
 

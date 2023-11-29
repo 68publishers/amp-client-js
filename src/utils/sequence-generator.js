@@ -1,4 +1,4 @@
-const internal = require('./internal-state')();
+const internal = require('./internal-state');
 
 class SequenceGenerator {
 

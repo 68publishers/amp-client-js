@@ -1,4 +1,6 @@
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
+const ManagedBanner = require('./managed/managed-banner');
+const ExternalBanner = require('./external/external-banner');
 const Banner = require('./banner');
 const State = require('./state');
 const Fingerprint = require('./fingerprint');
@@ -37,7 +39,19 @@ class BannerManager {
         internal(this).banners = [];
     }
 
-    addBanner(element, position, resources = {}) {
+    addExternalBanner(element) {
+        element = getElement(element);
+
+        element.setAttribute('data-amp-attached', '');
+
+        const banner = new ExternalBanner(internal(this).eventBus, element);
+
+        internal(this).banners.push(banner);
+
+        return banner;
+    }
+
+    addManagedBanner(element, position, resources = {}) {
         const resourceArr = [];
         let key;
         element = getElement(element);
@@ -48,16 +62,20 @@ class BannerManager {
             resourceArr.push(new Resource(key, resources[key]));
         }
 
-        const banner = new Banner(internal(this).eventBus, element, position, resourceArr);
+        const banner = new ManagedBanner(internal(this).eventBus, element, position, resourceArr);
 
         internal(this).banners.push(banner);
 
         return banner;
     }
 
-    getBannersByState(state) {
+    getBannersByState({state, managed = true, external = true}) {
         return internal(this).banners.filter(banner => {
-            return banner instanceof Banner && banner.state === state;
+            if (!(banner instanceof Banner) || banner.state !== state) {
+                return false;
+            }
+
+            return !((banner instanceof ManagedBanner && !managed) || (banner instanceof ExternalBanner && !external));
         });
     }
 

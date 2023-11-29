@@ -1,5 +1,5 @@
-const internal = require('../utils/internal-state')();
-const Fingerprint = require('./fingerprint');
+const internal = require('../../utils/internal-state');
+const Fingerprint = require('../fingerprint');
 
 const getWidth = () => {
     return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -51,9 +51,11 @@ class BannerData {
     }
 
     /**
-     * @deprecated use `.campaignCode` instead
+     * @deprecated Use property `campaignCode` instead
      */
     get campaign() {
+        console.warn('Usage of deprecated property `BannerData.campaign`. Please use property `campaignCode` instead.');
+
         return this.campaignCode();
     }
 

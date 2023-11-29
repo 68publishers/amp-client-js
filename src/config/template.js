@@ -18,7 +18,7 @@ const singleBannerContent = d => {
 };
 
 /**
- * Arguments: ({Banner} banner, {Array[Object]|Object} data)
+ * Arguments: ({ManagedBanner} banner, {Array[Object]|Object} data)
  *
  * - data contains single banner(s) data
  */

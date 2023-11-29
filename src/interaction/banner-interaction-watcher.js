@@ -1,7 +1,7 @@
 const State = require('../banner/state');
 const Fingerprint = require('../banner/fingerprint');
 const Events = require('../event/events');
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
 const intersectionObserverFactory = require('./intersection-observer-factory');
 
 class BannerInteractionWatcher {
@@ -38,7 +38,7 @@ class BannerInteractionWatcher {
             for (let element of elements) {
                 const fingerprint = element.dataset.ampBannerFingerprint;
 
-                // save new fingerprint is does not exist
+                // save new fingerprint if it does not exist
                 if (!(fingerprint in internal(self).fingerprints)) {
                     internal(self).fingerprints[fingerprint] = {
                         fingerprint: Fingerprint.createFromValue(fingerprint),

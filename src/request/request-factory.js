@@ -1,6 +1,6 @@
 const Resource = require('./resource');
 const Request = require('./request');
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
 
 class RequestFactory {
     constructor (method, url, version, channel) {

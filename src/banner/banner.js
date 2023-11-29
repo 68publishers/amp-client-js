@@ -1,34 +1,27 @@
 const State = require('./state');
 const Events = require('../event/events');
-const ResponseData = require('./response-data');
-const internal = require('../utils/internal-state')();
+const PositionData = require('./position-data');
+const internal = require('../utils/internal-state');
 
 class Banner {
-    constructor(eventBus, element, position, resources = []) {
+    constructor(eventBus, element, position) {
+        if (this.constructor === Banner) {
+            throw new TypeError('Can not construct abstract class Banner.');
+        }
+
         // constants
         this.STATE = State;
 
         internal(this).eventBus = eventBus;
         internal(this).element = element;
-        internal(this).position = position;
-        internal(this).resources = resources;
-        internal(this).responseData = undefined;
-        internal(this).htmlChangedCounter = 0;
+        internal(this).positionData = PositionData.createInitial(position);
+        internal(this).stateCounters = {};
 
         this.setState(this.STATE.NEW, 'Banner created.');
     }
 
     get element() {
         return internal(this).element;
-    }
-
-    set html(html) {
-        internal(this).element.innerHTML = html;
-        internal(this).htmlChangedCounter++;
-    }
-
-    get htmlChangedCounter() {
-        return internal(this).htmlChangedCounter;
     }
 
     get state() {
@@ -39,30 +32,26 @@ class Banner {
         return internal(this).stateInfo;
     }
 
-    get position () {
-        return internal(this).position;
+    get stateCounter() {
+        return internal(this).stateCounters[this.state] || 0;
     }
 
-    get resources () {
-        return internal(this).resources;
+    get position() {
+        return this.positionData.code;
     }
 
-    get data() {
-        return internal(this).responseData;
+    /**
+     * @returns {PositionData}
+     */
+    get positionData() {
+        return internal(this).positionData;
     }
 
+    /**
+     * @returns {Array<Fingerprint>}
+     */
     get fingerprints() {
-        const bannerData = this.data;
-
-        return (!(bannerData instanceof ResponseData)) ? [] : bannerData.fingerprints;
-    }
-
-    setResponseData(responseData) {
-        if (undefined !== internal(this).responseData) {
-            throw new Error(`Data for banner on position ${this.position} is already set.`);
-        }
-
-        internal(this).responseData = new ResponseData(this.position, responseData);
+        return [];
     }
 
     setState(state, info = '') {
@@ -72,24 +61,16 @@ class Banner {
 
         internal(this).state = state;
         internal(this).stateInfo = info.toString();
+        internal(this).stateCounters[state] = (internal(this).stateCounters[state] || 0) + 1;
 
         internal(this).eventBus.dispatch(Events.ON_BANNER_STATE_CHANGED, this);
     }
 
-    needRedraw() {
-        let data = this.data.bannerData;
-
-        if (!Array.isArray(data)) {
-            data = [data];
-        }
-
-        for (let i in data) {
-            if (data[i].needRedraw()) {
-                return true;
-            }
-        }
-
-        return false;
+    /**
+     * @returns {number|null}
+     */
+    getCurrenBreakpoint(bannerId) { // eslint-disable-line no-unused-vars
+        return null;
     }
 }
 
