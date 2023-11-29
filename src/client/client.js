@@ -1,8 +1,9 @@
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
 const _config = require('../config/index');
 const _gateway = require('../gateway/index');
 const RequestFactory = require('../request/request-factory');
 const BannerManager = require('../banner/banner-manager');
+const ManagedBanner = require('../banner/managed/managed-banner');
 const EventBus = require('../event/event-bus');
 const Events = require('../event/events');
 const BannerRenderer = require('../renderer/banner-renderer');
@@ -49,7 +50,11 @@ class Client {
         }
 
         window.addEventListener('resize', () => {
-            const banners = privateProperties.bannerManager.getBannersByState(privateProperties.bannerManager.STATE.RENDERED);
+            const banners = privateProperties.bannerManager.getBannersByState({
+                state: privateProperties.bannerManager.STATE.RENDERED,
+                managed: true,
+                external: false,
+            });
 
             for (let i in banners) {
                 if (!banners[i].needRedraw()) {
@@ -89,7 +94,7 @@ class Client {
     }
 
     createBanner(element, position, resources = {}) {
-        return internal(this).bannerManager.addBanner(element, position, resources);
+        return internal(this).bannerManager.addManagedBanner(element, position, resources);
     }
 
     attachBanners(snippet = document) {
@@ -97,30 +102,42 @@ class Client {
         const elements = snippet.querySelectorAll('[data-amp-banner]:not([data-amp-attached])');
 
         for (let element of elements) {
-            const position = element.getAttribute('data-amp-banner');
-            const resources = {};
+            let banner;
 
-            if (!position) {
-                return; // the empty position, throw an error?
-            }
+            if ('ampBannerExternal' in element.dataset) {
+                banner = internal(this).bannerManager.addExternalBanner(element);
+            } else {
+                const position = element.getAttribute('data-amp-banner');
+                const resources = {};
 
-            const attributes = [].filter.call(element.attributes, attr => {
-                return /^data-amp-resource-[\S]+/.test(attr.name);
-            });
-
-            for (let attr of attributes) {
-                if (attr.value) {
-                    resources[attr.name.slice(18)] = attr.value.split(',').map(v => v.trim());
+                if (!position) {
+                    continue; // the empty position, throw an error?
                 }
+
+                const attributes = [].filter.call(element.attributes, attr => {
+                    return /^data-amp-resource-[\S]+/.test(attr.name);
+                });
+
+                for (let attr of attributes) {
+                    if (attr.value) {
+                        resources[attr.name.slice(18)] = attr.value.split(',').map(v => v.trim());
+                    }
+                }
+
+                banner = this.createBanner(element, position, resources);
             }
 
-            privateProperties.eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, this.createBanner(element, position, resources));
+            privateProperties.eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, banner);
         }
     }
 
     fetch() {
         const privateProperties = internal(this);
-        const banners = privateProperties.bannerManager.getBannersByState(privateProperties.bannerManager.STATE.NEW);
+        const banners = privateProperties.bannerManager.getBannersByState({
+            state: privateProperties.bannerManager.STATE.NEW,
+            managed: true,
+            external: false,
+        });
 
         if (!banners.length) {
             return;
@@ -169,6 +186,10 @@ class Client {
     }
 
     renderBanner(banner) {
+        if (!(banner instanceof ManagedBanner)) {
+            throw new TypeError(`Only managed banners can be rendered.`);
+        }
+
         const privateProperties = internal(this);
 
         try {

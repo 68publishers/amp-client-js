@@ -1,4 +1,4 @@
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
 const MetricsSender = require('./metrics-sender');
 const MetricsEvents = require('./events');
 const Events = require('../event/events');
@@ -30,11 +30,8 @@ class MetricsEventsListener {
         }
 
         const createBaseMetricsArgs = (fingerprint, banner) => {
-            let bannerData = banner.data.bannerData;
-            let breakpoint = 'default';
-
-            bannerData = Array.isArray(bannerData) ? bannerData.find(row => row.fingerprint && row.fingerprint.value === fingerprint.value) : bannerData;
-            bannerData && bannerData.content.breakpoint && (breakpoint = `${'min' === banner.data.breakpointType ? '>=' : '<='}${bannerData.content.breakpoint}`);
+            let breakpoint = banner.getCurrenBreakpoint(fingerprint.bannerId);
+            breakpoint = null === breakpoint ? 'default' : `${'min' === banner.positionData.breakpointType ? '>=' : '<='}${breakpoint}`;
 
             return {
                 channel_code: channelCode,
@@ -52,7 +49,7 @@ class MetricsEventsListener {
 
         if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_LOADED)) {
             eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, banner => {
-                if (State.RENDERED !== banner.state || 1 !== banner.htmlChangedCounter) {
+                if (State.RENDERED !== banner.state || 1 !== banner.stateCounter) {
                     return;
                 }
 

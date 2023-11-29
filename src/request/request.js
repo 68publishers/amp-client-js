@@ -1,5 +1,5 @@
 const Resource = require('./resource');
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
 
 const parseQueryParameter = (query) => {
     const json = Object.assign({}, query);

@@ -1,4 +1,4 @@
-const internal = require('../utils/internal-state')()
+const internal = require('../utils/internal-state');
 
 function getValueArray(value) {
     return Array.isArray(value) ? value : [ value ];

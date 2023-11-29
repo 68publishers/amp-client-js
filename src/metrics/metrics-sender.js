@@ -1,4 +1,4 @@
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
 const plausibleReceiver = require('./plausible-receiver');
 const gtagReceiver = require('./gtag-receiver');
 const gtmReceiver = require('./gtm-receiver');

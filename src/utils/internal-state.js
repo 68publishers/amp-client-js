@@ -1,11 +1,9 @@
-module.exports = function () {
-    const properties = new WeakMap();
+const properties = new WeakMap();
 
-    return (key) => {
-        if (!properties.has(key)) {
-            properties.set(key, {});
-        }
+module.exports = (key) => {
+    if (!properties.has(key)) {
+        properties.set(key, {});
+    }
 
-        return properties.get(key);
-    };
+    return properties.get(key);
 };

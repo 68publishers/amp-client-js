@@ -1,5 +1,5 @@
 const template = require('lodash/template');
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
 
 class TemplateLoader {
     constructor (templates) {
@@ -27,10 +27,13 @@ class BannerRenderer {
         internal(this).loader = new TemplateLoader(templates);
     }
 
+    /**
+     * @param {ManagedBanner} banner
+     */
     render(banner) {
-        banner.html = internal(this).loader.getTemplate(banner.data.displayType)({
+        banner.html = internal(this).loader.getTemplate(banner.positionData.displayType)({
             banner: banner,
-            data: banner.data.bannerData,
+            data: banner.bannerData,
         });
     }
 }

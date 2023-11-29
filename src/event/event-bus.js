@@ -1,5 +1,5 @@
 const SequenceGenerator = require('../utils/sequence-generator');
-const internal = require('../utils/internal-state')();
+const internal = require('../utils/internal-state');
 
 class EventBus {
     constructor() {
