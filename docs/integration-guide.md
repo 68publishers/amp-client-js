@@ -1,63 +1,30 @@
-# Integration Guide
+<div align="center" style="text-align: center; margin-bottom: 50px">
+<img src="images/logo.png" alt="JS Client JS Logo" align="center" width="100">
+<h1>AMP Client JS</h1>
+<h2 align="center">Integration Guide</h2>
+</div>
 
-## Table of Contents
-
-* [Import Script](#import-script)
-  * [Install via NPM](#install-via-npm)
-* [Versions compatibility matrix](#versions-compatibility-matrix)
-* [Options and Definitions](#options-and-definitions)
+* [Client initialization](#client-initialization)
   * [Client Options](#client-options)
-  * [Events](#events)
-  * [Banner States](#banner-states)
-* [Client Initialization](#client-initialization)
-* [Create Banner](#create-banner)
-  * [Manual](#manual)
-  * [Via Data Attributes](#via-data-attributes)
-* [Data Fetching and Rendering](#data-fetching-and-rendering)
+* [Creating banners](#creating-banners)
+  * [Creating banners manually](#creating-banners-manually)
+  * [Creating banners using data attributes](#creating-banners-using-data-attributes)
+  * [Banners fetching and rendering](#banners-fetching-and-rendering)
+  * [Integration with banners that are rendered server-side](#integration-with-banners-that-are-rendered-server-side)
+  * [Banner states](#banner-states)
+* [Client events](#client-events)
+* [Metrics events](#metrics-events)
+* [Full page example](#full-page-example)
 
-## Import Script
+## Client initialization
 
-The preferred way to import AMP Client is CDN link. Two versions are available:
+The client is simply instanced as follows:
 
-* `https://unpkg.com/amp-client/dist/amp-client.min.js`
-* `https://unpkg.com/amp-client/dist/amp-client.standalone.min.js`
-
-The only difference is the first one contains [lodash](https://lodash.com/) library and the standalone version not.
-If you are using the *lodash* on your website then use the *standalone* version of AMP client.
-In that case, lodash has to be imported as a first.
-
-Prefer to use CDN links with a labeled version to prevent BC breaks e.g.:
-
-```html
-<script src="https://unpkg.com/amp-client@1.0/dist/amp-client.min.js"></script>
-<!-- OR if you are using lodash on your website -->
-<script src="https://unpkg.com/amp-client@1.0/dist/amp-client.standalone.min.js"></script>
+```javascript
+const AMPClient = AMPClientFactory.create({
+  // ...options...
+});
 ```
-
-### Install via NPM
-
-If you don't want to use CDN, you can install AMP Client manually via NPM.
-
-```bash
-$ npm install amp-client
-# OR using yarn
-$ yarn add amp-client
-```
-
-After that, you can require AMP Client like any other JavaScript library.
-
-## Versions compatibility matrix
-
-| Client Version |   AMP version    | API version | Note                                                                                                                                  |
-|:--------------:|:----------------:|:-----------:|---------------------------------------------------------------------------------------------------------------------------------------|
-|     `~1.0`     |  `>=1.0 <=2.7`   |     `1`     |                                                                                                                                       |
-|     `~1.1`     |  `>=1.0 <=2.7`   |     `1`     | API supports only GET requests (cannot set the `method: "POST"` option)                                                               |
-|     `~1.1`     |     `>=2.8`      |     `1`     |                                                                                                                                       |
-|     `~1.2`     | `>= 2.8 <= 2.10` |     `1`     | Limited metrics functionality - `banner_name`, `position_id`, `position_name`, `campaign_id` and `campaign_name` fields are not sent. |
-|     `~1.2`     |     `<=2.11`     |     `1`     | The option `origin` has no effect, as it is not handled by AMP.                                                                       |
-|     `~1.3`     |     `>=2.12`     |     `1`     |                                                                                                                                       |
-
-## Options and Definitions
 
 ### Client Options
 
@@ -79,38 +46,107 @@ After that, you can require AMP Client like any other JavaScript library.
 | **metrics.receiver**                     | `null/string/function/array<string/function>` |     `null`      |                 No                 | Metrics are sent to the selected receiver if the value is set. The value can be a custom function, or one of the following strings: `"plausible"`, `"gtag"`, `"gtm"` or `"debug"`. Alternatively, an array can be passed if we would like to send metrics to multiple receivers. For example, `["plausible", "gtag"]`. |
 | **metrics.disabledEvents**               |                `array<string>`                |      `[]`       |                 No                 | Names of metric events that should not be sent.                                                                                                                                                                                                                                                                        |
 
-Full configuration example:
+The full configuration can look like this:
 
-```json5
-{
-  url: "https://url-to-amp-application",
-  channel: "channel-code",
-  method: "GET",
+```javascript
+const AMPClient = AMPClientFactory.create({
+  url: 'https://url-to-amp-application',
+  channel: 'channel-code',
+  method: 'GET',
   version: 1,
-  locale: "en_US",
+  locale: 'en_US',
   resources: {
-    role: "guest",
-    categories: [
-      "category_a",
-      "category_b"
+    role: 'guest',
+    environments: [
+      'development',
+      'test'
     ],
   },
-  "origin": "https://my-website.com",
+  origin: 'https://my-website.com',
   interaction: {
     defaultIntersectionRatio: 0.5,
     intersectionRatioMap: {
-      "242500": 0.3,
+      '242500': 0.3,
     },
     firstTimeSeenTimeout: 1000,
   },
   metrics: {
-    receiver: "gtag",
-    disabledEvents: ["amp:banner:loaded"],
+    receiver: 'gtm',
+    disabledEvents: ['amp:banner:loaded'],
   },
-}
+});
 ```
 
+## Creating banners
+
+Banners can be created manually through the client, or they can be created directly in HTML using data attributes.
+
+### Creating banners manually
+
+Banners are created using method `createBanner()`. The first argument of the method is the HTML element into which a banner will be rendered.
+The second argument is a position code from the AMP and the third optional argument can be an object that contains resources of the banner.
+
+```html
+<div id="my-banner"></div>
+
+<script>
+  AMPClient.createBanner(document.getElementById('my-banner'), 'homepage.top', {
+    a_resource: 'A',
+    b_resource: ['B', 'C']
+  });
+</script>
+```
+
+### Creating banners using data attributes
+
+The creation of banners is controlled by two types of data attributes. The first is `data-amp-banner`, which contains the position code from the AMP.
+The second type are attributes with the prefix `data-amp-resource-`, which contain the resources of a given banner separated by a comma.
+
+```html
+<div data-amp-banner="homepage.top" data-amp-resource-a_resource="A" data-amp-resource-b_resource="B,C"></div>
+```
+
+To instantiate banners created in this way, the method `attachBanners()` must be called.
+
+```javascript
+AMPClient.attachBanners(); // attach all banners on the page
+// or
+AMPClient.attachBanners(document.getElementById('container')); // attach all banners inside the .container
+```
+
+### Banners fetching and rendering
+
+To request the created banners and their rendering it is necessary to call the `fetch()` method.
+This can be done before the closing tag `</body>`.
+
+```html
+    <!-- rest of the page -->
+    <script>
+        AMPClient.fetch();
+    </script>
+</body>
+```
+
+If the application somehow redraws parts of the HTML that contain banners (for example, by an AJAX call that returns HTML snippets for redrawing), the banners need to be re-created and redrawn after this action is completed.
+
+```javascript
+// attach banners after snippets from AJAX response are rendered
+for (let snippet of snippets) {
+  AMPClient.attachBanners(snippet);
+}
+
+// fetch banners after everything is attached
+AMPClient.fetch();
+```
+
+### Integration with banners that are rendered server-side
+
+Banners that are rendered server-side using [68publishers/amp-client-php](https://github.com/68publishers/amp-client-php) don't need any special integration.
+The client will automatically know about these banners when the method `attachBanners()` is called. All functionalities like responding to banner events or sending metrics work the same way as for client-side rendered banners.
+
 ### Banner states
+
+Banners can be in several states. Here is a list of them:
 
 | Name        | Description                                                                                           |
 |-------------|-------------------------------------------------------------------------------------------------------|
@@ -119,7 +155,9 @@ Full configuration example:
 | `NOT_FOUND` | The banner was not found in AMP's response.                                                           |
 | `ERROR`     | Something went wrong. For example, the API returned an error, or a banner template contains an error. |
 
-### Events
+## Client events
+
+The client emits several events that can be responded to. Here is a list of them:
 
 | Name                               | Constant                                 | Function declaration                                                                                                             | Description                                                                            |
 |------------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
@@ -136,20 +174,29 @@ Full configuration example:
 Events can be attached in this way:
 
 ```javascript
-var AMPClient = AMPClientFactory.create({...});
-
 AMPClient.on('amp:banner:state-changed', function (banner) {
-  if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
+  if ('RENDERED' !== banner.state || !banner.positionData.isMultiple()) { // do action only if the banner is rendered and position type is "multiple"
     return;
   }
 
-  var element = banner.element; // HtmlElement
+  const element = banner.element; // HtmlElement
 
-  // initialize your favourite slider here :-)
+  // Here are other useful properties that may come in handy:
+  const state = banner.state; // state of the banner
+  const stateInfo = banner.stateInfo; // state info message
+  const positionId = banner.positionData.id; // ID of the position
+  const positionCode = banner.positionData.code; // code of the position
+  const positionName = banner.positionData.name; // name of the position
+  const positionDisplayType = banner.positionData.displayType; // type of the position [single, random, multiple]
+  const rotationSeconds = banner.positionData.rotationSeconds; // how often the slider should scroll in seconds
+
+  // do anything, e.g. initialize your favourite slider
 });
 ```
 
 ### Metrics events
+
+The client tracks several types of metrics on the banners.
 
 Common properties for all metrics events are:
 
@@ -175,113 +222,57 @@ Common properties for all metrics events are:
 | `amp:banner:fully-displayed` | -                         | The user has seen a fully banner.                             |
 | `amp:banner:clicked`         | `{ link: 'string' }`      | The user clicked on a link in a banner.                       |
 
-If you want to send data to GA via GTM please see [GTM Metrics Guide](./gtm-metrics.md).
+If you want to send data to GA via GTM please see [GTM Metrics Guide](./gtm-metrics-guide.md).
 
-## Client Initialization
-
-Initialization example:
-
-```javascript
-var AMPClient = AMPClientFactory.create({
-  url: 'https://www.amp.example.com',
-  channel: 'example',
-  locale: 'cs_CZ',
-  method: 'POST',
-  resources: {
-    role: 'vip',
-    foo: ['bar', 'baz']
-  }
-});
-```
-
-## Create Banner
-
-### Manual
-
-```html
-<div id="my-banner"></div>
-
-<script>
-  AMPClient.createBanner(document.getElementById('my-banner'), 'homepage.top', {
-    a_resource: 'A',
-    b_resource: ['B', 'C']
-  });
-</script>
-```
-
-### Via Data Attributes
-
-```html
-<div data-amp-banner="homepage.top" data-amp-resource-a_resource="A" data-amp-resource-b_resource="B, C"></div>
-```
-
-If you are using an initialization via data attributes please remember to call this function:
-
-```javascript
-AMPClient.attachBanners(); // attach all banners on the page
-
-// or
-
-AMPClient.attachBanners(document.getElementById('container')); // attach all banners inside the .container
-```
-
-## Data Fetching and Rendering
-
-After all these initializations (probably before the `</body>` closing tag) just simply call:
-
-```javascript
-AMPClient.fetch();
-```
-
-That's all!
-
-Here is a full example of an HTML document:
+## Full page example
 
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>AMP Example</title>
-  <script src="https://unpkg.com/amp-client/dist/amp-client.min.js"></script>
+  <head>
+    <meta charset="utf-8">
+    <title>AMP Example</title>
+    <script src="https://unpkg.com/amp-client/dist/amp-client.min.js"></script>
+    
+    <script>
+      const AMPClient = AMPClientFactory.create({
+        url: 'https://www.amp.example.com',
+        channel: 'example',
+        locale: 'cs_CZ',
+        resources: {
+          role: 'vip',
+          foo: ['bar', 'baz']
+        },
+        metrics: {
+          receiver: 'gtm',
+        },
+      });
   
-  <script>
-    var AMPClient = AMPClientFactory.create({
-      url: 'https://www.amp.example.com',
-      channel: 'example',
-      locale: 'cs_CZ',
-      resources: {
-        role: 'vip',
-        foo: ['bar', 'baz']
-      }
-    });
-
-    AMPClient.on('amp:banner:state-changed', function (banner) {
-      if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
-        return;
-      }
-
-      var element = banner.element; // HtmlElement
-
-      // initialize your favourite slider here :-)
-    }); 
-  </script>
-</head>
-<body>
-  <div id="my-banner"></div>
-  <script>
-    AMPClient.createBanner(document.getElementById('my-banner'), 'homepage.top', {
-      a_resource: 'A',
-      b_resource: ['B', 'C']
-    });
-  </script>
-
-  <div data-amp-banner="homepage.bottom" data-amp-resource-a_resource="A" data-amp-resource-b_resource="B, C"></div>
-
-  <script>
-    AMPClient.attachBanners();
-    AMPClient.fetch();
-  </script>
-</body>
+      AMPClient.on('amp:banner:state-changed', function (banner) {
+        if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
+          return;
+        }
+  
+        const element = banner.element;
+        // initialize slider here
+      }); 
+    </script>
+  </head>
+  <body>
+    <div id="my-banner"></div>
+    <script>
+      AMPClient.createBanner(document.getElementById('my-banner'), 'homepage.top', {
+        a_resource: 'A',
+        b_resource: ['B', 'C']
+      });
+    </script>
+  
+    <div data-amp-banner="homepage.bottom" data-amp-resource-a_resource="A" data-amp-resource-b_resource="B, C"></div>
+  
+    <script>
+      AMPClient.attachBanners();
+      AMPClient.fetch();
+    </script>
+  </body>
 </html>
 ```

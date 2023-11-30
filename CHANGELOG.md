@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added property `version` in the client.
+- Added integration with server-side rendered banners.
+
+### Changed
+
+- Property `banner.data` is now deprecated. To access information about a position use property `banner.positionData`. For example, replace `banner.data.displayType` with `banner.positionData.displayType`.
+- Updated docs
+
 ## [1.3.1] - 2023-10-25
 
 ### Fixed

@@ -1,58 +1,56 @@
-# AMP Client JS
-> Advertising Management Platform Client
+<div align="center" style="text-align: center; margin-bottom: 50px">
+<img src="docs/images/logo.png" alt="JS Client JS Logo" align="center" width="100">
+<h1>AMP Client JS</h1>
+<p>:mega: JS Client for Advertising Management Platform</p>
+</div>
 
-## Table of Contents
+## Installation
 
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Build and Development](#build-and-demo)
-* [Integration](#integration)
+The preferred way to import AMP Client is CDN link. Two versions are available:
 
-## Getting Started
+* `https://unpkg.com/amp-client/dist/amp-client.min.js`
+* `https://unpkg.com/amp-client/dist/amp-client.standalone.min.js`
 
-Please follow these instructions to get a local copy and setting up it.
+The only difference is the first one is bundled with components `template` and `merge` from the [lodash](https://lodash.com/) library and the standalone version not.
+If you are using the *lodash* on your website then use the *standalone* version of AMP client.
+In that case, lodash has to be imported as a first.
 
-### Prerequisites
+Prefer to use CDN links with a labeled version to prevent BC breaks e.g.:
 
-* Git
-* Npm
-
-### Installation
-
-1. Clone the repo
-
-```sh
-$ git clone git@gitlab.com:68publishers/projects/amp/amp-client-js.git
-$ cd amp-client-js
+```html
+<script src="https://unpkg.com/amp-client@1.0/dist/amp-client.min.js"></script>
+<!-- OR if you are using lodash on your website -->
+<script src="https://unpkg.com/amp-client@1.0/dist/amp-client.standalone.min.js"></script>
 ```
 
-2. Install npm dependencies
+### Installation via NPM
 
-```sh
-$ npm install
+If you don't want to use CDN, you can install AMP Client manually via NPM.
+
+```bash
+$ npm install amp-client
+# or using yarn
+$ yarn add amp-client
 ```
 
-## Build and Demo
+After that, you can require AMP Client like any other JavaScript library.
 
-Use predefined commands for the application's build:
+## Versions compatibility matrix
 
-```sh
-$ npm run build:dev # or prod
-```
-
-Paths of an output files are:
- - `~/build/amp-client.js` (dev mode)
- - `~/dist/amp-client.min.js` (production mode) respectively `~/dist/amp-client.standalone.min.js`.
-
-A simple demo page is located in `~/build/index.html`. To show demo in your browser run:
-
-```sh
-$ npm run start:dev
-```
-
-Then visit the page `http://localhost:3000`.
+| Client Version |   AMP version    | API version | Note                                                                                                                                  |
+|:--------------:|:----------------:|:-----------:|---------------------------------------------------------------------------------------------------------------------------------------|
+|     `~1.0`     |  `>=1.0 <=2.7`   |     `1`     |                                                                                                                                       |
+|     `~1.1`     |  `>=1.0 <=2.7`   |     `1`     | API supports only GET requests (cannot set the `method: "POST"` option)                                                               |
+|     `~1.1`     |     `>=2.8`      |     `1`     |                                                                                                                                       |
+|     `~1.2`     | `>= 2.8 <= 2.10` |     `1`     | Limited metrics functionality - `banner_name`, `position_id`, `position_name`, `campaign_id` and `campaign_name` fields are not sent. |
+|     `~1.2`     |     `<=2.11`     |     `1`     | The option `origin` has no effect, as it is not handled by AMP.                                                                       |
+|     `~1.3`     |     `>=2.12`     |     `1`     |                                                                                                                                       |
+|     `~1.4`     |     `>=2.12`     |     `1`     | Adds support for server-side rendered banners ([68publishers/amp-client-php](https://github.com/68publishers/amp-client-php)).        |
 
 ## Integration
 
-Please see the [Integration Guide](docs/integration.md).
+For integration instructions follow the [Integration guide](docs/integration-guide.md).
+
+## License
+
+@todo
