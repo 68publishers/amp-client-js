@@ -1,3 +1,4 @@
+const version = require('../../package.json').version;
 const internal = require('../utils/internal-state');
 const _config = require('../config/index');
 const _gateway = require('../gateway/index');
@@ -67,6 +68,10 @@ class Client {
 
         privateProperties.metricsEventListener.attach();
         privateProperties.bannerInterractionWatcher.start();
+    }
+
+    get version() {
+        return version;
     }
 
     on(event, callback, scope = null) {
