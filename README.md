@@ -8,8 +8,8 @@
 
 The preferred way to import AMP Client is CDN link. Two versions are available:
 
-* `https://unpkg.com/amp-client/dist/amp-client.min.js`
-* `https://unpkg.com/amp-client/dist/amp-client.standalone.min.js`
+* `https://unpkg.com/@68publishers/amp-client/dist/amp-client.min.js`
+* `https://unpkg.com/@68publishers/amp-client/dist/amp-client.standalone.min.js`
 
 The only difference is the first one is bundled with components `template` and `merge` from the [lodash](https://lodash.com/) library and the standalone version not.
 If you are using the *lodash* on your website then use the *standalone* version of AMP client.
@@ -18,9 +18,9 @@ In that case, lodash has to be imported as a first.
 Prefer to use CDN links with a labeled version to prevent BC breaks e.g.:
 
 ```html
-<script src="https://unpkg.com/amp-client@1.0/dist/amp-client.min.js"></script>
+<script src="https://unpkg.com/@68publishers/amp-client@1.0/dist/amp-client.min.js"></script>
 <!-- OR if you are using lodash on your website -->
-<script src="https://unpkg.com/amp-client@1.0/dist/amp-client.standalone.min.js"></script>
+<script src="https://unpkg.com/@68publishers/amp-client@1.0/dist/amp-client.standalone.min.js"></script>
 ```
 
 ### Installation via NPM
@@ -28,9 +28,9 @@ Prefer to use CDN links with a labeled version to prevent BC breaks e.g.:
 If you don't want to use CDN, you can install AMP Client manually via NPM.
 
 ```bash
-$ npm install amp-client
+$ npm install @68publishers/amp-client
 # or using yarn
-$ yarn add amp-client
+$ yarn add @68publishers/amp-client
 ```
 
 After that, you can require AMP Client like any other JavaScript library.

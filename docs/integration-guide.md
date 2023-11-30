@@ -232,7 +232,7 @@ If you want to send data to GA via GTM please see [GTM Metrics Guide](./gtm-metr
   <head>
     <meta charset="utf-8">
     <title>AMP Example</title>
-    <script src="https://unpkg.com/amp-client/dist/amp-client.min.js"></script>
+    <script src="https://unpkg.com/@68publishers/amp-client/dist/amp-client.min.js"></script>
     
     <script>
       const AMPClient = AMPClientFactory.create({
