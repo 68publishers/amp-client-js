@@ -1,4 +1,8 @@
-# GTM Metrics Guide
+<div align="center" style="text-align: center; margin-bottom: 50px">
+<img src="images/logo.png" alt="JS Client JS Logo" align="center" width="100">
+<h1>AMP Client JS</h1>
+<h2 align="center">GTM Metrics Guide</h2>
+</div>
 
 To send events to GA via GTM, you need to configure variables, triggers and tags.
 We should start by setting the tag "Google Analytics: GA4 Configuration".
