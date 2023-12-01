@@ -1,4 +1,5 @@
 const merge = require('lodash/merge');
+const templates = require('../template');
 
 const roundRatio = (ratio, optionPath) => {
     const rounded = Math.round(ratio * 10) / 10;
@@ -19,7 +20,7 @@ module.exports = options => {
         locale: null,
         resources: {},
         origin: null,
-        template: require('./template'),
+        template: templates,
         interaction: {
             defaultIntersectionRatio: 0.5,
             intersectionRatioMap: {},

@@ -1,6 +1,7 @@
 const Banner = require('../banner');
 const Fingerprint = require('../fingerprint');
 const PositionData = require('../position-data');
+const AttributesParser = require('../attributes-parser');
 const internal = require('../../utils/internal-state');
 
 class ExternalBanner extends Banner {
@@ -17,8 +18,9 @@ class ExternalBanner extends Banner {
 
         const state = externalData.state;
         const positionData = new PositionData(externalData.positionData);
+        const options = AttributesParser.parseOptions(element);
 
-        super(eventBus, element, positionData.code);
+        super(eventBus, element, positionData.code, options);
 
         const fingerprints = [];
         const breakpointsByBannerId = {};

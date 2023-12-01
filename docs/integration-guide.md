@@ -10,6 +10,7 @@
   * [Creating banners manually](#creating-banners-manually)
   * [Creating banners using data attributes](#creating-banners-using-data-attributes)
   * [Banners fetching and rendering](#banners-fetching-and-rendering)
+  * [Lazy loading of image banners](#lazy-loading-of-image-banners)
   * [Integration with banners that are rendered server-side](#integration-with-banners-that-are-rendered-server-side)
   * [Banner states](#banner-states)
 * [Client events](#client-events)
@@ -86,24 +87,49 @@ Banners can be created manually through the client, or they can be created direc
 Banners are created using method `createBanner()`. The first argument of the method is the HTML element into which a banner will be rendered.
 The second argument is a position code from the AMP and the third optional argument can be an object that contains resources of the banner.
 
+The last optional argument is an object that can contain arbitrary custom values. These options can then be retrieved in event handlers and templates.
+
 ```html
-<div id="my-banner"></div>
+<div id="banner1"></div>
+<div id="banner2"></div>
 
 <script>
-  AMPClient.createBanner(document.getElementById('my-banner'), 'homepage.top', {
-    a_resource: 'A',
-    b_resource: ['B', 'C']
-  });
+  // minimal setup
+  AMPClient.createBanner(
+    document.getElementById('banner1'),
+    'homepage.top',
+  );
+
+  // full setup
+  AMPClient.createBanner(
+    document.getElementById('banner2'),
+    'homepage.promo',
+    {
+      a_resource: 'A',
+      b_resource: ['B', 'C'],
+    },
+    {
+      loading: 'lazy',
+      customOption: 'customValue',
+    },
+  );
 </script>
 ```
 
 ### Creating banners using data attributes
 
-The creation of banners is controlled by two types of data attributes. The first is `data-amp-banner`, which contains the position code from the AMP.
+The creation of banners is controlled by three types of data attributes. The first one is `data-amp-banner`, which contains the position code from the AMP.
 The second type are attributes with the prefix `data-amp-resource-`, which contain the resources of a given banner separated by a comma.
 
+The third type are attributes with the prefix `data-amp-option-`, which can contain arbitrary custom values. These options can then be retrieved in event handlers and templates.
+
 ```html
-<div data-amp-banner="homepage.top" data-amp-resource-a_resource="A" data-amp-resource-b_resource="B,C"></div>
+<div data-amp-banner="homepage.top"
+     data-amp-resource-a_resource="A"
+     data-amp-resource-b_resource="B,C"
+     data-amp-option-loading="lazy"
+     data-amp-option-customOption="customValue">
+</div>
 ```
 
 To instantiate banners created in this way, the method `attachBanners()` must be called.
@@ -138,6 +164,42 @@ for (let snippet of snippets) {
 // fetch banners after everything is attached
 AMPClient.fetch();
 ```
+
+### Lazy loading of image banners
+
+The default client templates support [native lazy loading](https://developer.mozilla.org/en-US/docs/Web/Performance/Lazy_loading#images_and_iframes) of images.
+To activate lazy loading the option `loading: lazy` must be passed to the banner.
+
+```javascript
+AMPClient.createBanner(element, 'homepage.top', {}, {
+  loading: 'lazy',
+});
+```
+
+```html
+<div data-amp-banner="homepage.top"
+     data-amp-option-loading="lazy">
+</div>
+```
+
+A special case is a position of type `multiple`, where it may be desirable to lazily load all banners except the first.
+This can be achieved by adding the option `loading-offset`, whose value specifies from which banner the attribute `loading` should be rendered.
+
+```javascript
+AMPClient.createBanner(element, 'homepage.top', {}, {
+  loading: 'lazy',
+  'loading-offset': 1,
+});
+```
+
+```html
+<div data-amp-banner="homepage.top"
+     data-amp-option-loading="lazy"
+     data-amp-option-loading-offset="1">
+</div>
+```
+
+If you prefer a different implementation of lazy loading, it is possible to pass custom templates to the client in the configuration object instead of [the default ones](../src/template) and integrate a different solution in these templates.
 
 ### Integration with banners that are rendered server-side
 
@@ -189,6 +251,10 @@ AMPClient.on('amp:banner:state-changed', function (banner) {
   const positionName = banner.positionData.name; // name of the position
   const positionDisplayType = banner.positionData.displayType; // type of the position [single, random, multiple]
   const rotationSeconds = banner.positionData.rotationSeconds; // how often the slider should scroll in seconds
+
+  // It is also possible to retrieve custom options that were passed to the banner during initialization:
+  const loadingOption = banner.options.get('loading', 'eager'); // the second argument is the default value
+  const customOption = banner.options.get('customOption', undefined);
 
   // do anything, e.g. initialize your favourite slider
 });

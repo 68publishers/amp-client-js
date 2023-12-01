@@ -51,7 +51,7 @@ class BannerManager {
         return banner;
     }
 
-    addManagedBanner(element, position, resources = {}) {
+    addManagedBanner(element, position, resources = {}, options = {}) {
         const resourceArr = [];
         let key;
         element = getElement(element);
@@ -62,7 +62,7 @@ class BannerManager {
             resourceArr.push(new Resource(key, resources[key]));
         }
 
-        const banner = new ManagedBanner(internal(this).eventBus, element, position, resourceArr);
+        const banner = new ManagedBanner(internal(this).eventBus, element, position, resourceArr, options);
 
         internal(this).banners.push(banner);
 

@@ -7,8 +7,8 @@ const Fingerprint = require('../fingerprint');
 const internal = require('../../utils/internal-state');
 
 class ManagedBanner extends Banner {
-    constructor(eventBus, element, position, resources = []) {
-        super(eventBus, element, position);
+    constructor(eventBus, element, position, resources = [], options = {}) {
+        super(eventBus, element, position, options);
 
         internal(this).resources = resources;
         internal(this).responseDataReceived = false;

@@ -1,10 +1,11 @@
 const State = require('./state');
 const Events = require('../event/events');
 const PositionData = require('./position-data');
+const Options = require('./options');
 const internal = require('../utils/internal-state');
 
 class Banner {
-    constructor(eventBus, element, position) {
+    constructor(eventBus, element, position, options) {
         if (this.constructor === Banner) {
             throw new TypeError('Can not construct abstract class Banner.');
         }
@@ -15,6 +16,7 @@ class Banner {
         internal(this).eventBus = eventBus;
         internal(this).element = element;
         internal(this).positionData = PositionData.createInitial(position);
+        internal(this).options = new Options(options);
         internal(this).stateCounters = {};
 
         this.setState(this.STATE.NEW, 'Banner created.');
@@ -45,6 +47,13 @@ class Banner {
      */
     get positionData() {
         return internal(this).positionData;
+    }
+
+    /**
+     * @returns {Options}
+     */
+    get options() {
+        return internal(this).options;
     }
 
     /**

@@ -1,10 +1,11 @@
 const version = require('../../package.json').version;
 const internal = require('../utils/internal-state');
-const _config = require('../config/index');
+const _config = require('./config');
 const _gateway = require('../gateway/index');
 const RequestFactory = require('../request/request-factory');
 const BannerManager = require('../banner/banner-manager');
 const ManagedBanner = require('../banner/managed/managed-banner');
+const AttributesParser = require('../banner/attributes-parser');
 const EventBus = require('../event/event-bus');
 const Events = require('../event/events');
 const BannerRenderer = require('../renderer/banner-renderer');
@@ -98,8 +99,8 @@ class Client {
         return internal(this).gateway;
     }
 
-    createBanner(element, position, resources = {}) {
-        return internal(this).bannerManager.addManagedBanner(element, position, resources);
+    createBanner(element, position, resources = {}, options = {}) {
+        return internal(this).bannerManager.addManagedBanner(element, position, resources, options);
     }
 
     attachBanners(snippet = document) {
@@ -112,24 +113,18 @@ class Client {
             if ('ampBannerExternal' in element.dataset) {
                 banner = internal(this).bannerManager.addExternalBanner(element);
             } else {
-                const position = element.getAttribute('data-amp-banner');
-                const resources = {};
+                const position = element.dataset.ampBanner;
 
                 if (!position) {
-                    continue; // the empty position, throw an error?
+                    console.warn('Unable to attach a banner to the element ', element, ' because the attribute "data-amp-banner" has an empty value.');
+
+                    continue;
                 }
 
-                const attributes = [].filter.call(element.attributes, attr => {
-                    return /^data-amp-resource-[\S]+/.test(attr.name);
-                });
+                const resources = AttributesParser.parseResources(element);
+                const options = AttributesParser.parseOptions(element);
 
-                for (let attr of attributes) {
-                    if (attr.value) {
-                        resources[attr.name.slice(18)] = attr.value.split(',').map(v => v.trim());
-                    }
-                }
-
-                banner = this.createBanner(element, position, resources);
+                banner = this.createBanner(element, position, resources, options);
             }
 
             privateProperties.eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, banner);
