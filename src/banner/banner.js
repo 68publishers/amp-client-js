@@ -5,7 +5,7 @@ const Options = require('./options');
 const internal = require('../utils/internal-state');
 
 class Banner {
-    constructor(eventBus, element, position, options) {
+    constructor(eventBus, uid, element, position, options) {
         if (this.constructor === Banner) {
             throw new TypeError('Can not construct abstract class Banner.');
         }
@@ -14,12 +14,17 @@ class Banner {
         this.STATE = State;
 
         internal(this).eventBus = eventBus;
+        internal(this).uid = uid;
         internal(this).element = element;
         internal(this).positionData = PositionData.createInitial(position);
         internal(this).options = new Options(options);
         internal(this).stateCounters = {};
 
         this.setState(this.STATE.NEW, 'Banner created.');
+    }
+
+    get uid() {
+        return internal(this).uid;
     }
 
     get element() {
@@ -80,6 +85,18 @@ class Banner {
      */
     getCurrenBreakpoint(bannerId) { // eslint-disable-line no-unused-vars
         return null;
+    }
+
+    isManaged() {
+        return false;
+    }
+
+    isExternal() {
+        return false;
+    }
+
+    isEmbed() {
+        return false;
     }
 }
 

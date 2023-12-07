@@ -5,7 +5,7 @@ const internal = require('../utils/internal-state');
 class RequestFactory {
     constructor (method, url, version, channel) {
         internal(this).method = method;
-        internal(this).endpoint = `${url}/api/v${version}/content/${channel}`;
+        internal(this).endpoint = `${url}/api/v${version}/content/${encodeURIComponent(channel)}`;
         internal(this).locale = null;
         internal(this).defaultResources = [];
         internal(this).origin = null;

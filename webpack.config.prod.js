@@ -43,6 +43,7 @@ const defaultConfig = Object.assign({}, config, {
         library: {
             type: 'var',
             name: 'AMPClientFactory',
+            export: 'AMPClientFactory',
         },
     }
 });
@@ -55,6 +56,7 @@ const standaloneConfig = Object.assign({}, config,{
         library: {
             type: 'var',
             name: 'AMPClientFactory',
+            export: 'AMPClientFactory',
         },
     },
     externals: {
@@ -63,7 +65,21 @@ const standaloneConfig = Object.assign({}, config,{
     }
 });
 
+const embedConfig = Object.assign({}, config, {
+    name: 'embed',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'amp-client.embed.min.js',
+        library: {
+            type: 'var',
+            name: 'AMPClientFactory',
+            export: 'EmbedAMPClientFactory',
+        },
+    }
+});
+
 module.exports = [
     defaultConfig,
-    standaloneConfig
+    standaloneConfig,
+    embedConfig,
 ];

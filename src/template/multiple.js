@@ -1,3 +1,7 @@
+/**
+ * {ManagedBanner} banner
+ * {Array<BannerData>} data
+ */
 module.exports = `
     <div class="amp-banner amp-banner--multiple">
         <div class="amp-banner__list">
