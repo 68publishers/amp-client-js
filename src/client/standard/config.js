@@ -1,5 +1,5 @@
 const merge = require('lodash/merge');
-const templates = require('../template');
+const templates = require('../../template');
 
 const roundRatio = (ratio, optionPath) => {
     const rounded = Math.round(ratio * 10) / 10;

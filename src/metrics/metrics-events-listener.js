@@ -1,29 +1,35 @@
-const internal = require('../utils/internal-state');
-const MetricsSender = require('./metrics-sender');
 const MetricsEvents = require('./events');
 const Events = require('../event/events');
 const State = require('../banner/state');
 
 class MetricsEventsListener {
-    constructor(eventBus, channelCode, metricsOptions) {
-        internal(this).attached = false;
-        internal(this).eventBus = eventBus;
-        internal(this).channelCode = channelCode;
-        internal(this).metricsSender = MetricsSender.createFromReceivers(metricsOptions.receiver);
-        internal(this).disabledEvents = metricsOptions.disabledEvents;
+    #metricsSender;
+    #eventBus;
+    #channelCode;
+    #attached;
+
+    /**
+     * @param {MetricsSender} metricsSender
+     * @param {EventBus} eventBus
+     * @param {String} channelCode
+     */
+    constructor(metricsSender, eventBus, channelCode) {
+        this.#metricsSender = metricsSender;
+        this.#eventBus = eventBus;
+        this.#channelCode = channelCode;
+        this.#attached = false;
     }
 
     attach() {
-        if (internal(this).attached) {
+        if (this.#attached) {
             return;
         }
 
-        internal(this).attached = true;
+        this.#attached = true;
 
-        const eventBus = internal(this).eventBus;
-        const channelCode = internal(this).channelCode;
-        const metricsSender = internal(this).metricsSender;
-        const disabledEvents = internal(this).disabledEvents;
+        const eventBus = this.#eventBus;
+        const channelCode = this.#channelCode;
+        const metricsSender = this.#metricsSender;
 
         if (!metricsSender.hasAnyReceiver()) {
             return;
@@ -47,9 +53,9 @@ class MetricsEventsListener {
             }
         };
 
-        if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_LOADED)) {
+        if (metricsSender.isEventEnabled(MetricsEvents.BANNER_LOADED)) {
             eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, banner => {
-                if (State.RENDERED !== banner.state || 1 !== banner.stateCounter) {
+                if (banner.isEmbed() || State.RENDERED !== banner.state || 1 !== banner.stateCounter) {
                     return;
                 }
 
@@ -59,19 +65,19 @@ class MetricsEventsListener {
             });
         }
 
-        if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_DISPLAYED)) {
+        if (metricsSender.isEventEnabled(MetricsEvents.BANNER_DISPLAYED)) {
             eventBus.subscribe(Events.ON_BANNER_FIRST_TIME_SEEN, ({ fingerprint, banner }) => {
                 metricsSender.send(MetricsEvents.BANNER_DISPLAYED, createBaseMetricsArgs(fingerprint, banner));
             });
         }
 
-        if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_FULLY_DISPLAYED)) {
+        if (metricsSender.isEventEnabled(MetricsEvents.BANNER_FULLY_DISPLAYED)) {
             eventBus.subscribe(Events.ON_BANNER_FIRST_TIME_FULLY_SEEN, ({ fingerprint, banner }) => {
                 metricsSender.send(MetricsEvents.BANNER_FULLY_DISPLAYED, createBaseMetricsArgs(fingerprint, banner));
             });
         }
 
-        if (-1 === disabledEvents.indexOf(MetricsEvents.BANNER_CLICKED)) {
+        if (metricsSender.isEventEnabled(MetricsEvents.BANNER_CLICKED)) {
             eventBus.subscribe(Events.ON_BANNER_LINK_CLICKED, ({ fingerprint, banner, target }) => {
                 metricsSender.send(MetricsEvents.BANNER_CLICKED, {
                     ...createBaseMetricsArgs(fingerprint, banner),

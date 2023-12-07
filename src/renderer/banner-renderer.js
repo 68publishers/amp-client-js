@@ -31,7 +31,7 @@ class BannerRenderer {
      * @param {ManagedBanner} banner
      */
     render(banner) {
-        banner.html = internal(this).loader.getTemplate(banner.positionData.displayType)({
+        return internal(this).loader.getTemplate(banner.positionData.displayType)({
             banner: banner,
             data: banner.bannerData,
         });

@@ -2,11 +2,28 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './index.js',
+    entry: {
+        standard: {
+            import: './index.js',
+            filename: 'amp-client.js',
+            library: {
+                type: 'var',
+                name: 'AMPClientFactory',
+                export: 'AMPClientFactory',
+            }
+        },
+        embed: {
+            import: './index.js',
+            filename: 'amp-client.embed.js',
+            library: {
+                type: 'var',
+                name: 'AMPClientFactory',
+                export: 'EmbedAMPClientFactory',
+            }
+        }
+    },
     output: {
         path: path.resolve(__dirname, 'demo'),
-        filename: 'amp-client.js',
-        library: 'AMPClientFactory',
     },
     module: {
         rules: [

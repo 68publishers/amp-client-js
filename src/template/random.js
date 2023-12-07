@@ -1,3 +1,7 @@
+/**
+ * {ManagedBanner} banner
+ * {BannerData} data
+ */
 module.exports = `
     <div class="amp-banner amp-banner--random"
          data-amp-banner-fingerprint="<%= data.fingerprint %>">
