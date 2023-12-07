@@ -7,7 +7,7 @@ class SequenceGenerator {
     }
 
     getNextIdentifier() {
-        return internal(this).lastId++;
+        return ++internal(this).lastId;
     }
 }
 

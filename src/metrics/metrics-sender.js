@@ -1,15 +1,23 @@
-const internal = require('../utils/internal-state');
 const plausibleReceiver = require('./plausible-receiver');
 const gtagReceiver = require('./gtag-receiver');
 const gtmReceiver = require('./gtm-receiver');
 const debugReceiver = require('./debug-receiver');
+const MetricsEvents = require('./events');
 
 class MetricsSender {
-    constructor(callbacks) {
-        internal(this).callbacks = Array.isArray(callbacks) ? callbacks : [callbacks];
+    #callbacks;
+    #disabledEvents;
+
+    /**
+     * @param {Array<Function<String, Object>>} callbacks
+     * @param {Array<String>} disabledEvents
+     */
+    constructor(callbacks, disabledEvents) {
+        this.#callbacks = Array.isArray(callbacks) ? callbacks : [callbacks];
+        this.#disabledEvents = disabledEvents;
     }
 
-    static createFromReceivers(receivers) {
+    static createFromReceivers(receivers, disabledEvents) {
         if (!receivers) {
             return new MetricsSender([]);
         }
@@ -41,15 +49,23 @@ class MetricsSender {
             }
         }
 
-        return new MetricsSender(callbacks);
+        return new MetricsSender(callbacks, disabledEvents);
     }
 
     hasAnyReceiver() {
-        return internal(this).callbacks.length;
+        return this.#callbacks.length;
+    }
+
+    isEventEnabled(eventName) {
+        return -1 !== MetricsEvents.EVENTS.indexOf(eventName) && -1 === this.#disabledEvents.indexOf(eventName);
     }
 
     send(eventName, eventArgs) {
-        for (let callback of internal(this).callbacks) {
+        if (!this.isEventEnabled(eventName)) {
+            return;
+        }
+
+        for (let callback of this.#callbacks) {
             callback(eventName, eventArgs);
         }
     }

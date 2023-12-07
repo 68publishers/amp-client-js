@@ -14,6 +14,15 @@ class Events {
     static get BANNER_CLICKED() {
         return 'amp:banner:clicked';
     }
+
+    static get EVENTS() {
+        return [
+            Events.BANNER_LOADED,
+            Events.BANNER_DISPLAYED,
+            Events.BANNER_FULLY_DISPLAYED,
+            Events.BANNER_CLICKED,
+        ]
+    }
 }
 
 module.exports = Events;

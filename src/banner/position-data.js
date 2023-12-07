@@ -38,6 +38,17 @@ class PositionData {
     isMultiple() {
         return 'multiple' === this.displayType;
     }
+
+    toObject() {
+        return {
+            id: this.id,
+            code: this.code,
+            name: this.name,
+            rotationSeconds: this.rotationSeconds,
+            displayType: this.displayType,
+            breakpointType: this.breakpointType,
+        }
+    }
 }
 
 module.exports = PositionData;

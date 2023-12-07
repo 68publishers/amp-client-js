@@ -5,7 +5,7 @@ const AttributesParser = require('../attributes-parser');
 const internal = require('../../utils/internal-state');
 
 class ExternalBanner extends Banner {
-    constructor(eventBus, element) {
+    constructor(eventBus, uid, element) {
         if (!('ampBannerExternal' in element.dataset)) {
             throw new Error(`Unable to initialize ExternalBanner from element that does not have an attribute "data-amp-external".`);
         }
@@ -20,7 +20,7 @@ class ExternalBanner extends Banner {
         const positionData = new PositionData(externalData.positionData);
         const options = AttributesParser.parseOptions(element);
 
-        super(eventBus, element, positionData.code, options);
+        super(eventBus, uid, element, positionData.code, options);
 
         const fingerprints = [];
         const breakpointsByBannerId = {};
@@ -56,14 +56,15 @@ class ExternalBanner extends Banner {
      * @returns {Array<Fingerprint>}
      */
     get fingerprints() {
-        return internal(this).fingerprints;
+        return internal(this).fingerprints || [];
     }
 
     /**
      * @returns {number|null}
      */
     getCurrenBreakpoint(bannerId) {
-        const breakpoints = internal(this).breakpointsByBannerId[bannerId] || [];
+        const breakpointsByBannerId = internal(this).breakpointsByBannerId || {};
+        const breakpoints = breakpointsByBannerId[bannerId] || [];
 
         for (let breakpoint of breakpoints) {
             const style = getComputedStyle(breakpoint.element);
@@ -74,6 +75,10 @@ class ExternalBanner extends Banner {
         }
 
         return null;
+    }
+
+    isExternal() {
+        return true;
     }
 }
 
