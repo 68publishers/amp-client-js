@@ -4,7 +4,7 @@ module.exports = {
     mode: 'development',
     entry: {
         standard: {
-            import: './index.js',
+            import: './index.mjs',
             filename: 'amp-client.js',
             library: {
                 type: 'var',
@@ -13,7 +13,7 @@ module.exports = {
             }
         },
         embed: {
-            import: './index.js',
+            import: './index.mjs',
             filename: 'amp-client.embed.js',
             library: {
                 type: 'var',
@@ -29,7 +29,7 @@ module.exports = {
         rules: [
             {
                 loader:  'babel-loader',
-                test: /\.js$/,
+                test: /\.mjs$/,
                 include: [
                     path.resolve(__dirname, 'src'),
                 ],

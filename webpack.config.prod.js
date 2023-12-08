@@ -3,12 +3,12 @@ const TerserWebpackPlugin = require('terser-webpack-plugin');
 
 const config = {
     mode: 'production',
-    entry: './index.js',
+    entry: './index.mjs',
     module: {
         rules: [
             {
                 loader:  'babel-loader',
-                test: /\.js$/,
+                test: /\.mjs$/,
                 include: [
                     path.resolve(__dirname, 'src')
                 ],
@@ -60,8 +60,8 @@ const standaloneConfig = Object.assign({}, config,{
         },
     },
     externals: {
-        'lodash/template': '_.template',
-        'lodash/merge': '_.merge',
+        'lodash/template.js': '_.template',
+        'lodash/merge.js': '_.merge',
     }
 });
 
