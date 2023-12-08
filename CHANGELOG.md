@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0-beta.0] - 2023-12-08
+
 ## [1.4.0-beta.2] - 2023-12-01
 ### Added
 - Added ability to provide custom options for each banner. Options can be passed via data attributes `data-amp-option-<optionName>="<optionValue>"` and can be retrieved in event handlers.
@@ -94,7 +96,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added missing getter `Banner.resources`.
 
-[Unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.4.0-beta.2...HEAD
+[Unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.5.0-beta.0...HEAD
+[1.5.0-beta.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.4.0-beta.2...v1.5.0-beta.0
 [1.4.0-beta.2]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.4.0-beta.1...v1.4.0-beta.2
 [1.4.0-beta.1]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.3.1...v1.4.0-beta.1
 [1.3.1]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.3.0...v1.3.1
