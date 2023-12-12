@@ -4,27 +4,41 @@ import { EmbedBanner } from './embed/embed-banner.mjs';
 import { Banner } from './banner.mjs';
 import { State } from './state.mjs';
 import { Fingerprint } from './fingerprint.mjs';
-import { Resource } from '../request/resource.mjs';
 import { SequenceGenerator } from '../utils/sequence-generator.mjs';
+import { getHtmlElement } from '../utils/dom-helpers.mjs';
 
 export class BannerManager {
     #eventBus;
+    #dimensionsProvider;
+    #bannerRenderer;
     #sequenceGenerator;
     #banners = [];
 
-    constructor(eventBus) {
+    /**
+     * @param {EventBus} eventBus
+     * @param {DimensionsProvider} dimensionsProvider
+     * @param {BannerRenderer|null} bannerRenderer
+     */
+    constructor(
+        eventBus,
+        dimensionsProvider,
+        bannerRenderer = null,
+    ) {
         this.#eventBus = eventBus;
+        this.#dimensionsProvider = dimensionsProvider;
+        this.#bannerRenderer = bannerRenderer;
         this.#sequenceGenerator = new SequenceGenerator();
 
         this.STATE = State;
     }
 
     addExternalBanner(element) {
-        element = this.#getElement(element);
+        element = getHtmlElement(element);
 
         element.setAttribute('data-amp-attached', '');
 
         const banner = new ExternalBanner(
+            this.#dimensionsProvider,
             this.#eventBus,
             this.#sequenceGenerator.getNextIdentifier(),
             element,
@@ -36,22 +50,22 @@ export class BannerManager {
     }
 
     addManagedBanner(element, position, resources = {}, options = {}) {
-        const resourceArr = [];
-        let key;
-        element = this.#getElement(element);
+        if (null === this.#bannerRenderer) {
+            throw new Error(`Unable to add managed banner, renderer is not provided.`);
+        }
+
+        element = getHtmlElement(element);
 
         element.setAttribute('data-amp-attached', '');
 
-        for (key in resources) {
-            resourceArr.push(new Resource(key, resources[key]));
-        }
-
         const banner = new ManagedBanner(
+            this.#dimensionsProvider,
+            this.#bannerRenderer,
             this.#eventBus,
             this.#sequenceGenerator.getNextIdentifier(),
             element,
             position,
-            resourceArr,
+            resources,
             options,
         );
 
@@ -61,7 +75,7 @@ export class BannerManager {
     }
 
     addEmbedBanner(iframe, position, options) {
-        iframe = this.#getElement(iframe);
+        iframe = getHtmlElement(iframe);
 
         iframe.setAttribute('data-amp-attached', '');
 
@@ -78,6 +92,13 @@ export class BannerManager {
         return banner;
     }
 
+    removeBanner(banner) {
+        const length = this.#banners.length;
+        this.#banners = this.#banners.filter(b => b !== banner);
+
+        return length !== this.#banners.length;
+    }
+
     getBannersByState({state, managed = true, external = true, embed = true}) {
         return this.#banners.filter(banner => {
             if (!(banner instanceof Banner) || banner.state !== state) {
@@ -92,7 +113,7 @@ export class BannerManager {
         const fingerprintValue = fingerprint instanceof Fingerprint ? fingerprint.value : fingerprint;
 
         for (let banner of this.#banners) {
-            if (banner in EmbedBanner) {
+            if (banner instanceof EmbedBanner) {
                 continue;
             }
 
@@ -114,29 +135,5 @@ export class BannerManager {
         }
 
         return null;
-    }
-
-    #getElement(el) {
-        if (el instanceof HTMLElement) {
-            return el;
-        }
-
-        if (typeof el !== 'string') {
-            throw new TypeError('Element must be instance of HTMLElement or String');
-        }
-
-        let htmlEl;
-
-        if ('#' === el.charAt(0)) {
-            htmlEl = document.getElementById(el.slice(1));
-        } else {
-            htmlEl = document.querySelector(el);
-        }
-
-        if (!(htmlEl instanceof HTMLElement)) {
-            throw new TypeError('Selector ' + el + ' is invalid.');
-        }
-
-        return htmlEl;
     }
 }

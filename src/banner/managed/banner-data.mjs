@@ -1,21 +1,18 @@
 import { Fingerprint } from '../fingerprint.mjs';
+import { Contents } from '../responsive/contents.mjs';
 
 export class BannerData {
     #data;
-    #breakpointType;
+    #contents;
     #fingerprint = null;
-    #resolvedContent = null;
-    #resolvedContentBounds = {
-        min: null,
-        max: null,
-        reset: function () {
-            this.min = this.max = null;
-        },
-    };
 
-    constructor(data, breakpointType) {
+    constructor(data, breakpointType, dimensionsProvider) {
         this.#data = data;
-        this.#breakpointType = breakpointType;
+        this.#contents = new Contents(dimensionsProvider, breakpointType);
+
+        for (let content of this.#data.contents) {
+            this.#contents.addContent(content['breakpoint'], content);
+        }
     }
 
     set fingerprint(fingerprint) {
@@ -64,85 +61,10 @@ export class BannerData {
     }
 
     get content() {
-        if (null !== this.#resolvedContent && !this.needRedraw()) {
-            return this.#resolvedContent;
-        }
-
-        this.#resolvedContentBounds.reset();
-
-        const windowWith = this.#getWidth();
-        const contents = this.#data.contents;
-        const breakpointType = this.#breakpointType;
-
-        let defaultContent = null,
-            alternativeContent = null,
-            currentBreakpoint = null;
-
-        const breakpoints = [];
-
-        this.#iterate(contents, (content) => {
-            let breakpoint = content['breakpoint'];
-
-            if (null === breakpoint) {
-                defaultContent = content;
-
-                return;
-            }
-
-            breakpoints.push(breakpoint);
-
-            if (('min' === breakpointType && windowWith >= breakpoint && (null === currentBreakpoint || currentBreakpoint < breakpoint))
-                || ('max' === breakpointType && windowWith <= breakpoint && (null === currentBreakpoint || currentBreakpoint > breakpoint))) {
-                alternativeContent = content;
-                currentBreakpoint = breakpoint;
-                this.#resolvedContentBounds[breakpointType] = breakpoint;
-            }
-        });
-
-        if (null === alternativeContent && null === defaultContent) {
-            throw new Error(`Missing content for banner with ID ${this.id}`);
-        }
-
-        // find bounds
-        breakpoints.sort((a, b) => a - b);
-
-        if ('min' === breakpointType) {
-            breakpoints.unshift(null);
-        } else {
-            breakpoints.push(null);
-        }
-
-        const currentBreakpointIndex = breakpoints.indexOf(currentBreakpoint);
-
-        if ('max' === breakpointType && (currentBreakpointIndex - 1) in breakpoints) {
-            this.#resolvedContentBounds.min = breakpoints[currentBreakpointIndex - 1];
-        }
-
-        if ('min' === breakpointType && (currentBreakpointIndex + 1) in breakpoints) {
-            this.#resolvedContentBounds.max = breakpoints[currentBreakpointIndex + 1];
-        }
-
-        return this.#resolvedContent = null !== alternativeContent ? alternativeContent : defaultContent;
+        return this.#contents.content.data;
     }
 
     needRedraw() {
-        if (null === this.#resolvedContent) {
-            return true;
-        }
-
-        const windowWith = this.#getWidth();
-
-        return ((null !== this.#resolvedContentBounds.min && windowWith < this.#resolvedContentBounds.min)
-            || (null !== this.#resolvedContentBounds.max && windowWith > this.#resolvedContentBounds.max));
-    }
-
-    #getWidth() {
-        return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    }
-
-    #iterate(data, cb) {
-        for (let i in data) {
-            cb(data[i], i);
-        }
+        return this.#contents.needRedraw();
     }
 }

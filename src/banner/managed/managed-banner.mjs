@@ -4,25 +4,64 @@ import { BannerData } from './banner-data.mjs';
 import { ResponseData } from './response-data.mjs';
 import { Randomizer } from '../../utils/randomizer.mjs';
 import { Fingerprint } from '../fingerprint.mjs';
+import { Resource } from '../../request/resource.mjs';
 
 export class ManagedBanner extends Banner {
-    #resources;
+    #dimensionsProvider;
+    #renderer;
+    #resources = [];
+    #rawResources;
     #responseDataReceived = false;
     #resolvedBannerData = null;
     #banners = [];
 
-    constructor(eventBus, uid, element, position, resources = [], options = {}) {
+    /**
+     * @param {DimensionsProvider} dimensionsProvider
+     * @param {BannerRenderer} renderer
+     * @param {EventBus} eventBus
+     * @param {String} uid
+     * @param {HTMLElement} element
+     * @param {String} position
+     * @param {Object} resources
+     * @param {Object} options
+     */
+    constructor(
+        dimensionsProvider,
+        renderer,
+        eventBus,
+        uid,
+        element,
+        position,
+        resources = {},
+        options = {},
+    ) {
         super(eventBus, uid, element, position, options);
 
-        this.#resources = resources;
+        this.#dimensionsProvider = dimensionsProvider;
+        this.#renderer = renderer;
+        this.#rawResources = resources;
+
+        for (let key in resources) {
+            this.#resources.push(new Resource(key, resources[key]));
+        }
     }
 
     set html(html) {
         this.element.innerHTML = html;
     }
 
+    /**
+     * @returns {Array<Resource>}
+     */
     get resources () {
         return this.#resources;
+    }
+
+    /**
+     * @returns {Object}
+     */
+    get rawResources() {
+        return this.#rawResources;
     }
 
     /**
@@ -109,19 +148,6 @@ export class ManagedBanner extends Banner {
         return data;
     }
 
-    getCurrenBreakpoint(bannerId) {
-        let bannerData = this.bannerData;
-        bannerData = (Array.isArray(bannerData) ? bannerData : [bannerData]).find(banner => banner.id === bannerId);
-
-        const breakpoint = bannerData && bannerData.content ? bannerData.content.breakpoint : null;
-
-        return null === breakpoint ? null : parseInt(breakpoint);
-    }
-
-    isManaged() {
-        return true;
-    }
-
     setResponseData(responseData) {
         if (this.#responseDataReceived) {
             throw new Error(`Data for banner on position ${this.position} is already set.`);
@@ -139,14 +165,51 @@ export class ManagedBanner extends Banner {
         const banners = [];
 
         for (let i in (responseData.banners || [])) {
-            banners.push(new BannerData(responseData.banners[i], responseData['breakpoint_type']));
+            banners.push(new BannerData(
+                responseData.banners[i],
+                responseData['breakpoint_type'],
+                this.#dimensionsProvider,
+            ));
         }
 
         this.#banners = banners;
         this.#responseDataReceived = true;
+
+        this.#render('Banner was successfully rendered.');
     }
 
-    needRedraw() {
+    getCurrenBreakpoint(bannerId) {
+        let bannerData = this.bannerData;
+        bannerData = (Array.isArray(bannerData) ? bannerData : [bannerData]).find(banner => banner.id === bannerId);
+
+        const breakpoint = bannerData && bannerData.content ? bannerData.content.breakpoint : null;
+
+        return null === breakpoint ? null : parseInt(breakpoint);
+    }
+
+    isManaged() {
+        return true;
+    }
+
+    redrawIfNeeded() {
+        if (this.#needRedraw()) {
+            this.#render('Banner was successfully redrawn.');
+        }
+    }
+
+    #render(stateInfo) {
+        try {
+            this.html = this.#renderer.render(this);
+        } catch (e) {
+            this.setState(this.STATE.ERROR, 'Render error: ' + e.message);
+
+            return;
+        }
+
+        this.setState(this.STATE.RENDERED, stateInfo);
+    }
+
+    #needRedraw() {
         let data = this.bannerData;
 
         if (!Array.isArray(data)) {

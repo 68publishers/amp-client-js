@@ -17,7 +17,7 @@ export class Request {
         this.#headers = headers;
     }
 
-    addPosition(position, resources = []) {
+    addPosition(position, resources = [], applyDefaultResources = true) {
         const query = this.#query;
 
         if (position in query) {
@@ -26,7 +26,10 @@ export class Request {
 
         query[position] = {};
 
-        this.addPositionResources(position, this.#defaultResources);
+        if (applyDefaultResources) {
+            this.addPositionResources(position, this.#defaultResources);
+        }
+
         this.addPositionResources(position, resources);
     }
 
@@ -88,12 +91,17 @@ export class Request {
     }
 
     #parseQueryParameter = (query) => {
-        const json = Object.assign({}, query);
-        let position, resource;
+        const json = {};
 
-        for (position in json) {
-            for (resource in json[position]) {
-                json[position][resource] = json[position][resource].value;
+        for (let position in query) {
+            json[position] = {};
+
+            for (let resource in query[position]) {
+                const value = query[position][resource].value.filter(val => '' !== val);
+
+                if (value.length) {
+                    json[position][resource] = value;
+                }
             }
         }
 

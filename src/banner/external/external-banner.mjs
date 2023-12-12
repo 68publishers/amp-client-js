@@ -2,12 +2,14 @@ import { Banner } from '../banner.mjs';
 import { Fingerprint } from '../fingerprint.mjs';
 import { PositionData } from '../position-data.mjs';
 import { AttributesParser } from '../attributes-parser.mjs';
+import { Contents } from '../responsive/contents.mjs';
 
 export class ExternalBanner extends Banner {
     #fingerprints = [];
-    #breakpointsByBannerId = {};
+    #contentsByBannerId = null;
+    #responsiveBehaviourDelegated = false;
 
-    constructor(eventBus, uid, element) {
+    constructor(dimensionsProvider, eventBus, uid, element) {
         if (!('ampBannerExternal' in element.dataset)) {
             throw new Error(`Unable to initialize ExternalBanner from element that does not have an attribute "data-amp-external".`);
         }
@@ -25,7 +27,7 @@ export class ExternalBanner extends Banner {
         super(eventBus, uid, element, positionData.code, options);
 
         const fingerprints = [];
-        const breakpointsByBannerId = {};
+        const contentsByBannerId = {};
 
         for (let banner of element.querySelectorAll('[data-amp-banner-fingerprint]')) {
             const fingerprint = Fingerprint.createFromValue(banner.dataset.ampBannerFingerprint);
@@ -36,20 +38,17 @@ export class ExternalBanner extends Banner {
                 let breakpoint = content.dataset.ampContentBreakpoint;
                 breakpoint = 'default' === breakpoint ? null : parseInt(breakpoint);
 
-                if (!(fingerprint.bannerId in breakpointsByBannerId)) {
-                    breakpointsByBannerId[fingerprint.bannerId] = [];
+                if (!(fingerprint.bannerId in contentsByBannerId)) {
+                    contentsByBannerId[fingerprint.bannerId] = new Contents(dimensionsProvider, positionData.breakpointType);
                 }
 
-                breakpointsByBannerId[fingerprint.bannerId].push({
-                    breakpoint: breakpoint,
-                    element: content,
-                })
+                contentsByBannerId[fingerprint.bannerId].addContent(breakpoint, content);
             }
         }
 
         this._positionData = positionData;
         this.#fingerprints = fingerprints;
-        this.#breakpointsByBannerId = breakpointsByBannerId;
+        this.#contentsByBannerId = contentsByBannerId;
 
         this.setState(state.value, state.info);
     }
@@ -65,14 +64,22 @@ export class ExternalBanner extends Banner {
      * @returns {number|null}
      */
     getCurrenBreakpoint(bannerId) {
-        const breakpointsByBannerId = this.#breakpointsByBannerId;
-        const breakpoints = breakpointsByBannerId[bannerId] || [];
+        const contentsByBannerId = this.#contentsByBannerId;
+        const contents = contentsByBannerId[bannerId] || null;
 
-        for (let breakpoint of breakpoints) {
-            const style = getComputedStyle(breakpoint.element);
+        if (null === contents) {
+            return null;
+        }
+
+        if (this.#responsiveBehaviourDelegated) {
+            return contents.content ? contents.content.breakpoint : null;
+        }
+
+        for (let content of contents.contents) {
+            const style = getComputedStyle(content.data);
 
             if ('none' !== style.display) {
-                return breakpoint.breakpoint;
+                return content.breakpoint;
             }
         }
 
@@ -81,5 +88,40 @@ export class ExternalBanner extends Banner {
 
     isExternal() {
         return true;
+    }
+
+    delegateResponsiveBehaviour() {
+        if (this.#responsiveBehaviourDelegated) {
+            return;
+        }
+
+        this.#responsiveBehaviourDelegated = true;
+        const styles = this.element.querySelectorAll('style');
+
+        for (let style of styles) {
+            style.remove();
+        }
+
+        this.redrawIfNeeded();
+    }
+
+    redrawIfNeeded() {
+        if (!this.#responsiveBehaviourDelegated) {
+            return;
+        }
+
+        for (let bannerId in this.#contentsByBannerId) {
+            const contents = this.#contentsByBannerId[bannerId];
+
+            if (!contents.needRedraw()) {
+                continue;
+            }
+
+            const currentContent = contents.content;
+
+            for (let content of contents.contents) {
+                content.data.style.display = content === currentContent ? 'block' : 'none';
+            }
+        }
     }
 }
