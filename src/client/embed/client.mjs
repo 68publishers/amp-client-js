@@ -1,11 +1,13 @@
 import { createMainConfig, createExtendedConfig } from './config.mjs';
 import { BannerManager } from '../../banner/banner-manager.mjs';
+import { DimensionsProvider } from '../../banner/responsive/dimensions-provider.mjs';
 import { EventBus } from '../../event/event-bus.mjs';
 import { Events } from '../../event/events.mjs';
 import { ParentFrameMessenger } from '../../frame/parent-frame-messenger.mjs';
 import { BannerInteractionWatcher } from '../../interaction/banner-interaction-watcher.mjs';
 import { MetricsSender } from '../../metrics/metrics-sender.mjs';
 import { MetricsEventsListener } from '../../metrics/metrics-events-listener.mjs';
+import { State } from '../../banner/state.mjs';
 
 export class Client {
     #version;
@@ -18,6 +20,7 @@ export class Client {
     #metricsSender;
     #metricsEventsListener;
     #attached;
+    #parentWindowWidth = null;
 
     /**
      * @param {ClientVersion} version
@@ -31,7 +34,12 @@ export class Client {
         this.#extendedConfig = createExtendedConfig({});
         this.#extendedConfig = null;
         this.#eventBus = new EventBus();
-        this.#bannerManager = new BannerManager(this.#eventBus);
+        this.#bannerManager = new BannerManager(
+            this.#eventBus,
+            new DimensionsProvider(() => {
+                return this.#parentWindowWidth || window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            }),
+        );
         this.#frameMessenger = new ParentFrameMessenger({
             clientEventBus: this.#eventBus,
         });
@@ -49,14 +57,21 @@ export class Client {
 
         this.#frameMessenger.on('connect', ({ data }) => {
             this.#extendedConfig = createExtendedConfig(data.extendedConfig);
+            this.#parentWindowWidth = data.windowWidth;
             this.#bannerInteractionWatcher = new BannerInteractionWatcher(
                 this.#bannerManager,
                 this.#eventBus,
                 this.#extendedConfig.interaction,
             );
 
+            this.#redrawBanners();
             this.#bannerInteractionWatcher.start();
-        })
+        });
+
+        this.#frameMessenger.on('windowResized', ({ data }) => {
+            this.#parentWindowWidth = data.windowWidth;
+            this.#redrawBanners();
+        });
 
         this.#frameMessenger.listen();
         this.#metricsEventsListener.attach();
@@ -89,6 +104,10 @@ export class Client {
         const banner = this.#bannerManager.addExternalBanner(element);
         this.#attached = true;
 
+        if (window.self !== window.top) {
+            banner.delegateResponsiveBehaviour();
+        }
+
         this.#eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, banner);
     }
 
@@ -97,5 +116,11 @@ export class Client {
             eventName,
             eventArgs,
         });
+    }
+
+    #redrawBanners() {
+        for (let banner of this.#bannerManager.getBannersByState({ state: State.RENDERED })) {
+            banner.redrawIfNeeded();
+        }
     }
 }

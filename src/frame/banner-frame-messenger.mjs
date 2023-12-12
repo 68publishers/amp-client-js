@@ -6,6 +6,7 @@ export class BannerFrameMessenger extends FrameMessenger {
     #connectionData;
     #bannerManager;
     #metricsSender;
+    #connectedBanners = [];
 
     /**
      * @param {String} origin
@@ -32,12 +33,28 @@ export class BannerFrameMessenger extends FrameMessenger {
         for (let message in handlers) {
             this.on(message, handlers[message].bind(this));
         }
+
+        window.addEventListener('resize', () => {
+            const banners = this.#bannerManager.getBannersByState({
+                state: this.#bannerManager.STATE.RENDERED,
+                managed: false,
+                external: false,
+                embed: true,
+            });
+
+            for (let banner of banners) {
+                this.sendToBanner(banner, 'windowResized', {
+                    windowWidth: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+                })
+            }
+        });
     }
 
     connectBanner(embedBanner) {
         embedBanner.element.addEventListener('load', () => {
             const data = this.#connectionData;
             data.uid = embedBanner.uid;
+            data.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
             this.sendToBanner(embedBanner, 'connect', data);
         });
@@ -50,6 +67,21 @@ export class BannerFrameMessenger extends FrameMessenger {
             data,
             this.#origin,
         );
+    }
+
+    _beforeDispatch(message, { data }) {
+        const { uid } = data;
+
+        if (-1 === this.#connectedBanners.indexOf(uid)) {
+            const banner = this.#findBanner(uid);
+
+            if (banner) {
+                banner.element.style.visibility = 'visible';
+                this.#connectedBanners.push(uid);
+            }
+        }
+
+        return true;
     }
 
     #onAdjustHeightMessage({ data }) {

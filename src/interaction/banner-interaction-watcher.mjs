@@ -76,18 +76,8 @@ export class BannerInteractionWatcher {
 
             // when fingerprint element is not attached yet
             if (undefined === element.dataset.ampBannerFingerprintObserved) {
-                // wait for all images to be completed or failed
-                Promise.all(
-                    [].slice.call(element.getElementsByTagName('img'))
-                        .filter(img => !img.complete)
-                        .map(img => new Promise(resolve => { img.onload = img.onerror = resolve; })),
-                ).then(() => {
-                    // prevent double observing
-                    if (undefined === element.dataset.ampBannerFingerprintObserved) {
-                        element.dataset.ampBannerFingerprintObserved = 'true';
-                        this.#intersectionObserver.observe(element);
-                    }
-                });
+                element.dataset.ampBannerFingerprintObserved = 'true';
+                this.#intersectionObserver.observe(element);
             }
 
             const linkElements = element.getElementsByTagName('a');

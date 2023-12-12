@@ -30,7 +30,14 @@ export class EmbedUrlFactory {
     }
 
     create(position, resources = {}, options = {}) {
-        const allResources = this.#defaultResources;
+        let allResources;
+
+        if ('1' !== (options['omit-default-resources'] || '0').toString()) {
+            allResources = { ...this.#defaultResources };
+        } else {
+            allResources = {};
+            delete options['omit-default-resources'];
+        }
 
         for (let key in resources) {
             const resource = new Resource(key, resources[key]);
@@ -47,7 +54,11 @@ export class EmbedUrlFactory {
         let resourcesParam = {};
 
         for (let key in allResources) {
-            resourcesParam[key] = allResources[key].value;
+            const value = allResources[key].value.filter(val => '' !== val);
+
+            if (value.length) {
+                resourcesParam[key] = allResources[key].value;
+            }
         }
 
         resourcesParam = JSON.stringify(resourcesParam);
