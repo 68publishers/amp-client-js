@@ -18,7 +18,7 @@
     <!-- Custom styles -->
     <style>
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             text-align: center;
             margin: 0 auto;
         }
@@ -58,7 +58,7 @@
             url: 'http://localhost:8888',
             channel: 'amp-demo',
             resources: {
-                role: 'guest'
+                roles: 'guest',
             },
             metrics: {
                 receiver: 'debug',
@@ -225,7 +225,7 @@
         }
 
         window.AMPClient.on('amp:banner:state-changed', function (banner) {
-            if ('RENDERED' !== banner.state || !banner.positionData.isMultiple()) {
+            if ('RENDERED' !== banner.state || !banner.positionData.isMultiple() || banner.isEmbed()) {
                 return;
             }
 

@@ -75,7 +75,7 @@ export class IntersectionObserverFactory {
                 }
 
                 if (!fingerprintMetadata.alreadyFullySeen) {
-                    const isFullyIntersecting = 1 <= entry.intersectionRatio;
+                    const isFullyIntersecting = 0.99 <= entry.intersectionRatio;
 
                     firstTimeFullySeenMetadata[fingerprint] = (!(fingerprint in firstTimeFullySeenMetadata) || (!firstTimeFullySeenMetadata[fingerprint].isFullyIntersecting && isFullyIntersecting))
                         ? { fingerprintArgs, fingerprintMetadata, isFullyIntersecting }
@@ -115,7 +115,7 @@ export class IntersectionObserverFactory {
                 eventBus.dispatch(Events.ON_BANNER_INTERSECTION_CHANGED, eventArgs);
             }
         }, {
-            threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+            threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99],
         });
     }
 }

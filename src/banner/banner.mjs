@@ -32,6 +32,9 @@ export class Banner {
         return this.#uid;
     }
 
+    /**
+     * @returns {HTMLElement}
+     */
     get element() {
         return this.#element;
     }
@@ -90,6 +93,9 @@ export class Banner {
      */
     getCurrenBreakpoint(bannerId) { // eslint-disable-line no-unused-vars
         return null;
+    }
+
+    redrawIfNeeded() {
     }
 
     isManaged() {

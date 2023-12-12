@@ -28,11 +28,20 @@ export class FrameMessenger {
             }
 
             const { message, data } = event.data;
-
-            this.#eventBus.dispatch(message, {
+            const args = {
                 data,
                 origin: event.origin,
-            });
+            };
+
+            if (!this._beforeDispatch(message, args)) {
+                return;
+            }
+
+            this.#eventBus.dispatch(message, args);
         }, false);
+    }
+
+    _beforeDispatch() {
+        return true;
     }
 }
