@@ -11,6 +11,7 @@
   * [Creating banners using data attributes](#creating-banners-using-data-attributes)
   * [Banners fetching and rendering](#banners-fetching-and-rendering)
   * [Lazy loading of image banners](#lazy-loading-of-image-banners)
+  * [Loading banners in iframes](#loading-banners-in-iframes)
   * [Integration with banners that are rendered server-side](#integration-with-banners-that-are-rendered-server-side)
   * [Banner states](#banner-states)
 * [Client events](#client-events)
@@ -84,10 +85,13 @@ Banners can be created manually through the client, or they can be created direc
 
 ### Creating banners manually
 
-Banners are created using method `createBanner()`. The first argument of the method is the HTML element into which a banner will be rendered.
-The second argument is a position code from the AMP and the third optional argument can be an object that contains resources of the banner.
+Banners are created using method `createBanner()`. The method accepts the following arguments:
 
-The last optional argument is an object that can contain arbitrary custom values. These options can then be retrieved in event handlers and templates.
+- `{HtmlElement|String} element` - Selector or HTML element into which a banner will be rendered.
+- `{String} position` - Position code from the AMP.
+- `{Object} ?resources` - Optional object that can contains resources of the banner.
+- `{Object} ?options` - Optional object that can contain arbitrary custom values. These options can then be retrieved in event handlers and templates.
+- `{String} ?mode` - Optional argument. Specifies how the banner should be rendered. Supported values are `"managed"` (default value) and `"embed"` (more in the section [Loading banners in iframes](#loading-banners-in-iframes)).
 
 ```html
 <div id="banner1"></div>
@@ -118,10 +122,12 @@ The last optional argument is an object that can contain arbitrary custom values
 
 ### Creating banners using data attributes
 
-The creation of banners is controlled by three types of data attributes. The first one is `data-amp-banner`, which contains the position code from the AMP.
-The second type are attributes with the prefix `data-amp-resource-`, which contain the resources of a given banner separated by a comma.
+The creation of banners is controlled by the following data attributes:
 
-The third type are attributes with the prefix `data-amp-option-`, which can contain arbitrary custom values. These options can then be retrieved in event handlers and templates.
+- `data-amp-banner` - Required attribute. The value contains the position code from the AMP.
+- `data-amp-resource-<code>` - Optional attribute. The attribute name must end with a resource code from the AMP. The attribute value should contain individual values of the resource separated by a comma.
+- `data-amp-option-<option>` - Optional attribute. The attribute name must end with the option name, which can be anything, as well as the attribute value. These options can then be retrieved in event handlers and templates.
+- `data-amp-mode` - Optional attribute. Specifies how the banner should be rendered. Supported values are `"managed"` (default value) and `"embed"` (more in the section [Loading banners in iframes](#loading-banners-in-iframes)).
 
 ```html
 <div data-amp-banner="homepage.top"
@@ -201,6 +207,24 @@ AMPClient.createBanner(element, 'homepage.top', {}, {
 
 If you prefer a different implementation of lazy loading, it is possible to pass custom templates to the client in the configuration object instead of [the default ones](../src/template) and integrate a different solution in these templates.
 
+### Loading banners in iframes
+
+Banners can be rendered in the `<iframe>` tag. To achieve this, just switch the banner to `embed` mode.
+
+```javascript
+AMPClient.createBanner(element, 'homepage.top', {}, {}, 'embed');
+```
+
+```html
+<div data-amp-banner="homepage.top"
+     data-amp-mode="embed">
+</div>
+```
+
+The iframe will be rendered when the method `attachBanners()` is called.
+
+⚠️ Only image banners on `single` and `random` positions are now fully compatible with `embed` mode. Rendering other types via `embed` mode is not recommended.
+
 ### Integration with banners that are rendered server-side
 
 Banners that are rendered server-side using [68publishers/amp-client-php](https://github.com/68publishers/amp-client-php) don't need any special integration.
@@ -237,7 +261,7 @@ Events can be attached in this way:
 
 ```javascript
 AMPClient.on('amp:banner:state-changed', function (banner) {
-  if ('RENDERED' !== banner.state || !banner.positionData.isMultiple()) { // do action only if the banner is rendered and position type is "multiple"
+  if ('RENDERED' !== banner.state || !banner.positionData.isMultiple() || banner.isEmbed()) { // do action only if the banner is rendered, position type is "multiple" and not embed
     return;
   }
 
@@ -255,6 +279,10 @@ AMPClient.on('amp:banner:state-changed', function (banner) {
   // It is also possible to retrieve custom options that were passed to the banner during initialization:
   const loadingOption = banner.options.get('loading', 'eager'); // the second argument is the default value
   const customOption = banner.options.get('customOption', undefined);
+
+  banner.isManaged(); // Is the banner rendered by JS client?
+  banner.isExternal(); // Was the banner rendered server-side?
+  banner.isEmbed(); // Is the banner rendered in the <iframe> tag?
 
   // do anything, e.g. initialize your favourite slider
 });
@@ -315,7 +343,7 @@ If you want to send data to GA via GTM please see [GTM Metrics Guide](./gtm-metr
       });
   
       AMPClient.on('amp:banner:state-changed', function (banner) {
-        if ('RENDERED' !== banner.state || 'multiple' !== banner.data.displayType) {
+        if ('RENDERED' !== banner.state || !banner.positionData.isMultiple() || banner.isEmbed()) {
           return;
         }
   
