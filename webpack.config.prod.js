@@ -1,5 +1,6 @@
 const path = require('path');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
+const LodashWebpackPlugin = require('lodash-webpack-plugin');
 
 const config = {
     mode: 'production',
@@ -33,6 +34,9 @@ const config = {
             new TerserWebpackPlugin(),
         ],
     },
+    plugins: [
+        new LodashWebpackPlugin(),
+    ],
 };
 
 const defaultConfig = Object.assign({}, config, {
@@ -43,7 +47,7 @@ const defaultConfig = Object.assign({}, config, {
         library: {
             type: 'var',
             name: 'AMPClientFactory',
-            export: 'AMPClientFactory',
+            export: 'default',
         },
     }
 });
@@ -56,7 +60,7 @@ const standaloneConfig = Object.assign({}, config,{
         library: {
             type: 'var',
             name: 'AMPClientFactory',
-            export: 'AMPClientFactory',
+            export: 'default',
         },
     },
     externals: {
@@ -65,21 +69,7 @@ const standaloneConfig = Object.assign({}, config,{
     }
 });
 
-const embedConfig = Object.assign({}, config, {
-    name: 'embed',
-    output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'amp-client.embed.min.js',
-        library: {
-            type: 'var',
-            name: 'AMPClientFactory',
-            export: 'EmbedAMPClientFactory',
-        },
-    }
-});
-
 module.exports = [
     defaultConfig,
     standaloneConfig,
-    embedConfig,
 ];
