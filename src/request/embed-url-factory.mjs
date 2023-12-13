@@ -6,8 +6,8 @@ export class EmbedUrlFactory {
     #locale;
     #defaultResources;
 
-    constructor (url, channel) {
-        this.#endpoint = `${url}/preview/position/${encodeURIComponent(channel)}`;
+    constructor (url, version, channel) {
+        this.#endpoint = `${url}/api/v${version}/preview/position/${encodeURIComponent(channel)}`;
         this.#locale = null;
         this.#defaultResources = {};
     }

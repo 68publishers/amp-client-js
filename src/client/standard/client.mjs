@@ -45,6 +45,7 @@ export class Client {
         );
         this.#embedUrlFactory = new EmbedUrlFactory(
             options.url,
+            options.version,
             options.channel,
         );
 
