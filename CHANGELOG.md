@@ -6,23 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-## [1.4.0-beta.2] - 2023-12-01
 ### Added
+- Added property `version` in the client.
+- Added integration with server-side rendered banners.
 - Added ability to provide custom options for each banner. Options can be passed via data attributes `data-amp-option-<optionName>="<optionValue>"` and can be retrieved in event handlers.
 - Added support for native lazy loading. Feature can be enabled through banner options `loading=lazy` and `loading-offset=<offset>` (for multiple positions only).
 
 ### Changed
-- The default templates have been modified and moved to the `./src/template` directory.
-- Updated docs.
-
-## [1.4.0-beta.1] - 2023-11-30
-### Added
-- Added property `version` in the client.
-- Added integration with server-side rendered banners.
-
-### Changed
 - Property `banner.data` is now deprecated. To access information about a position use property `banner.positionData`. For example, replace `banner.data.displayType` with `banner.positionData.displayType`.
+- The default templates have been modified and moved to the `./src/template` directory.
 - Updated docs.
 
 ## [1.3.1] - 2023-10-25
