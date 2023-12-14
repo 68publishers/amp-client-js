@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Added `embed` mode for banners rendering. Embed banners are rendered in iframes and can be enabled via data attribute `data-amp-mode="embed"`.
+- Added a new JS client for use in iframes. It is not intended for direct use on a website.
+- Added the property `AMPClientFactory.version` that returns the package version in semver format.
+
+### Changed
+- The package has been refactored from CommonJS to ESM.
+- Updated dependencies.
+- The property `version` on the client now returns an object of type `ClientVersion` instead of a simple semver string.
+- Updated docs.
 
 ## [1.4.0] - 2023-12-14
 ### Added

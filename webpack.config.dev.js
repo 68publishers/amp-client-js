@@ -2,17 +2,25 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './index.js',
+    entry: {
+        clientFactory: {
+            import: './index.mjs',
+            filename: 'amp-client.js',
+            library: {
+                type: 'var',
+                name: 'AMPClientFactory',
+                export: 'default',
+            }
+        },
+    },
     output: {
         path: path.resolve(__dirname, 'demo'),
-        filename: 'amp-client.js',
-        library: 'AMPClientFactory',
     },
     module: {
         rules: [
             {
                 loader:  'babel-loader',
-                test: /\.js$/,
+                test: /\.mjs$/,
                 include: [
                     path.resolve(__dirname, 'src'),
                 ],
