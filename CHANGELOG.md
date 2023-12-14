@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.4.0] - 2023-12-14
 ### Added
 - Added property `version` in the client.
 - Added integration with server-side rendered banners.
@@ -86,9 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added missing getter `Banner.resources`.
 
-[Unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.4.0-beta.2...HEAD
-[1.4.0-beta.2]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.4.0-beta.1...v1.4.0-beta.2
-[1.4.0-beta.1]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.3.1...v1.4.0-beta.1
+[Unreleased]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.4.0...HEAD
+[1.4.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.3.1...v1.4.0
 [1.3.1]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.3.0...v1.3.1
 [1.3.0]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.2.1...v1.3.0
 [1.2.1]: https://gitlab.com/68publishers/projects/amp/amp-client-js/compare/v1.2.0...v1.2.1
