@@ -37,15 +37,17 @@ After that, you can require AMP Client like any other JavaScript library.
 
 ## Versions compatibility matrix
 
-| Client Version |   AMP version    | API version | Note                                                                                                                                  |
-|:--------------:|:----------------:|:-----------:|---------------------------------------------------------------------------------------------------------------------------------------|
-|     `~1.0`     |  `>=1.0 <=2.7`   |     `1`     |                                                                                                                                       |
-|     `~1.1`     |  `>=1.0 <=2.7`   |     `1`     | API supports only GET requests (cannot set the `method: "POST"` option)                                                               |
-|     `~1.1`     |     `>=2.8`      |     `1`     |                                                                                                                                       |
-|     `~1.2`     | `>= 2.8 <= 2.10` |     `1`     | Limited metrics functionality - `banner_name`, `position_id`, `position_name`, `campaign_id` and `campaign_name` fields are not sent. |
-|     `~1.2`     |     `<=2.11`     |     `1`     | The option `origin` has no effect, as it is not handled by AMP.                                                                       |
-|     `~1.3`     |     `>=2.12`     |     `1`     |                                                                                                                                       |
-|     `~1.4`     |     `>=2.12`     |     `1`     | Adds support for server-side rendered banners ([68publishers/amp-client-php](https://github.com/68publishers/amp-client-php)).        |
+| Client Version | AMP version  | API version | Note                                                                                                                                  |
+|:--------------:|:------------:|:-----------:|---------------------------------------------------------------------------------------------------------------------------------------|
+|    `~1.0.0`    | `1.0 - 2.7`  |     `1`     |                                                                                                                                       |
+|    `~1.1.0`    | `1.0 - 2.7`  |     `1`     | API supports only GET requests (cannot set the `method: "POST"` option)                                                               |
+|    `~1.1.0`    |    `2.8`     |     `1`     |                                                                                                                                       |
+|    `~1.2.0`    | `2.8 - 2.10` |     `1`     | Limited metrics functionality - `banner_name`, `position_id`, `position_name`, `campaign_id` and `campaign_name` fields are not sent. |
+|    `~1.2.0`    |    `2.11`    |     `1`     | The option `origin` has no effect, as it is not handled by AMP.                                                                       |
+|    `~1.3.0`    |    `2.12`    |     `1`     |                                                                                                                                       |
+|    `~1.4.0`    |    `2.12`    |     `1`     | Adds support for server-side rendered banners ([68publishers/amp-client-php](https://github.com/68publishers/amp-client-php)).        |
+|    `~1.4.0`    |    `2.13`    |     `1`     | Missing support for embed banners on the client's side. Banners marked as `embed` in AMP administration will be generated normally.   |
+|    `~1.5.0`    |   `>=2.13`   |     `1`     |                                                                                                                                       |
 
 ## Integration
 
