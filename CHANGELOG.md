@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `embed` mode for banners rendering. Embed banners are rendered in iframes and can be enabled via data attribute `data-amp-mode="embed"`.
 - Added a new JS client for use in iframes. It is not intended for direct use on a website.
 - Added the property `AMPClientFactory.version` that returns the package version in semver format.
+- Added attributes `width` and `height` for images if a dimensions are returned by the API.
 
 ### Changed
 - The package has been refactored from CommonJS to ESM.

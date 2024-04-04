@@ -18,7 +18,7 @@ export class EmbedBanner extends Banner {
     }
 
     updatePositionData(data) {
-        const props = ['id', 'name', 'rotationSeconds', 'displayType', 'breakpointType'];
+        const props = ['id', 'name', 'rotationSeconds', 'displayType', 'breakpointType', 'dimensions'];
         const positionData = this.positionData;
 
         for (let prop of props) {

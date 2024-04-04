@@ -20,6 +20,8 @@ export default `
                          src="<%= data.content.src %>"
                          sizes="<%- data.content.sizes %>"
                          alt="<%- data.content.alt %>"
+                         <% if(null !== banner.positionData.dimensions.width) { %>width="<%- banner.positionData.dimensions.width %>"<% } %>
+                         <% if(null !== banner.positionData.dimensions.height) { %>height="<%- banner.positionData.dimensions.height %>"<% } %>
                          <% if('' !== data.content.title) { %>title="<%- data.content.title %>"<% } %>
                          <% if(banner.options.has('loading')) { %>loading="<%- banner.options.get('loading') %>"<% } %>>
                 </picture>
