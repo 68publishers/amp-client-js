@@ -6,14 +6,19 @@ export class PositionData {
      * @param {int} rotationSeconds
      * @param {string|null} displayType
      * @param {string|null} breakpointType
+     * @param {{width: int|null, height: int|null}} dimensions
      */
-    constructor({ id, code, name, rotationSeconds, displayType, breakpointType }) {
+    constructor({ id, code, name, rotationSeconds, displayType, breakpointType, dimensions }) {
         this.id = id;
         this.code = code;
         this.name = name;
         this.rotationSeconds = rotationSeconds;
         this.displayType = displayType;
         this.breakpointType = breakpointType;
+        this.dimensions = {
+            width: dimensions.width || null,
+            height: dimensions.height || null,
+        }
     }
 
     static createInitial(code) {
@@ -24,6 +29,10 @@ export class PositionData {
             rotationSeconds: 0,
             displayType: null,
             breakpointType: null,
+            dimensions: {
+                width: null,
+                height: null,
+            },
         });
     }
 
@@ -47,6 +56,7 @@ export class PositionData {
             rotationSeconds: this.rotationSeconds,
             displayType: this.displayType,
             breakpointType: this.breakpointType,
+            dimensions: this.dimensions,
         }
     }
 }

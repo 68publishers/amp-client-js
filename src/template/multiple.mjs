@@ -23,6 +23,8 @@ export default `
                                      src="<%= b.content.src %>"
                                      sizes="<%- b.content.sizes %>"
                                      alt="<%- b.content.alt %>"
+                                     <% if(null !== banner.positionData.dimensions.width) { %>width="<%- banner.positionData.dimensions.width %>"<% } %>
+                                     <% if(null !== banner.positionData.dimensions.height) { %>height="<%- banner.positionData.dimensions.height %>"<% } %>
                                      <% if('' !== b.content.title) { %>title="<%- b.content.title %>"<% } %>
                                      <% if(banner.options.has('loading') && index >= parseInt(banner.options.get('loading-offset', 0))) { %>loading="<%- banner.options.get('loading') %>"<% } %>>
                             </picture>
