@@ -15,7 +15,7 @@ export class BannerRenderer {
         return this.#loader.getTemplate(banner.positionData.displayType)({
             banner: banner,
             data: banner.bannerData,
-            expr: evaluateExpression
+            expr: evaluateExpression,
         });
     }
 }
