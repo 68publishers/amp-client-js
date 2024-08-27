@@ -13,6 +13,7 @@ import { MetricsEventsListener } from '../../metrics/metrics-events-listener.mjs
 import { MetricsSender } from '../../metrics/metrics-sender.mjs';
 import { BannerFrameMessenger } from '../../frame/banner-frame-messenger.mjs';
 import { getHtmlElement } from '../../utils/dom-helpers.mjs';
+import { evaluateExpression } from '../../utils/expression.mjs';
 
 export class Client {
     #version;
@@ -274,6 +275,11 @@ export class Client {
 
         if ('lazy' === options.loading) {
             iframe.loading = 'lazy';
+        }
+
+        if ('fetchpriority' in options) {
+            const fetchPriority = evaluateExpression(options.fetchpriority, 0);
+            fetchPriority && (iframe.setAttribute('fetchpriority', fetchPriority));
         }
 
         return iframe;
