@@ -1,4 +1,5 @@
 import { TemplateLoader } from './temnplate-loader.mjs';
+import { evaluateExpression } from '../utils/expression.mjs';
 
 export class BannerRenderer {
     #loader;
@@ -14,6 +15,7 @@ export class BannerRenderer {
         return this.#loader.getTemplate(banner.positionData.displayType)({
             banner: banner,
             data: banner.bannerData,
+            expr: evaluateExpression
         });
     }
 }

@@ -11,6 +11,7 @@
   * [Creating banners using data attributes](#creating-banners-using-data-attributes)
   * [Banners fetching and rendering](#banners-fetching-and-rendering)
   * [Lazy loading of image banners](#lazy-loading-of-image-banners)
+  * [Fetch priority of image banners](#fetch-priority-of-image-banners)
   * [Loading banners in iframes](#loading-banners-in-iframes)
   * [Integration with banners that are rendered server-side](#integration-with-banners-that-are-rendered-server-side)
   * [Banner states](#banner-states)
@@ -206,6 +207,36 @@ AMPClient.createBanner(element, 'homepage.top', {}, {
 ```
 
 If you prefer a different implementation of lazy loading, it is possible to pass custom templates to the client in the configuration object instead of [the default ones](../src/template) and integrate a different solution in these templates.
+
+### Fetch priority of image banners
+
+The [fetchpriority](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/fetchPriority) attribute can be set for image and embed banners using the `fetchpriority` option.
+
+```javascript
+AMPClient.createBanner(element, 'homepage.top', {}, {
+  fetchpriority: 'high',
+});
+```
+
+```html
+<div data-amp-banner="homepage.top"
+     data-amp-option-fetchpriority="high">
+</div>
+```
+
+In the case of a `multiple` position, it may be required that the first banner have a fetch priority of `high` and the others `low`. This can be achieved with the following expression:
+
+```javascript
+AMPClient.createBanner(element, 'homepage.top', {}, {
+  fetchpriority: '0:high,low',
+});
+```
+
+```html
+<div data-amp-banner="homepage.top"
+     data-amp-option-fetchpriority="0:high,low">
+</div>
+```
 
 ### Loading banners in iframes
 
