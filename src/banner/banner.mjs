@@ -95,6 +95,10 @@ export class Banner {
         return null;
     }
 
+    mergeOptions(options) {
+        this.#options.merge(options);
+    }
+
     redrawIfNeeded() {
     }
 

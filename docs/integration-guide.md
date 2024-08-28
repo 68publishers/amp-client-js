@@ -10,8 +10,9 @@
   * [Creating banners manually](#creating-banners-manually)
   * [Creating banners using data attributes](#creating-banners-using-data-attributes)
   * [Banners fetching and rendering](#banners-fetching-and-rendering)
-  * [Lazy loading of image banners](#lazy-loading-of-image-banners)
-  * [Fetch priority of image banners](#fetch-priority-of-image-banners)
+  * [Banner options](#banner-options)
+    * [Lazy loading of image banners](#lazy-loading-of-image-banners)
+    * [Fetch priority of image banners](#fetch-priority-of-image-banners)
   * [Loading banners in iframes](#loading-banners-in-iframes)
   * [Integration with banners that are rendered server-side](#integration-with-banners-that-are-rendered-server-side)
   * [Banner states](#banner-states)
@@ -172,7 +173,21 @@ for (let snippet of snippets) {
 AMPClient.fetch();
 ```
 
-### Lazy loading of image banners
+### Banner options
+
+Banners can contain options, which is practically a key-value object with arbitrary data.
+Options are accessible from event handlers and some of them have functionality tied to them.
+Options that are automatically handled by the client are for example `loading`, or `fetchpriority`.
+
+There are several ways to pass options to banners.
+
+1. Using the fourth argument of the method `createBanner()`.
+2. Using data attributes with prefix `data-amp-option-`.
+3. By setting them on the position detail page in the AMP administration.
+
+Options passed directly through the client ( variants 1 and 2) have a higher priority than options set in the AMP administration ( variant 3).
+
+#### Lazy loading of image banners
 
 The default client templates support [native lazy loading](https://developer.mozilla.org/en-US/docs/Web/Performance/Lazy_loading#images_and_iframes) of images.
 To activate lazy loading the option `loading: lazy` must be passed to the banner.
@@ -208,7 +223,7 @@ AMPClient.createBanner(element, 'homepage.top', {}, {
 
 If you prefer a different implementation of lazy loading, it is possible to pass custom templates to the client in the configuration object instead of [the default ones](../src/template) and integrate a different solution in these templates.
 
-### Fetch priority of image banners
+#### Fetch priority of image banners
 
 The [fetchpriority](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/fetchPriority) attribute can be set for image and embed banners using the `fetchpriority` option.
 

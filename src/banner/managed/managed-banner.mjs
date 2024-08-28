@@ -163,6 +163,10 @@ export class ManagedBanner extends Banner {
             dimensions: responseData['dimensions'] || { width: null, height: null },
         });
 
+        if ('options' in responseData) {
+            this.mergeOptions(responseData.options);
+        }
+
         const banners = [];
 
         for (let i in (responseData.banners || [])) {

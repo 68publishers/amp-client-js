@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added support for new banner option `fetchpriority`.
+- Added support for banner options defined in the AMP administration.
 
 ### Changed
 - Updated docs.
