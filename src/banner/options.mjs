@@ -10,4 +10,8 @@ export class Options {
     get(optionName, defaultValue = undefined) {
         return this.options[optionName] || defaultValue;
     }
+
+    merge(options) {
+        this.options = {...this.options, ...options};
+    }
 }
