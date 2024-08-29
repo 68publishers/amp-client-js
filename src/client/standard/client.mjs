@@ -228,7 +228,7 @@ export class Client {
 
                 if ('embed' === positionData.mode) {
                     if ('options' in positionData) {
-                        banner.mergeOptions(positionData.options);
+                        banner.overrideOptions(positionData.options);
                     }
 
                     this.createBanner(banner.element, banner.position, banner.rawResources, banner.options.options, positionData.mode);

@@ -95,8 +95,8 @@ export class Banner {
         return null;
     }
 
-    mergeOptions(options) {
-        this.#options.merge(options);
+    overrideOptions(options) {
+        this.#options.override(options);
     }
 
     redrawIfNeeded() {

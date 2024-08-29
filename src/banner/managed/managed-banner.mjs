@@ -164,7 +164,7 @@ export class ManagedBanner extends Banner {
         });
 
         if ('options' in responseData) {
-            this.mergeOptions(responseData.options);
+            this.overrideOptions(responseData.options);
         }
 
         const banners = [];

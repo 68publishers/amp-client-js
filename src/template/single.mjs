@@ -1,7 +1,6 @@
 /**
  * {ManagedBanner} banner
  * {BannerData} data
- * {Function(String expression, Integer index): String|null} expr
  */
 export default `
     <div class="amp-banner amp-banner--single"
@@ -24,8 +23,8 @@ export default `
                          <% if(null !== banner.positionData.dimensions.width) { %>width="<%- banner.positionData.dimensions.width %>"<% } %>
                          <% if(null !== banner.positionData.dimensions.height) { %>height="<%- banner.positionData.dimensions.height %>"<% } %>
                          <% if('' !== data.content.title) { %>title="<%- data.content.title %>"<% } %>
-                         <% if(banner.options.has('loading')) { %>loading="<%- banner.options.get('loading') %>"<% } %>
-                         <% if(banner.options.has('fetchpriority') && expr(banner.options.get('fetchpriority'), 0)) { %>fetchpriority="<%- expr(banner.options.get('fetchpriority'), 0) %>"<% } %>>
+                         <% var loading; if(loading = banner.options.evaluate('loading', 0)) { %>loading="<%- loading %>"<% } %>
+                         <% var fetchPriority; if(fetchPriority = banner.options.evaluate('fetchpriority', 0)) { %>fetchpriority="<%- fetchPriority %>"<% } %>>
                 </picture>
             </a>
         <% } else if ('html' === data.content.type) { %>
