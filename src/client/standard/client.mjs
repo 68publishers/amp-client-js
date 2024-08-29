@@ -5,6 +5,7 @@ import { EmbedUrlFactory } from '../../request/embed-url-factory.mjs';
 import { BannerManager } from '../../banner/banner-manager.mjs';
 import { DimensionsProvider } from '../../banner/responsive/dimensions-provider.mjs';
 import { AttributesParser } from '../../banner/attributes-parser.mjs';
+import { Options as BannerOptions } from '../../banner/options.mjs';
 import { EventBus } from '../../event/event-bus.mjs';
 import { Events } from '../../event/events.mjs';
 import { BannerRenderer } from '../../renderer/banner-renderer.mjs';
@@ -13,7 +14,6 @@ import { MetricsEventsListener } from '../../metrics/metrics-events-listener.mjs
 import { MetricsSender } from '../../metrics/metrics-sender.mjs';
 import { BannerFrameMessenger } from '../../frame/banner-frame-messenger.mjs';
 import { getHtmlElement } from '../../utils/dom-helpers.mjs';
-import { evaluateExpression } from '../../utils/expression.mjs';
 
 export class Client {
     #version;
@@ -258,7 +258,9 @@ export class Client {
     #createIframe(element, position, resources, options) {
         const iframe = document.createElement('iframe');
         const versionParam = `cv=${encodeURIComponent(this.version.semver)}`;
-        let src = element.dataset.ampEmbedSrc || this.#embedUrlFactory.create(position, resources, options);
+        const bannerOptions = new BannerOptions(options);
+
+        let src = element.dataset.ampEmbedSrc || this.#embedUrlFactory.create(position, resources, bannerOptions.options);
         src += -1 === src.indexOf('?') ? `?${versionParam}` : `&${versionParam}`;
 
         [...element.attributes].map(({ name, value }) => {
@@ -277,13 +279,15 @@ export class Client {
 
         iframe.setAttribute('allowtransparency', 'true');
 
-        if ('lazy' === options.loading) {
-            iframe.loading = 'lazy';
+        const loading = bannerOptions.evaluate('loading', 0);
+        const fetchPriority = bannerOptions.evaluate('fetchpriority', 0);
+
+        if (null !== loading) {
+            iframe.loading = loading;
         }
 
-        if ('fetchpriority' in options) {
-            const fetchPriority = evaluateExpression(options.fetchpriority, 0);
-            fetchPriority && (iframe.setAttribute('fetchpriority', fetchPriority));
+        if (null !== fetchPriority) {
+            iframe.setAttribute('fetchpriority', fetchPriority);
         }
 
         return iframe;
