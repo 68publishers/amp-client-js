@@ -11,6 +11,7 @@
   * [Creating banners using data attributes](#creating-banners-using-data-attributes)
   * [Banners fetching and rendering](#banners-fetching-and-rendering)
   * [Banner options](#banner-options)
+    * [Expressions in options](#expressions-in-options)
     * [Lazy loading of image banners](#lazy-loading-of-image-banners)
     * [Fetch priority of image banners](#fetch-priority-of-image-banners)
   * [Loading banners in iframes](#loading-banners-in-iframes)
@@ -185,7 +186,38 @@ There are several ways to pass options to banners.
 2. Using data attributes with prefix `data-amp-option-`.
 3. By setting them on the position detail page in the AMP administration.
 
-Options passed directly through the client ( variants 1 and 2) have a higher priority than options set in the AMP administration ( variant 3).
+Options defined in the AMP administration (variant 3) have a higher priority than options passed directly through the client (variants 1 and 2).
+
+#### Expressions in options
+
+In the case of `multiple` positions, it is sometimes desirable to apply options to only some of the banners (e.g. `loading` or `fetchpriority` options).
+An option value can contain multiple expressions separated by a comma. The value of the first expression that satisfies a condition is always used.
+Expressions are written in the format `{CONDITION}:{VALUE}` and a condition is always matched against an index (order starting from 0) of a banner.
+
+The supported conditions are
+- `{INDEX}` - exact match
+- `{INDEX}-{INDEX}` - range from - to
+- `<{INDEX}`
+- `<={INDEX}`
+- `>{INDEX}`
+- `>={INDEX}`
+
+If an expression does not contain any condition (it is not really an expression), it is evaluated positively and the given value is used.
+
+For a better understanding, here is an example.
+The required behavior of the `fetchpriority` option is:
+- the first (index 0) banner must have the value `high`
+- the second (index 1) and third (index 2) banners must have the value `auto`
+- the other banners (from index 3) must have the value `low`
+
+The desired result can be achieved by multiple expressions, all the following expressions have the same result:
+
+- `0:high,1:auto,2:auto,low`
+- `0:high,1-2:auto,low`
+- `0:high,<=2:auto,>=3:low`
+- `>2:low,>0:auto,high`
+
+If an expression is used on a position with one banner (type `single` or `random`), the index 0 is always used to evaluate the expression, since the position contains only one banner.
 
 #### Lazy loading of image banners
 
@@ -205,19 +237,17 @@ AMPClient.createBanner(element, 'homepage.top', {}, {
 ```
 
 A special case is a position of type `multiple`, where it may be desirable to lazily load all banners except the first.
-This can be achieved by adding the option `loading-offset`, whose value specifies from which banner the attribute `loading` should be rendered.
+This can be achieved with the following expression:
 
 ```javascript
 AMPClient.createBanner(element, 'homepage.top', {}, {
-  loading: 'lazy',
-  'loading-offset': 1,
+  loading: '>=1:lazy',
 });
 ```
 
 ```html
 <div data-amp-banner="homepage.top"
-     data-amp-option-loading="lazy"
-     data-amp-option-loading-offset="1">
+     data-amp-option-loading=">=1:lazy">
 </div>
 ```
 
@@ -239,7 +269,8 @@ AMPClient.createBanner(element, 'homepage.top', {}, {
 </div>
 ```
 
-In the case of a `multiple` position, it may be required that the first banner have a fetch priority of `high` and the others `low`. This can be achieved with the following expression:
+In the case of a `multiple` position, it may be required that the first banner have a fetch priority of `high` and the others `low`.
+This can be achieved with the following expression:
 
 ```javascript
 AMPClient.createBanner(element, 'homepage.top', {}, {

@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated docs.
 
+### Deprecated
+- Deprecated the option `loading-offset`. The option `loading` is now processed as an expression.
+
 ## [1.5.0] - 2024-04-04
 ### Added
 - Added `embed` mode for banners rendering. Embed banners are rendered in iframes and can be enabled via data attribute `data-amp-mode="embed"`.
