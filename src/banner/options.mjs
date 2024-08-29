@@ -21,7 +21,7 @@ export class Options {
 
         return evaluateExpression(
             this.options[optionName],
-            index
+            index,
         );
     }
 
