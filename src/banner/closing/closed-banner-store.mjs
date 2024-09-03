@@ -4,7 +4,7 @@ export class ClosedBannerStore {
     #maxItems;
     #loadedItems = null;
 
-    constructor({ storage, key, maxItems }) {
+    constructor({ storage, key, maxItems, onExternalChange }) {
         switch (storage) {
             case 'localStorage':
                 if (!('localStorage' in window)) {
@@ -34,13 +34,23 @@ export class ClosedBannerStore {
         this.#key = key;
         this.#maxItems = maxItems;
 
-        /*if (this.#storage instanceof Storage) {
+        if (onExternalChange && this.#storage instanceof Storage) {
             window.addEventListener('storage', event => {
-                if (null === event.key || this.#key === event.key) {
-                    this.#loadedItems = null !== event.newValue && '' !== event.newValue ? event.newValue.split(',') : [];
+                if (!(null === event.key || this.#key === event.key)) {
+                    return;
+                }
+
+                const currentItems = this.#loadedItems || [];
+                const newItems = null !== event.newValue && '' !== event.newValue ? event.newValue.split(',') : [];
+                const diff = newItems.filter(id => !currentItems.includes(id));
+
+                this.#loadedItems = newItems;
+
+                if (0 < diff.length) {
+                    onExternalChange(diff);
                 }
             });
-        }*/
+        }
     }
 
     persist(bannerId, closed) {
