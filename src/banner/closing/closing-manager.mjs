@@ -23,7 +23,14 @@ export class ClosingManager {
         this.#frameMessenger = frameMessenger;
 
         const { storage, key, maxItems } = config;
-        this.#store = new ClosedBannerStore({ storage, key, maxItems });
+        this.#store = new ClosedBannerStore({
+            storage,
+            key,
+            maxItems,
+            onExternalChange: ids => {
+                ids.forEach(id => this.closeBanner(id));
+            },
+        });
 
         if (this.#frameMessenger) {
             this.#frameMessenger.on('bannerClosed', ({ data }) => {
