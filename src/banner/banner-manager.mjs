@@ -32,8 +32,8 @@ export class BannerManager {
         this.STATE = State;
     }
 
-    addExternalBanner(element) {
-        element = getHtmlElement(element);
+    addExternalBanner(element, refWindow = window) {
+        element = getHtmlElement(element, refWindow);
 
         element.setAttribute('data-amp-attached', '');
 
@@ -49,12 +49,12 @@ export class BannerManager {
         return banner;
     }
 
-    addManagedBanner(element, position, resources = {}, options = {}) {
+    addManagedBanner(element, position, resources = {}, options = {}, refWindow = window) {
         if (null === this.#bannerRenderer) {
             throw new Error(`Unable to add managed banner, renderer is not provided.`);
         }
 
-        element = getHtmlElement(element);
+        element = getHtmlElement(element, refWindow);
 
         element.setAttribute('data-amp-attached', '');
 
@@ -75,8 +75,8 @@ export class BannerManager {
     }
 
     addEmbedBanner(element, iframe, position, options) {
-        element = getHtmlElement(element);
-        iframe = getHtmlElement(iframe);
+        element = getHtmlElement(element, window);
+        iframe = getHtmlElement(iframe, window);
 
         element.setAttribute('data-amp-attached', '');
 

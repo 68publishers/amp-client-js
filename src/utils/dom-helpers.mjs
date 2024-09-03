@@ -1,5 +1,11 @@
-export function getHtmlElement(el) {
-    if (el instanceof HTMLElement) {
+/**
+ *
+ * @param {string|HTMLElement} el
+ * @param {Window} refWindow
+ * @returns {HTMLElement}
+ */
+export function getHtmlElement(el, refWindow) {
+    if (el instanceof refWindow.HTMLElement) {
         return el;
     }
 
@@ -15,7 +21,7 @@ export function getHtmlElement(el) {
         htmlEl = document.querySelector(el);
     }
 
-    if (!(htmlEl instanceof HTMLElement)) {
+    if (!(htmlEl instanceof refWindow.HTMLElement)) {
         throw new TypeError('Selector ' + el + ' is invalid.');
     }
 
