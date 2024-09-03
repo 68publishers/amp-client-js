@@ -60,6 +60,20 @@ export class ExternalBanner extends Banner {
         return this.#fingerprints;
     }
 
+    unsetFingerprint(fingerprint) {
+        this.#fingerprints = this.#fingerprints.filter(f => f.value !== fingerprint.value);
+
+        const bannerId = fingerprint.bannerId;
+
+        if (bannerId in this.#contentsByBannerId) {
+            delete this.#contentsByBannerId[bannerId];
+        }
+
+        if (0 >= this.#fingerprints.length) {
+            this.setState(this.STATE.CLOSED, 'Banner has empty data.');
+        }
+    }
+
     /**
      * @returns {number|null}
      */

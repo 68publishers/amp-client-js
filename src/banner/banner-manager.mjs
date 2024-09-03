@@ -74,14 +74,16 @@ export class BannerManager {
         return banner;
     }
 
-    addEmbedBanner(iframe, position, options) {
+    addEmbedBanner(element, iframe, position, options) {
+        element = getHtmlElement(element);
         iframe = getHtmlElement(iframe);
 
-        iframe.setAttribute('data-amp-attached', '');
+        element.setAttribute('data-amp-attached', '');
 
         const banner = new EmbedBanner(
             this.#eventBus,
             this.#sequenceGenerator.getNextIdentifier(),
+            element,
             iframe,
             position,
             options,

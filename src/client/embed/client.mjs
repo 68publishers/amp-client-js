@@ -8,6 +8,7 @@ import { BannerInteractionWatcher } from '../../interaction/banner-interaction-w
 import { MetricsSender } from '../../metrics/metrics-sender.mjs';
 import { MetricsEventsListener } from '../../metrics/metrics-events-listener.mjs';
 import { State } from '../../banner/state.mjs';
+import {ClosingManager} from "../../banner/closing/closing-manager.mjs";
 
 export class Client {
     #version;
@@ -17,6 +18,7 @@ export class Client {
     #bannerManager;
     #frameMessenger;
     #bannerInteractionWatcher;
+    #closingManager;
     #metricsSender;
     #metricsEventsListener;
     #attached;
@@ -40,8 +42,13 @@ export class Client {
                 return this.#parentWindowWidth || window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
             }),
         );
+        this.#closingManager = new ClosingManager({
+            bannerManager: this.#bannerManager,
+            eventBus: this.#eventBus,
+        });
         this.#frameMessenger = new ParentFrameMessenger({
             clientEventBus: this.#eventBus,
+            closingManager: this.#closingManager,
         });
         this.#attached = false;
         this.#bannerInteractionWatcher = null;
@@ -75,6 +82,7 @@ export class Client {
 
         this.#frameMessenger.listen();
         this.#metricsEventsListener.attach();
+        this.#closingManager.attachUi();
     }
 
     /**
@@ -96,7 +104,7 @@ export class Client {
         const element = document.querySelector('[data-amp-banner]:not([data-amp-attached])');
 
         if (!element) {
-            console.warn('No banner not found in the embed client.');
+            console.warn('No banner found in the embed client.');
 
             return;
         }
@@ -108,7 +116,7 @@ export class Client {
             banner.delegateResponsiveBehaviour();
         }
 
-        this.#eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, banner);
+        this.#eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, { banner });
     }
 
     #sendMetricsEvent(eventName, eventArgs) {

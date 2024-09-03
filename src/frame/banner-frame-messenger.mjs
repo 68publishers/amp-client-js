@@ -51,7 +51,7 @@ export class BannerFrameMessenger extends FrameMessenger {
     }
 
     connectBanner(embedBanner) {
-        embedBanner.element.addEventListener('load', () => {
+        embedBanner.iframe.addEventListener('load', () => {
             const data = this.#connectionData;
             data.uid = embedBanner.uid;
             data.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -62,7 +62,7 @@ export class BannerFrameMessenger extends FrameMessenger {
 
     sendToBanner(embedBanner, message, data) {
         this.send(
-            embedBanner.element.contentWindow,
+            embedBanner.iframe.contentWindow,
             message,
             data,
             this.#origin,
@@ -76,7 +76,7 @@ export class BannerFrameMessenger extends FrameMessenger {
             const banner = this.#findBanner(uid);
 
             if (banner) {
-                banner.element.style.visibility = 'visible';
+                banner.iframe.style.visibility = 'visible';
                 this.#connectedBanners.push(uid);
             }
         }
@@ -88,7 +88,7 @@ export class BannerFrameMessenger extends FrameMessenger {
         const banner = this.#findBanner(data.uid);
 
         if (banner) {
-            banner.element.style.height = data.height + 'px';
+            banner.iframe.style.height = data.height + 'px';
         }
     }
 
@@ -101,6 +101,10 @@ export class BannerFrameMessenger extends FrameMessenger {
 
         if ('positionData' in data) {
             banner.updatePositionData(data.positionData);
+        }
+
+        if ('fingerprints' in data) {
+            banner.updateFingerprints(data.fingerprints);
         }
 
         banner.setState(data.state, `[embed]: ${data.stateInfo}`);
