@@ -77,7 +77,7 @@ export class ExternalBanner extends Banner {
     /**
      * @returns {number|null}
      */
-    getCurrenBreakpoint(bannerId) {
+    getCurrentBreakpoint(bannerId) {
         const contentsByBannerId = this.#contentsByBannerId;
         const contents = contentsByBannerId[bannerId] || null;
 

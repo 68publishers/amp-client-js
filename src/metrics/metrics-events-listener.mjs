@@ -36,7 +36,7 @@ export class MetricsEventsListener {
         }
 
         const createBaseMetricsArgs = (fingerprint, banner) => {
-            let breakpoint = banner.getCurrenBreakpoint(fingerprint.bannerId);
+            let breakpoint = banner.getCurrentBreakpoint(fingerprint.bannerId);
             breakpoint = null === breakpoint ? 'default' : `${'min' === banner.positionData.breakpointType ? '>=' : '<='}${breakpoint}`;
 
             return {

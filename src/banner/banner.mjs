@@ -108,7 +108,7 @@ export class Banner {
     /**
      * @returns {number|null}
      */
-    getCurrenBreakpoint(bannerId) { // eslint-disable-line no-unused-vars
+    getCurrentBreakpoint(bannerId) { // eslint-disable-line no-unused-vars
         return null;
     }
 
