@@ -24,8 +24,6 @@ export class Banner {
         this._positionData = PositionData.createInitial(position);
 
         this.STATE = State;
-
-        this.setState(this.STATE.NEW, 'Banner created.');
     }
 
     get uid() {
@@ -76,6 +74,11 @@ export class Banner {
         return [];
     }
 
+    /**
+     * @param {Fingerprint} fingerprint
+     */
+    unsetFingerprint(fingerprint) {} // eslint-disable-line no-unused-vars
+
     setState(state, info = '') {
         if (-1 === this.STATE.STATES.indexOf(state)) {
             throw new TypeError(`${state} is not valid state.`);
@@ -85,7 +88,21 @@ export class Banner {
         this.#stateInfo = info.toString();
         this.#stateCounters[state] = (this.#stateCounters[state] || 0) + 1;
 
-        this._eventBus.dispatch(Events.ON_BANNER_STATE_CHANGED, this);
+        this._eventBus.dispatch(Events.ON_BANNER_STATE_CHANGED, { banner: this });
+    }
+
+    on(event, callback, scope = null) {
+        if (!event.startsWith('amp:banner:')) {
+            throw new Error(`Unable to attach listener on event "${event}" through a banner.`);
+        }
+
+        return this._eventBus.subscribe(event, function (args) {
+            const { banner } = args;
+
+            if (banner === this) {
+                null !== scope ? callback.call(scope, args) : callback(args);
+            }
+        }, this);
     }
 
     /**

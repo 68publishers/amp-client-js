@@ -6,6 +6,7 @@ import { BannerManager } from '../../banner/banner-manager.mjs';
 import { DimensionsProvider } from '../../banner/responsive/dimensions-provider.mjs';
 import { AttributesParser } from '../../banner/attributes-parser.mjs';
 import { Options as BannerOptions } from '../../banner/options.mjs';
+import { ClosingManager } from '../../banner/closing/closing-manager.mjs';
 import { EventBus } from '../../event/event-bus.mjs';
 import { Events } from '../../event/events.mjs';
 import { BannerRenderer } from '../../renderer/banner-renderer.mjs';
@@ -24,6 +25,7 @@ export class Client {
     #gateway = null;
     #bannerManager;
     #bannerInteractionWatcher;
+    #closingManager;
     #metricsSender;
     #metricsEventsListener;
     #frameMessenger;
@@ -63,6 +65,7 @@ export class Client {
             this.#eventBus,
             options.interaction,
         );
+
         this.#metricsSender = MetricsSender.createFromReceivers(
             options.metrics.receiver,
             options.metrics.disabledEvents,
@@ -81,6 +84,17 @@ export class Client {
             },
             bannerManager: this.#bannerManager,
             metricsSender: this.#metricsSender,
+        });
+
+        this.#closingManager = new ClosingManager({
+            bannerManager: this.#bannerManager,
+            eventBus: this.#eventBus,
+            config: {
+                storage: options.closing.storage,
+                key: options.closing.key,
+                maxItems: options.closing.maxItems,
+            },
+            frameMessenger: this.#frameMessenger,
         });
 
         this.setLocale(options.locale);
@@ -107,6 +121,7 @@ export class Client {
         this.#frameMessenger.listen();
         this.#metricsEventsListener.attach();
         this.#bannerInteractionWatcher.start();
+        this.#closingManager.attachUi();
     }
 
     /**
@@ -149,16 +164,19 @@ export class Client {
 
         if ('embed' === mode) {
             const iframe = this.#createIframe(element, position, resources, options);
-            const banner = this.#bannerManager.addEmbedBanner(iframe, position, options);
+            const banner = this.#bannerManager.addEmbedBanner(element, iframe, position, options);
 
             this.#frameMessenger.connectBanner(banner);
-            element.insertAdjacentElement('afterend', iframe);
-            element.remove();
+            element.insertAdjacentElement('beforeend', iframe);
 
             return banner;
         }
 
         return this.#bannerManager.addManagedBanner(element, position, resources, options);
+    }
+
+    closeBanner(bannerId) {
+        this.#closingManager.closeBanner(bannerId);
     }
 
     attachBanners(snippet = document) {
@@ -185,7 +203,7 @@ export class Client {
                 banner = this.createBanner(element, position, resources, options, mode);
             }
 
-            this.#eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, banner);
+            this.#eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, { banner });
         }
     }
 
@@ -221,12 +239,20 @@ export class Client {
                 }
 
                 const positionData = data[banner.position];
+                const banners = Array.isArray(positionData['banners']) ? positionData['banners'] : Object.values(positionData['banners']);
+                const validBanners = [];
 
-                if (!Array.isArray(positionData['banners'])) {
-                    positionData['banners'] = Object.values(positionData['banners']);
+                for (let i = 0; i < banners.length; i++) {
+                    const banner = banners[i];
+
+                    if (banner.id && !this.#closingManager.isClosed(banner.id)) {
+                        validBanners.push(banner);
+                    }
                 }
 
-                if ('embed' === positionData.mode) {
+                positionData.banners = validBanners;
+
+                if ('embed' === positionData.mode && 0 < positionData.banners.length) {
                     if ('options' in positionData) {
                         banner.overrideOptions(positionData.options);
                     }
@@ -240,7 +266,7 @@ export class Client {
                 banner.setResponseData(positionData);
             }
 
-            this.#eventBus.dispatch(this.EVENTS.ON_FETCH_SUCCESS, response);
+            this.#eventBus.dispatch(this.EVENTS.ON_FETCH_SUCCESS, { response });
         };
 
         const error = (response) => {
@@ -248,7 +274,7 @@ export class Client {
                 banner.setState(this.#bannerManager.STATE.ERROR, 'Request on api failed.');
             }
 
-            this.#eventBus.dispatch(this.EVENTS.ON_FETCH_ERROR, response);
+            this.#eventBus.dispatch(this.EVENTS.ON_FETCH_ERROR, { response });
         };
 
         this.#eventBus.dispatch(this.EVENTS.ON_BEFORE_FETCH);
@@ -263,10 +289,6 @@ export class Client {
         let src = element.dataset.ampEmbedSrc || this.#embedUrlFactory.create(position, resources, bannerOptions.options);
         src += -1 === src.indexOf('?') ? `?${versionParam}` : `&${versionParam}`;
 
-        [...element.attributes].map(({ name, value }) => {
-            iframe.setAttribute(name, value);
-        });
-
         iframe.width = '100%';
         iframe.height = '100%';
         iframe.allowFullscreen = true;
@@ -275,7 +297,6 @@ export class Client {
         iframe.style.overflow = 'hidden';
         iframe.style.background = 'transparent';
         iframe.style.visibility = 'hidden';
-        iframe.src = src;
 
         iframe.setAttribute('allowtransparency', 'true');
 
@@ -289,6 +310,12 @@ export class Client {
         if (null !== fetchPriority) {
             iframe.setAttribute('fetchpriority', fetchPriority);
         }
+
+        [...element.attributes].map(({ name, value }) => {
+            return name.startsWith('data-iframe-') && (iframe.setAttribute(name.substring(12), value));
+        });
+
+        iframe.src = src;
 
         return iframe;
     }

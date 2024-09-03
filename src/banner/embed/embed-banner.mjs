@@ -1,12 +1,33 @@
 import { Banner } from '../banner.mjs';
+import { Fingerprint } from '../fingerprint.mjs';
 
 export class EmbedBanner extends Banner {
-    constructor(eventBus, uid, iframe, position, options) {
-        super(eventBus, uid, iframe, position, options);
+    #iframe;
+    #fingerprints;
+
+    constructor(eventBus, uid, element, iframe, position, options) {
+        super(eventBus, uid, element, position, options);
+
+        this.#iframe = iframe;
+        this.#fingerprints = [];
+
+        this.setState(this.STATE.NEW, 'Banner created.');
+    }
+
+    get iframe() {
+        return this.#iframe;
     }
 
     get fingerprints() {
-        throw new Error('Property EmbedBanner.fingerprints is not readable.');
+        return this.#fingerprints;
+    }
+
+    unsetFingerprint(fingerprint) {
+        this.#fingerprints = this.#fingerprints.filter(f => f.value !== fingerprint.value);
+
+        if (0 >= this.#fingerprints.length) {
+            this.setState(this.STATE.CLOSED, 'Banner has empty data.');
+        }
     }
 
     getCurrenBreakpoint(bannerId) {  // eslint-disable-line no-unused-vars
@@ -26,5 +47,9 @@ export class EmbedBanner extends Banner {
                 positionData[prop] = data[prop];
             }
         }
+    }
+
+    updateFingerprints(fingerprints) {
+        this.#fingerprints = fingerprints.map(f => f instanceof Fingerprint ? f : Fingerprint.createFromValue(f));
     }
 }

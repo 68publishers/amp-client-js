@@ -15,12 +15,17 @@ export class State {
         return 'ERROR';
     }
 
+    static get CLOSED() {
+        return 'CLOSED';
+    }
+
     static get STATES() {
         return [
             State.NEW,
             State.RENDERED,
             State.NOT_FOUND,
             State.ERROR,
+            State.CLOSED,
         ];
     }
 }

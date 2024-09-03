@@ -44,6 +44,8 @@ export class ManagedBanner extends Banner {
         for (let key in resources) {
             this.#resources.push(new Resource(key, resources[key]));
         }
+
+        this.setState(this.STATE.NEW, 'Banner created.');
     }
 
     set html(html) {
@@ -85,6 +87,10 @@ export class ManagedBanner extends Banner {
             return [];
         }
 
+        if (null === bannerData) {
+            return [];
+        }
+
         if (!this.positionData.isMultiple()) {
             bannerData = [bannerData];
         }
@@ -101,7 +107,7 @@ export class ManagedBanner extends Banner {
         }
 
         if (!this.#banners.length) {
-            throw new Error('Banner\'s data is empty.');
+            return null;
         }
 
         let data = null;
@@ -139,13 +145,44 @@ export class ManagedBanner extends Banner {
                 throw new Error(`Invalid display type ${this.displayType}.`);
         }
 
-        if (null === data) {
-            throw new Error('Banner\'s data is empty.');
-        }
-
         this.#resolvedBannerData = data;
 
         return data;
+    }
+
+    unsetFingerprint(fingerprint) {
+        const bannerId = fingerprint.bannerId;
+        const positionData = this.positionData;
+        const bannerFound = !!this.#banners.filter(bannerData => bannerData.id === bannerId)[0];
+
+        if (!bannerFound) {
+            return;
+        }
+
+        switch (true) {
+            case positionData.isSingle():
+                this.#banners = [];
+                this.#resolvedBannerData = null;
+                break;
+            case positionData.isRandom():
+                if (this.#resolvedBannerData && this.#resolvedBannerData.id === bannerId) {
+                    this.#banners = [];
+                    this.#resolvedBannerData = null;
+                } else {
+                    this.#banners = this.#banners.filter(bannerData => bannerData.id !== bannerId);
+                }
+                break;
+            case positionData.isMultiple():
+                this.#banners = this.#banners.filter(bannerData => bannerData.id !== bannerId);
+                this.#resolvedBannerData && (this.#resolvedBannerData = this.#resolvedBannerData.filter(bannerData => bannerData.id !== bannerId));
+                break;
+        }
+
+        if (0 >= this.#banners.length) {
+            this.setState(this.STATE.CLOSED, 'Banner has empty data.');
+        } else if (positionData.isRandom()) {
+            this.redrawIfNeeded();
+        }
     }
 
     setResponseData(responseData) {
@@ -180,7 +217,11 @@ export class ManagedBanner extends Banner {
         this.#banners = banners;
         this.#responseDataReceived = true;
 
-        this.#render('Banner was successfully rendered.');
+        if (0 >= this.#banners.length) {
+            this.setState(this.STATE.CLOSED, 'Banner has empty data.');
+        } else {
+            this.#render('Banner was successfully rendered.');
+        }
     }
 
     getCurrenBreakpoint(bannerId) {

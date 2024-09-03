@@ -38,7 +38,7 @@ export class EventBus {
 
     dispatch(event, ...args) {
         for (let listener of this.getSortedListeners(event)) {
-            listener.callback.call(listener.scope, ...args);
+            null !== listener.scope ? listener.callback.call(listener.scope, ...args) : (listener.callback)(...args);
         }
     }
 
