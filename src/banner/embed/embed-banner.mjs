@@ -30,8 +30,8 @@ export class EmbedBanner extends Banner {
         }
     }
 
-    getCurrenBreakpoint(bannerId) {  // eslint-disable-line no-unused-vars
-        throw new Error('Method EmbedBanner.getCurrenBreakpoint() is not readable.');
+    getCurrentBreakpoint(bannerId) {  // eslint-disable-line no-unused-vars
+        throw new Error('Method EmbedBanner.getCurrentBreakpoint() is not readable.');
     }
 
     isEmbed() {
