@@ -159,8 +159,8 @@ export class Client {
         return this.#gateway;
     }
 
-    createBanner(element, position, resources = {}, options = {}, mode = 'managed') {
-        element = getHtmlElement(element);
+    createBanner(element, position, resources = {}, options = {}, mode = 'managed', refWindow = window) {
+        element = getHtmlElement(element, refWindow);
 
         if ('embed' === mode) {
             const iframe = this.#createIframe(element, position, resources, options);
@@ -172,14 +172,14 @@ export class Client {
             return banner;
         }
 
-        return this.#bannerManager.addManagedBanner(element, position, resources, options);
+        return this.#bannerManager.addManagedBanner(element, position, resources, options, refWindow);
     }
 
     closeBanner(bannerId) {
         this.#closingManager.closeBanner(bannerId);
     }
 
-    attachBanners(snippet = document) {
+    attachBanners(snippet = document, refWindow = window) {
         const elements = snippet.querySelectorAll('[data-amp-banner]:not([data-amp-attached])');
 
         for (let element of elements) {
@@ -194,13 +194,13 @@ export class Client {
             let banner;
 
             if ('ampBannerExternal' in element.dataset) {
-                banner = this.#bannerManager.addExternalBanner(element);
+                banner = this.#bannerManager.addExternalBanner(element, refWindow);
             } else {
                 const resources = AttributesParser.parseResources(element);
                 const options = AttributesParser.parseOptions(element);
                 const mode = element.dataset.ampMode || 'managed';
 
-                banner = this.createBanner(element, position, resources, options, mode);
+                banner = this.createBanner(element, position, resources, options, mode, refWindow);
             }
 
             this.#eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, { banner });
