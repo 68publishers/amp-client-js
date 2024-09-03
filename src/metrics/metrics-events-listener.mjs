@@ -54,7 +54,7 @@ export class MetricsEventsListener {
         };
 
         if (metricsSender.isEventEnabled(MetricsEvents.BANNER_LOADED)) {
-            eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, banner => {
+            eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, ({ banner }) => {
                 if (banner.isEmbed() || State.RENDERED !== banner.state || 1 !== banner.stateCounter) {
                     return;
                 }
@@ -83,6 +83,12 @@ export class MetricsEventsListener {
                     ...createBaseMetricsArgs(fingerprint, banner),
                     link: target.href || '',
                 })
+            });
+        }
+
+        if (metricsSender.isEventEnabled(MetricsEvents.BANNER_CLOSED)) {
+            eventBus.subscribe(Events.ON_BANNER_AFTER_CLOSE, ({ fingerprint, banner }) => {
+                metricsSender.send(MetricsEvents.BANNER_CLOSED, createBaseMetricsArgs(fingerprint, banner));
             });
         }
     }

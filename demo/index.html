@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <title>AMP - Js Client</title>
 
+    <!-- Boostrap v4.3.1 for HTML banners -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" integrity="sha512-aNMyYYxdIxIaot0Y1/PLuEu3eipGCmsEUBrUq+7aVyPGMFH8z0eTP0tkqAvv34fzN6z+201d3T8HPb1svWSKHQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <!-- AMP Client -->
     <script src="./amp-client.js" type="text/javascript"></script>
 
@@ -21,6 +25,10 @@
             max-width: 1200px;
             text-align: center;
             margin: 0 auto;
+        }
+
+        .container > * {
+            margin-bottom: 30px;
         }
 
         .wrapper {
@@ -69,14 +77,17 @@
                     242500: 0.3,
                 },
             },
+            closing: {
+                storage: 'localStorage',
+            },
         });
 
         // Events, dump info to the console
-        AMPClient.on(AMPClient.EVENTS.ON_BANNER_ATTACHED, function (banner) {
+        AMPClient.on(AMPClient.EVENTS.ON_BANNER_ATTACHED, function ({ banner }) {
             console.log('Banner on position ' + banner.position + ' was attached.');
         });
 
-        AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGED, function (banner) {
+        AMPClient.on(AMPClient.EVENTS.ON_BANNER_STATE_CHANGED, function ({ banner }) {
             console.log('State for banner on position ' + banner.position + ' was changed to ' + banner.state + '. Info: ' + banner.stateInfo);
         });
 
@@ -84,11 +95,11 @@
             console.log('Before fetch.');
         });
 
-        AMPClient.on(AMPClient.EVENTS.ON_FETCH_SUCCESS, function (response) {
+        AMPClient.on(AMPClient.EVENTS.ON_FETCH_SUCCESS, function ({ response }) {
             console.log(response);
         });
 
-        AMPClient.on(AMPClient.EVENTS.ON_FETCH_ERROR, function (response) {
+        AMPClient.on(AMPClient.EVENTS.ON_FETCH_ERROR, function ({ response }) {
             console.log('Fetch error! ' + response.data.code + ': ' + response.data.error);
         });
     </script>
@@ -118,7 +129,7 @@
             <div data-amp-banner="homepage.top"
                  data-amp-resource-roles="employee, vip"
                  data-amp-resource-apple_products="shop/buy-iphone/iphone-xs"
-                 class="slider--splide">
+                 data-amp-option-slider="swiper">
             </div>
         </div>
 
@@ -129,6 +140,10 @@
                  data-amp-option-loading="lazy"
                  data-amp-option-fetchpriority="low">
             </div>
+        </div>
+        <div>
+            <h2>HTML banners</h2>
+            <div data-amp-banner="homepage.info_box_2"></div>
         </div>
     </div>
 
@@ -151,6 +166,7 @@
 
         function initSwiper(banner) {
             const lists = banner.element.getElementsByClassName('amp-banner__list');
+            let swiper;
 
             for (let list of lists) {
                 const wrapper = document.createElement('div');
@@ -181,7 +197,7 @@
                 list.insertAdjacentElement('beforeend', nextButton);
                 list.insertAdjacentElement('beforeend', pagination);
 
-                new Swiper(list, {
+                swiper = new Swiper(list, {
                     autoplay: {
                         delay: 5e3,
                         pauseOnMouseEnter: false,
@@ -221,19 +237,42 @@
                     loopedSlides: 1,
                 });
             }
+
+            return swiper;
         }
 
-        window.AMPClient.on('amp:banner:state-changed', function (banner) {
+        window.AMPClient.on('amp:banner:state-changed', function ({ banner }) {
             if ('RENDERED' !== banner.state || !banner.positionData.isMultiple() || banner.isEmbed()) {
                 return;
             }
 
-            if (banner.element.classList.contains('slider--splide')) {
-                initSplide(banner);
+            switch (banner.options.get('slider', null)) {
+                case 'splide':
+                    initSplide(banner);
+                    break;
+                case 'swiper':
+                    const swiper = initSwiper(banner);
+                    banner.on('amp:banner:before-close', ({ setOperation }) => {
+                        setOperation(element => swiper.removeSlide(element.dataset.swiperSlideIndex));
+                    });
+                    break;
             }
+        });
 
-            if (banner.element.classList.contains('slider--swiper')) {
-                initSwiper(banner);
+        window.AMPClient.on('amp:banner:before-close', ({ banner, setOperation }) => {
+            if (null === banner.options.get('slider', null)) {
+                setOperation(element => {
+                    anime({
+                        targets: element,
+                        opacity: 0,
+                        height: 0,
+                        duration: 100,
+                        easing: 'linear',
+                        complete: () => {
+                            element.remove();
+                        }
+                    });
+                });
             }
         });
 
