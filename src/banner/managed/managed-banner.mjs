@@ -224,9 +224,9 @@ export class ManagedBanner extends Banner {
         }
     }
 
-    getCurrenBreakpoint(bannerId) {
+    getCurrentBreakpoint(bannerId) {
         let bannerData = this.bannerData;
-        bannerData = (Array.isArray(bannerData) ? bannerData : [bannerData]).find(banner => banner.id === bannerId);
+        bannerData = (Array.isArray(bannerData) ? bannerData : (bannerData ? [bannerData] : [])).find(banner => banner.id === bannerId);
 
         const breakpoint = bannerData && bannerData.content ? bannerData.content.breakpoint : null;
 
