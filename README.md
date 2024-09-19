@@ -48,6 +48,7 @@ After that, you can require AMP Client like any other JavaScript library.
 |    `~1.4.0`    |    `2.12`    |     `1`     | Adds support for server-side rendered banners ([68publishers/amp-client-php](https://github.com/68publishers/amp-client-php)).        |
 |    `~1.4.0`    |    `2.13`    |     `1`     | Missing support for embed banners on the client's side. Banners marked as `embed` in AMP administration will be generated normally.   |
 |    `~1.5.0`    |   `>=2.13`   |     `1`     |                                                                                                                                       |
+|    `~1.6.0`    |   `>=2.15`   |     `1`     |                                                                                                                                       |
 
 ## Integration
 
