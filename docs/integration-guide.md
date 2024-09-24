@@ -18,6 +18,7 @@
   * [Integration with banners that are rendered server-side](#integration-with-banners-that-are-rendered-server-side)
   * [Banner states](#banner-states)
 * [Client events](#client-events)
+* [Closing banners](#closing-banners)
 * [Metrics events](#metrics-events)
 * [Full page example](#full-page-example)
 
@@ -33,23 +34,26 @@ const AMPClient = AMPClientFactory.create({
 
 ### Client Options
 
-| Name                                     |                     Type                      |     Default     | Required (must be defined by user) | Description                                                                                                                                                                                                                                                                                                            |
-|------------------------------------------|:---------------------------------------------:|:---------------:|:----------------------------------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **url**                                  |                   `string`                    |        -        |                Yes                 | Host URL of your amp application.                                                                                                                                                                                                                                                                                      |
-| **channel**                              |                   `string`                    |        -        |                Yes                 | Project's code.                                                                                                                                                                                                                                                                                                        |
-| **method**                               |                   `string`                    |      `GET`      |                 No                 | HTTP method, allowed values are `GET` and `POST`.                                                                                                                                                                                                                                                                      |
-| **version**                              |                   `integer`                   |       `1`       |                 No                 | Version of API.                                                                                                                                                                                                                                                                                                        |
-| **locale**                               |                 `null/string`                 |     `null`      |                 No                 | Locale string (`en_US`, `cs_CZ` etc.), a default locale will be used if the option is null.                                                                                                                                                                                                                            |
-| **resources**                            |                   `object`                    |      `{}`       |                 No                 | Default resources that can be used for all positions on the page.                                                                                                                                                                                                                                                      |
-| **origin**                               |                 `null/string`                 |     `null`      |                 No                 | Used as a value for the option header `X-Amp-Origin`. If the header is sent, the AMP API will return relative links as absolutes with this origin.                                                                                                                                                                     |
-| **template.single**                      |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `single`.                                                                                                                                                                                                                                                                       |
-| **template.random**                      |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `random`.                                                                                                                                                                                                                                                                       |
-| **template.multiple**                    |                   `string`                    | *HTML template* |                 No                 | Template for banners with display type `multiple` (sliders).                                                                                                                                                                                                                                                           |
-| **interaction.defaultIntersectionRatio** |                    `float`                    |      `0.5`      |                 No                 | How much of the banner must be in the user's viewport for the banner to be evaluated as visible. The value must be a decimal number between 0.1 and 1 in increments of 0.1 [e.g. 0.1, 0.2, 0.3, ...].                                                                                                                  |
-| **interaction.intersectionRatioMap**     |                   `object`                    |      `{}`       |                 No                 | The "map" of intersection ratios. Keys must be numeric and represents a number of pixels. The values must match the same criteria as the option `interaction.defaultIntersectionRatio`. If a banner does not have an equal or greater pixel count than any option, then `defaultIntersectionRatio` is used.            |
-| **interaction.firstTimeSeenTimeout**     |                   `integer`                   |     `1000`      |                 No                 | The value indicates, in milliseconds, how long the banner must be visible in the user's viewport before it is evaluated as having been seen for the first time. The minimum allowed value is 500.                                                                                                                      |
-| **metrics.receiver**                     | `null/string/function/array<string/function>` |     `null`      |                 No                 | Metrics are sent to the selected receiver if the value is set. The value can be a custom function, or one of the following strings: `"plausible"`, `"gtag"`, `"gtm"` or `"debug"`. Alternatively, an array can be passed if we would like to send metrics to multiple receivers. For example, `["plausible", "gtag"]`. |
-| **metrics.disabledEvents**               |                `array<string>`                |      `[]`       |                 No                 | Names of metric events that should not be sent.                                                                                                                                                                                                                                                                        |
+| Name                                     |                     Type                      |        Default         | Required (must be defined by user) | Description                                                                                                                                                                                                                                                                                                            |
+|------------------------------------------|:---------------------------------------------:|:----------------------:|:----------------------------------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **url**                                  |                   `string`                    |           -            |                Yes                 | Host URL of your amp application.                                                                                                                                                                                                                                                                                      |
+| **channel**                              |                   `string`                    |           -            |                Yes                 | Project's code.                                                                                                                                                                                                                                                                                                        |
+| **method**                               |                   `string`                    |         `GET`          |                 No                 | HTTP method, allowed values are `GET` and `POST`.                                                                                                                                                                                                                                                                      |
+| **version**                              |                   `integer`                   |          `1`           |                 No                 | Version of API.                                                                                                                                                                                                                                                                                                        |
+| **locale**                               |                 `null/string`                 |         `null`         |                 No                 | Locale string (`en_US`, `cs_CZ` etc.), a default locale will be used if the option is null.                                                                                                                                                                                                                            |
+| **resources**                            |                   `object`                    |          `{}`          |                 No                 | Default resources that can be used for all positions on the page.                                                                                                                                                                                                                                                      |
+| **origin**                               |                 `null/string`                 |         `null`         |                 No                 | Used as a value for the option header `X-Amp-Origin`. If the header is sent, the AMP API will return relative links as absolutes with this origin.                                                                                                                                                                     |
+| **template.single**                      |                   `string`                    |    *HTML template*     |                 No                 | Template for banners with display type `single`.                                                                                                                                                                                                                                                                       |
+| **template.random**                      |                   `string`                    |    *HTML template*     |                 No                 | Template for banners with display type `random`.                                                                                                                                                                                                                                                                       |
+| **template.multiple**                    |                   `string`                    |    *HTML template*     |                 No                 | Template for banners with display type `multiple` (sliders).                                                                                                                                                                                                                                                           |
+| **interaction.defaultIntersectionRatio** |                    `float`                    |         `0.5`          |                 No                 | How much of the banner must be in the user's viewport for the banner to be evaluated as visible. The value must be a decimal number between 0.1 and 1 in increments of 0.1 [e.g. 0.1, 0.2, 0.3, ...].                                                                                                                  |
+| **interaction.intersectionRatioMap**     |                   `object`                    |          `{}`          |                 No                 | The "map" of intersection ratios. Keys must be numeric and represents a number of pixels. The values must match the same criteria as the option `interaction.defaultIntersectionRatio`. If a banner does not have an equal or greater pixel count than any option, then `defaultIntersectionRatio` is used.            |
+| **interaction.firstTimeSeenTimeout**     |                   `integer`                   |         `1000`         |                 No                 | The value indicates, in milliseconds, how long the banner must be visible in the user's viewport before it is evaluated as having been seen for the first time. The minimum allowed value is 500.                                                                                                                      |
+| **metrics.receiver**                     | `null/string/function/array<string/function>` |         `null`         |                 No                 | Metrics are sent to the selected receiver if the value is set. The value can be a custom function, or one of the following strings: `"plausible"`, `"gtag"`, `"gtm"` or `"debug"`. Alternatively, an array can be passed if we would like to send metrics to multiple receivers. For example, `["plausible", "gtag"]`. |
+| **metrics.disabledEvents**               |                `array<string>`                |          `[]`          |                 No                 | Names of metric events that should not be sent.                                                                                                                                                                                                                                                                        |
+| **closing.storage**                      |                   `string`                    |   `"memoryStorage"`    |                 No                 | The storage where information about banners closed by the user is stored. Allowed values are `memoryStorage` (default, banners are not closed permanently), `localStorage` and `sessionStorage`.                                                                                                                       |
+| **closing.key**                          |                   `string`                    | `"amp-closed-banners"` |                 No                 | The storage key under which information about closed banners is stored.                                                                                                                                                                                                                                                |
+| **closing.maxItems**                     |                   `integer`                   |         `500`          |                 No                 | Maximum number of closed items (banners) in the storage.                                                                                                                                                                                                                                                               |
 
 The full configuration can look like this:
 
@@ -79,6 +83,11 @@ const AMPClient = AMPClientFactory.create({
     receiver: 'gtm',
     disabledEvents: ['amp:banner:loaded'],
   },
+  closing: {
+    storage: 'localStorage',
+    key: 'permanently-closed-banners',
+    maxItems: 100,
+  }
 });
 ```
 
@@ -317,27 +326,31 @@ Banners can be in several states. Here is a list of them:
 | `RENDERED`  | Banner has been successfully rendered.                                                                |
 | `NOT_FOUND` | The banner was not found in AMP's response.                                                           |
 | `ERROR`     | Something went wrong. For example, the API returned an error, or a banner template contains an error. |
+| `CLOSED`    | Banner has been closed by the user.                                                                   |
+
 
 ## Client events
 
 The client emits several events that can be responded to. Here is a list of them:
 
-| Name                               | Constant                                 | Function declaration                                                                                                             | Description                                                                            |
-|------------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| `amp:banner:attached`              | `EVENTS.ON_BANNER_ATTACHED`              | `( banner: Banner ) => void`                                                                                                     | Fired when a banner defined with `[data-amp-banner]` is attached into Client.          |
-| `amp:banner:state-changed`         | `EVENTS.ON_BANNER_STATE_CHANGED`         | `( banner: Banner ) => void`                                                                                                     | Fired when a banner's state is changed - the banner object is created or rendered etc. |
-| `amp:banner:intersection-changed`  | `EVENTS.ON_BANNER_INTERSECTION_CHANGED`  | `( params: { fingerprint: Fingerprint, element: HtmlElement, banner: Banner, entry: IntersectionObserverEntry } ) => void`       | Fired when a banner's intersection is changed.                                         |
-| `amp:banner:first-time-seen`       | `EVENTS.ON_BANNER_FIRST_SEEN`            | `( params: { fingerprint: Fingerprint, element: HtmlElement, banner: Banner } ) => void`                                         | Fired when the user sees a banner for the first time.                                  |
-| `amp:banner:first-time-fully-seen` | `EVENTS.ON_BANNER_FIRST_TIME_FULLY_SEEN` | `( params: { fingerprint: Fingerprint, element: HtmlElement, banner: Banner } ) => void`                                         | Fired when the user sees a fully banner for the first time.                            |
-| `amp:banner:link-clicked`          | `EVENTS.ON_BANNER_LINK_CLICKED`          | `( params: { fingerprint: Fingerprint, element: HtmlElement, banner: Banner, target: HtmlElement, clickEvent: Event } ) => void` | Fired when the user clicks on any link in a banner.                                    |
-| `amp:fetch:before`                 | `EVENTS.ON_BEFORE_FETCH`                 | `() => void`                                                                                                                     | Fired before calling of AMP API.                                                       |
-| `amp:fetch:error`                  | `EVENTS.ON_BEFORE_ERROR`                 | `( response: Object ) => void`                                                                                                   | Fired when an API request failed or an error response was returned.                    |
-| `amp:fetch:success`                | `EVENTS.ON_BEFORE_SUCCESS`               | `( response: Object ) => void`                                                                                                   | Fired when an API returned a success response.                                         |
+| Name                               | Constant                                 | Function declaration                                                                                                                                                 | Description                                                                                                                                                                |
+|------------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `amp:banner:attached`              | `EVENTS.ON_BANNER_ATTACHED`              | `({ banner: Banner }) => void`                                                                                                                                       | Fired when a banner defined with `[data-amp-banner]` is attached into Client.                                                                                              |
+| `amp:banner:state-changed`         | `EVENTS.ON_BANNER_STATE_CHANGED`         | `({ banner: Banner }) => void`                                                                                                                                       | Fired when a banner's state is changed - the banner object is created or rendered etc.                                                                                     |
+| `amp:banner:intersection-changed`  | `EVENTS.ON_BANNER_INTERSECTION_CHANGED`  | `({ fingerprint: Fingerprint, element: HtmlElement, banner: Banner, entry: IntersectionObserverEntry }) => void`                                                     | Fired when a banner's intersection is changed.                                                                                                                             |
+| `amp:banner:first-time-seen`       | `EVENTS.ON_BANNER_FIRST_SEEN`            | `({ fingerprint: Fingerprint, element: HtmlElement, banner: Banner }) => void`                                                                                       | Fired when the user sees a banner for the first time.                                                                                                                      |
+| `amp:banner:first-time-fully-seen` | `EVENTS.ON_BANNER_FIRST_TIME_FULLY_SEEN` | `({ fingerprint: Fingerprint, element: HtmlElement, banner: Banner }) => void`                                                                                       | Fired when the user sees a fully banner for the first time.                                                                                                                |
+| `amp:banner:link-clicked`          | `EVENTS.ON_BANNER_LINK_CLICKED`          | `({ fingerprint: Fingerprint, element: HtmlElement, banner: Banner, target: HtmlElement, clickEvent: Event }) => void`                                               | Fired when the user clicks on any link in a banner.                                                                                                                        |
+| `amp:banner:before-close`          | `EVENTS.ON_BANNER_BEFORE_CLOSE`          | `({ fingerprint: Fingerprint, element: HtmlElement, banner: Banner, setOperation: Function(operation: Function(el: HtmlElement) => void/Promise) => void }) => void` | Fired before the banner is closed by the user. The banner is simply removed by default. A callback can be passed to the `setOperation` argument to override this behavior. |
+| `amp:banner:after-close`           | `EVENTS.ON_BANNER_AFTER_CLOSE`           | `({ fingerprint: Fingerprint, element: HtmlElement, banner: Banner }) => void`                                                                                       | Fired after the banner is closed by the user.                                                                                                                              |
+| `amp:fetch:before`                 | `EVENTS.ON_BEFORE_FETCH`                 | `() => void`                                                                                                                                                         | Fired before calling of AMP API.                                                                                                                                           |
+| `amp:fetch:error`                  | `EVENTS.ON_BEFORE_ERROR`                 | `({ response: Object }) => void`                                                                                                                                     | Fired when an API request failed or an error response was returned.                                                                                                        |
+| `amp:fetch:success`                | `EVENTS.ON_BEFORE_SUCCESS`               | `({ response: Object }) => void`                                                                                                                                     | Fired when an API returned a success response.                                                                                                                             |
 
-Events can be attached in this way:
+Events can be attached in the following way:
 
 ```javascript
-AMPClient.on('amp:banner:state-changed', function (banner) {
+AMPClient.on('amp:banner:state-changed', function ({ banner }) {
   if ('RENDERED' !== banner.state || !banner.positionData.isMultiple() || banner.isEmbed()) { // do action only if the banner is rendered, position type is "multiple" and not embed
     return;
   }
@@ -365,7 +378,25 @@ AMPClient.on('amp:banner:state-changed', function (banner) {
 });
 ```
 
-### Metrics events
+## Closing banners
+
+> ⚠️Currently integrated for HTML banners only.
+
+A banner is closed by clicking on the element with the data attribute `data-amp-banner-close`. The attribute does not require any value and must be inside the banner to be closed.
+
+By default, the banner is simply removed from the page after closing. To change this behavior (for example, remove by animation), you can bind a listener to the `amp:banner:before-close` event:
+
+```javascript
+AMPClient.on('amp:banner:before-close', ({ setOperation }) => {
+  setOperation(element => {
+      // animate the element
+  });
+});
+```
+
+The callback passed to the `setOperation` function can return Promise. At that point, the banner will actually be removed once the Promise has succeeded.
+
+## Metrics events
 
 The client tracks several types of metrics on the banners.
 
@@ -392,6 +423,7 @@ Common properties for all metrics events are:
 | `amp:banner:displayed`       | -                         | The user has seen a banner.                                   |
 | `amp:banner:fully-displayed` | -                         | The user has seen a fully banner.                             |
 | `amp:banner:clicked`         | `{ link: 'string' }`      | The user clicked on a link in a banner.                       |
+| `amp:banner:closed`          | -                         | A banner has been closed/dismissed by the user.               |
 
 If you want to send data to GA via GTM please see [GTM Metrics Guide](./gtm-metrics-guide.md).
 
@@ -419,7 +451,7 @@ If you want to send data to GA via GTM please see [GTM Metrics Guide](./gtm-metr
         },
       });
   
-      AMPClient.on('amp:banner:state-changed', function (banner) {
+      AMPClient.on('amp:banner:state-changed', function ({ banner }) {
         if ('RENDERED' !== banner.state || !banner.positionData.isMultiple() || banner.isEmbed()) {
           return;
         }

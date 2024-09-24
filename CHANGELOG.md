@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added support for banners closing.
+- HTML banners can be simply closed via any element with a data attribute `data-amp-banner-close=""`.
+
+### Changed
+- Changed arguments that are passed to the listeners `amp:banner:attached`, `amp:banner:state-changed`, `amp:fetch:error` and `amp:fetch:success`. Arguments are now passed as an object, so instead of `(banner) => {}` it is necessary to write `({ banner }) => {}`, respectively `({ response }) => {}` in case of events `amp:fetch:error` and `amp:fetch:success`.
+- Updated docs.
+
 ## [1.6.0] - 2024-09-19
 ### Added
 - Added support for new banner option `fetchpriority`.
