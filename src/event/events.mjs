@@ -1,19 +1,28 @@
 export class Events {
     /**
-     * Arguments: {Banner}
+     * Arguments: (
+     *     {
+     *         banner: {Banner},
+     *     },
+     * )
      */
     static get ON_BANNER_ATTACHED() {
         return 'amp:banner:attached';
     }
 
     /**
-     * Arguments: ({Banner} banner)
+     * Arguments: (
+     *     {
+     *         banner: {Banner},
+     *     },
+     * )
      */
     static get ON_BANNER_STATE_CHANGED() {
         return 'amp:banner:state-changed';
     }
 
     /**
+     * Not dispatched for embed banners in the main frame.
      * Arguments: (
      *     {
      *         fingerprint: {Fingerprint},
@@ -28,6 +37,7 @@ export class Events {
     }
 
     /**
+     * Not dispatched for embed banners in the main frame.
      * Arguments: (
      *     {
      *         fingerprint: {Fingerprint},
@@ -41,6 +51,7 @@ export class Events {
     }
 
     /**
+     * Not dispatched for embed banners in the main frame.
      * Arguments: (
      *     {
      *         fingerprint: {Fingerprint},
@@ -54,6 +65,7 @@ export class Events {
     }
 
     /**
+     * Not dispatched for embed banners in the main frame.
      * Arguments: (
      *     {
      *         fingerprint: {Fingerprint},
@@ -69,6 +81,35 @@ export class Events {
     }
 
     /**
+     * Not dispatched for embed banners in the main frame.
+     * Arguments: (
+     *     {
+     *         fingerprint: {Fingerprint},
+     *         element: {HtmlElement},
+     *         banner: {Banner},
+     *         setOperation: {Function()}
+     *     },
+     * )
+     */
+    static get ON_BANNER_BEFORE_CLOSE() {
+        return 'amp:banner:before-close';
+    }
+
+    /**
+     * Not dispatched for embed banners in the main frame.
+     * Arguments: (
+     *     {
+     *         fingerprint: {Fingerprint},
+     *         element: {HtmlElement},
+     *         banner: {Banner},
+     *     },
+     * )
+     */
+    static get ON_BANNER_AFTER_CLOSE() {
+        return 'amp:banner:after-close';
+    }
+
+    /**
      * No arguments
      */
     static get ON_BEFORE_FETCH() {
@@ -76,14 +117,22 @@ export class Events {
     }
 
     /**
-     * Arguments: ({Object} response)
+     * Arguments: (
+     *     {
+     *         response: {Object},
+     *     },
+     * )
      */
     static get ON_FETCH_ERROR() {
         return 'amp:fetch:error';
     }
 
     /**
-     * Arguments: ({Object} response)
+     * Arguments: (
+     *     {
+     *         response: {Object},
+     *     },
+     * )
      */
     static get ON_FETCH_SUCCESS() {
         return 'amp:fetch:success';

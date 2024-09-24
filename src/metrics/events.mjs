@@ -15,12 +15,17 @@ export class Events {
         return 'amp:banner:clicked';
     }
 
+    static get BANNER_CLOSED() {
+        return 'amp:banner:closed';
+    }
+
     static get EVENTS() {
         return [
             Events.BANNER_LOADED,
             Events.BANNER_DISPLAYED,
             Events.BANNER_FULLY_DISPLAYED,
             Events.BANNER_CLICKED,
+            Events.BANNER_CLOSED,
         ]
     }
 }

@@ -37,7 +37,7 @@ export class BannerInteractionWatcher {
 
         this.#started = true;
 
-        this.#eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, banner => {
+        this.#eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, ({ banner }) => {
             if (State.RENDERED === banner.state && !banner.isEmbed()) {
                 this.#watchBanner(banner);
             }

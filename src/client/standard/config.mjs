@@ -30,6 +30,11 @@ export function createConfig(options) {
             receiver: null,
             disabledEvents: [],
         },
+        closing: {
+            storage: 'memoryStorage',
+            key: 'amp-closed-banners',
+            maxItems: 500,
+        },
     }, options);
 
     // method
@@ -138,6 +143,11 @@ export function createConfig(options) {
         if ('string' !== typeof config.metrics.disabledEvents[disabledEventIndex]) {
             throw new Error(`The option "metrics.disabledEvents.${disabledEventIndex}" must be a string, "${config.metrics.disabledEvents[disabledEventIndex]}" passed.`);
         }
+    }
+
+    // closing
+    if ('object' !== typeof config.closing || 'string' !== typeof config.closing.storage || 'string' !== typeof config.closing.key || !Number.isInteger(config.closing.maxItems) || 1 > config.closing.maxItems) {
+        throw new Error(`The option "closing" must be an object of the format { storage: "memoryStorage"|"localStorage"|"sessionStorage", key: string, maxItems: integer<1, max> }, ${JSON.stringify(config.closing)} passed.`);
     }
 
     return config;
