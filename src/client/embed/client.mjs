@@ -73,8 +73,8 @@ export class Client {
             );
 
             this.#redrawBanners();
-            this.#bannerInteractionWatcher.start();
             this.#metricsEventsListener.attach(new EventsConfig(this.#extendedConfig.metrics));
+            this.#bannerInteractionWatcher.start();
         });
 
         this.#frameMessenger.on('windowResized', ({ data }) => {

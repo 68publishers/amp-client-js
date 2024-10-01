@@ -27,7 +27,7 @@ export class MetricsEventsListener {
     }
 
     collectBeforeAttach() {
-        if (this.#beforeAttachedQueue.started) {
+        if (this.#beforeAttachedQueue.started || this.#attached) {
             return;
         }
 
