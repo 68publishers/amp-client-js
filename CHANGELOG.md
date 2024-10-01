@@ -10,10 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added support for banners closing.
 - HTML banners can be simply closed via any element with a data attribute `data-amp-banner-close=""`.
+- Added the ability to rename events and their parameters using the `metrics.events` and `metrics.params` options.
 
 ### Changed
 - Changed arguments that are passed to the listeners `amp:banner:attached`, `amp:banner:state-changed`, `amp:fetch:error` and `amp:fetch:success`. Arguments are now passed as an object, so instead of `(banner) => {}` it is necessary to write `({ banner }) => {}`, respectively `({ response }) => {}` in case of events `amp:fetch:error` and `amp:fetch:success`.
 - Updated docs.
+
+### Removed
+- Removed the `metrics.disabledEvents` option. Events can now be disabled by putting `false` next to the event name in the `metrics.events` option.
 
 ## [1.6.0] - 2024-09-19
 ### Added

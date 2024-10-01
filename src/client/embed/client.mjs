@@ -7,8 +7,9 @@ import { ParentFrameMessenger } from '../../frame/parent-frame-messenger.mjs';
 import { BannerInteractionWatcher } from '../../interaction/banner-interaction-watcher.mjs';
 import { MetricsSender } from '../../metrics/metrics-sender.mjs';
 import { MetricsEventsListener } from '../../metrics/metrics-events-listener.mjs';
+import { EventsConfig } from '../../metrics/events-config.mjs';
 import { State } from '../../banner/state.mjs';
-import {ClosingManager} from "../../banner/closing/closing-manager.mjs";
+import { ClosingManager } from '../../banner/closing/closing-manager.mjs';
 
 export class Client {
     #version;
@@ -73,6 +74,7 @@ export class Client {
 
             this.#redrawBanners();
             this.#bannerInteractionWatcher.start();
+            this.#metricsEventsListener.attach(new EventsConfig(this.#extendedConfig.metrics));
         });
 
         this.#frameMessenger.on('windowResized', ({ data }) => {
@@ -81,7 +83,7 @@ export class Client {
         });
 
         this.#frameMessenger.listen();
-        this.#metricsEventsListener.attach();
+        this.#metricsEventsListener.collectBeforeAttach();
         this.#closingManager.attachUi();
     }
 

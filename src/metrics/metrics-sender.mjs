@@ -1,4 +1,3 @@
-import { Events as MetricsEvents } from './events.mjs';
 import { default as plausibleReceiver } from './plausible-receiver.mjs';
 import { default as gtagReceiver } from './gtag-receiver.mjs';
 import { default as gtmReceiver } from './gtm-receiver.mjs';
@@ -6,20 +5,17 @@ import { default as debugReceiver } from './debug-receiver.mjs';
 
 export class MetricsSender {
     #callbacks;
-    #disabledEvents;
 
     /**
      * @param {Array<Function<String, Object>>} callbacks
-     * @param {Array<String>} disabledEvents
      */
-    constructor(callbacks, disabledEvents) {
+    constructor(callbacks) {
         this.#callbacks = Array.isArray(callbacks) ? callbacks : [callbacks];
-        this.#disabledEvents = disabledEvents;
     }
 
-    static createFromReceivers(receivers, disabledEvents) {
+    static createFromReceivers(receivers) {
         if (!receivers) {
-            return new MetricsSender([], disabledEvents);
+            return new MetricsSender([]);
         }
 
         receivers = Array.isArray(receivers) ? receivers : [receivers];
@@ -49,22 +45,14 @@ export class MetricsSender {
             }
         }
 
-        return new MetricsSender(callbacks, disabledEvents);
+        return new MetricsSender(callbacks);
     }
 
     hasAnyReceiver() {
         return this.#callbacks.length;
     }
 
-    isEventEnabled(eventName) {
-        return -1 !== MetricsEvents.EVENTS.indexOf(eventName) && -1 === this.#disabledEvents.indexOf(eventName);
-    }
-
     send(eventName, eventArgs) {
-        if (!this.isEventEnabled(eventName)) {
-            return;
-        }
-
         for (let callback of this.#callbacks) {
             callback(eventName, eventArgs);
         }

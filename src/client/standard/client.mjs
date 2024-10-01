@@ -13,6 +13,7 @@ import { BannerRenderer } from '../../renderer/banner-renderer.mjs';
 import { BannerInteractionWatcher } from '../../interaction/banner-interaction-watcher.mjs';
 import { MetricsEventsListener } from '../../metrics/metrics-events-listener.mjs';
 import { MetricsSender } from '../../metrics/metrics-sender.mjs';
+import { EventsConfig } from '../../metrics/events-config.mjs';
 import { BannerFrameMessenger } from '../../frame/banner-frame-messenger.mjs';
 import { getHtmlElement } from '../../utils/dom-helpers.mjs';
 
@@ -68,7 +69,6 @@ export class Client {
 
         this.#metricsSender = MetricsSender.createFromReceivers(
             options.metrics.receiver,
-            options.metrics.disabledEvents,
         );
         this.#metricsEventsListener = new MetricsEventsListener(
             this.#metricsSender,
@@ -119,7 +119,10 @@ export class Client {
         });
 
         this.#frameMessenger.listen();
-        this.#metricsEventsListener.attach();
+        this.#metricsEventsListener.attach(new EventsConfig({
+            events: options.metrics.events,
+            params: options.metrics.params,
+        }));
         this.#bannerInteractionWatcher.start();
         this.#closingManager.attachUi();
     }
