@@ -30,6 +30,7 @@ export function createConfig(options) {
             receiver: null,
             events: {},
             params: {},
+            extraParams: {},
         },
         closing: {
             storage: 'memoryStorage',
@@ -119,7 +120,7 @@ export function createConfig(options) {
 
     // metrics
     if ('object' !== typeof config.metrics) {
-        throw new Error(`The option "metrics" must be an object of the format { receiver: null|string|function|array<string|function>, events: object{ *: string|false }, params: object{ *: string } }, ${config.metrics} passed.`);
+        throw new Error(`The option "metrics" must be an object of the format { receiver: null|string|function|array<string|function>, events: object, params: object }, ${config.metrics} passed.`);
     }
 
     if (null !== config.metrics.receiver && -1 === ['string', 'function'].indexOf(typeof config.metrics.receiver) && !Array.isArray(config.metrics.receiver)) {
@@ -137,11 +138,15 @@ export function createConfig(options) {
     }
 
     if ('object' !== typeof config.metrics.events) {
-        throw new Error(`The option "metrics.event" must be an object of the format { *: string|false }, ${JSON.stringify(config.metrics.events)} passed.`);
+        throw new Error(`The option "metrics.event" must be an object of the format { *: string|false|{ name?: string, params?: { *: string }, extraParams?: { *: scalar } } }, ${JSON.stringify(config.metrics.events)} passed.`);
     }
 
     if ('object' !== typeof config.metrics.params) {
         throw new Error(`The option "metrics.params" must be an object of the format { *: string }, ${JSON.stringify(config.metrics.params)} passed.`);
+    }
+
+    if ('object' !== typeof config.metrics.extraParams) {
+        throw new Error(`The option "metrics.extraParams" must be an object of the format { *: scalar }, ${JSON.stringify(config.metrics.params)} passed.`);
     }
 
     // closing

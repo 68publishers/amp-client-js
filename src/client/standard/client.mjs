@@ -126,6 +126,7 @@ export class Client {
         this.#metricsEventsListener.attach(new EventsConfig({
             events: options.metrics.events,
             params: options.metrics.params,
+            extraParams: options.metrics.extraParams,
         }));
         this.#bannerInteractionWatcher.start();
         this.#closingManager.attachUi();
