@@ -36,6 +36,12 @@ export class MetricsEventsListener {
         const eventBus = this.#eventBus;
         const config = new EventsConfig({});
 
+        const bannerLoadedEvent = config.events[MetricsEvents.BANNER_LOADED];
+        const bannerDisplayedEvent = config.events[MetricsEvents.BANNER_DISPLAYED];
+        const bannerFullyDisplayedEvent = config.events[MetricsEvents.BANNER_FULLY_DISPLAYED];
+        const bannerClickedEvent = config.events[MetricsEvents.BANNER_CLICKED];
+        const bannerClosedEvent = config.events[MetricsEvents.BANNER_CLOSED];
+
         this.#beforeAttachedQueue.cleanup.push(
             eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, ({ banner }) => {
                 if (banner.isEmbed() || State.RENDERED !== banner.state || 1 !== banner.stateCounter) {
@@ -45,7 +51,7 @@ export class MetricsEventsListener {
                 for (let fingerprint of banner.fingerprints) {
                     this.#beforeAttachedQueue.events.push({
                         name: MetricsEvents.BANNER_LOADED,
-                        params: this.#createBaseMetricsParams({ config, fingerprint, banner }),
+                        params: this.#createBaseMetricsParams({ event: bannerLoadedEvent, fingerprint, banner }),
                     });
                 }
             }),
@@ -55,7 +61,7 @@ export class MetricsEventsListener {
             eventBus.subscribe(Events.ON_BANNER_FIRST_TIME_SEEN, ({ fingerprint, banner }) => {
                 this.#beforeAttachedQueue.events.push({
                     name: MetricsEvents.BANNER_DISPLAYED,
-                    params: this.#createBaseMetricsParams({ config, fingerprint, banner }),
+                    params: this.#createBaseMetricsParams({ event: bannerDisplayedEvent, fingerprint, banner }),
                 });
             }),
         );
@@ -64,15 +70,15 @@ export class MetricsEventsListener {
             eventBus.subscribe(Events.ON_BANNER_FIRST_TIME_FULLY_SEEN, ({ fingerprint, banner }) => {
                 this.#beforeAttachedQueue.events.push({
                     name: MetricsEvents.BANNER_FULLY_DISPLAYED,
-                    params: this.#createBaseMetricsParams({ config, fingerprint, banner }),
+                    params: this.#createBaseMetricsParams({ event: bannerFullyDisplayedEvent, fingerprint, banner }),
                 });
             }),
         );
 
         this.#beforeAttachedQueue.cleanup.push(
             eventBus.subscribe(Events.ON_BANNER_LINK_CLICKED, ({ fingerprint, banner, target }) => {
-                const params = this.#createBaseMetricsParams({ config, fingerprint, banner });
-                params[config.params.link] = target.href || '';
+                const params = this.#createBaseMetricsParams({ event: bannerClickedEvent, fingerprint, banner });
+                params[bannerClickedEvent.params.link] = target.href || '';
 
                 this.#beforeAttachedQueue.events.push({
                     name: MetricsEvents.BANNER_CLICKED,
@@ -85,7 +91,7 @@ export class MetricsEventsListener {
             eventBus.subscribe(Events.ON_BANNER_AFTER_CLOSE, ({ fingerprint, banner }) => {
                 this.#beforeAttachedQueue.events.push({
                     name: MetricsEvents.BANNER_CLOSED,
-                    params: this.#createBaseMetricsParams({ config, fingerprint, banner }),
+                    params: this.#createBaseMetricsParams({ event: bannerClosedEvent, fingerprint, banner }),
                 });
             }),
         );
@@ -110,96 +116,93 @@ export class MetricsEventsListener {
             return;
         }
 
-        const bannerLoadedEventName = config.events[MetricsEvents.BANNER_LOADED];
-        const bannerDisplayedEventName = config.events[MetricsEvents.BANNER_DISPLAYED];
-        const bannerFullyDisplayedEventName = config.events[MetricsEvents.BANNER_FULLY_DISPLAYED];
-        const bannerClickedEventName = config.events[MetricsEvents.BANNER_CLICKED];
-        const bannerClosedEventName = config.events[MetricsEvents.BANNER_CLOSED];
+        const bannerLoadedEvent = config.events[MetricsEvents.BANNER_LOADED];
+        const bannerDisplayedEvent = config.events[MetricsEvents.BANNER_DISPLAYED];
+        const bannerFullyDisplayedEvent = config.events[MetricsEvents.BANNER_FULLY_DISPLAYED];
+        const bannerClickedEvent = config.events[MetricsEvents.BANNER_CLICKED];
+        const bannerClosedEvent = config.events[MetricsEvents.BANNER_CLOSED];
 
         if (this.#beforeAttachedQueue.started) {
             for (let i in this.#beforeAttachedQueue.events) {
                 const { name, params } = this.#beforeAttachedQueue.events[i];
+                const event = config.events[name];
 
-                if (false === config.events[name]) {
+                if (!event.enabled) {
                     continue;
                 }
 
                 const mappedParams = {};
 
                 for (let paramKey in params) {
-                    mappedParams[config.params[paramKey]] = params[paramKey];
+                    mappedParams[event.params[paramKey]] = params[paramKey];
                 }
 
-                metricsSender.send(config.events[name], mappedParams);
+                metricsSender.send(event.name, { ...mappedParams, ...event.extraParams });
             }
 
             this.#clearBeforeAttachedQueue();
         }
 
-        if (false !== bannerLoadedEventName) {
+        if (bannerLoadedEvent.enabled) {
             eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, ({ banner }) => {
                 if (banner.isEmbed() || State.RENDERED !== banner.state || 1 !== banner.stateCounter) {
                     return;
                 }
 
                 for (let fingerprint of banner.fingerprints) {
-                    metricsSender.send(bannerLoadedEventName, this.#createBaseMetricsParams({ config, fingerprint, banner }));
+                    metricsSender.send(bannerLoadedEvent.name, this.#createBaseMetricsParams({ event: bannerLoadedEvent, fingerprint, banner }));
                 }
             });
         }
 
-        if (false !== bannerDisplayedEventName) {
+        if (bannerDisplayedEvent.enabled) {
             eventBus.subscribe(Events.ON_BANNER_FIRST_TIME_SEEN, ({ fingerprint, banner }) => {
-                metricsSender.send(bannerDisplayedEventName, this.#createBaseMetricsParams({ config, fingerprint, banner }));
+                metricsSender.send(bannerDisplayedEvent.name, this.#createBaseMetricsParams({ event: bannerDisplayedEvent, fingerprint, banner }));
             });
         }
 
-        if (false !== bannerFullyDisplayedEventName) {
+        if (bannerFullyDisplayedEvent.enabled) {
             eventBus.subscribe(Events.ON_BANNER_FIRST_TIME_FULLY_SEEN, ({ fingerprint, banner }) => {
-                metricsSender.send(bannerFullyDisplayedEventName, this.#createBaseMetricsParams({ config, fingerprint, banner }));
+                metricsSender.send(bannerFullyDisplayedEvent.name, this.#createBaseMetricsParams({ event: bannerFullyDisplayedEvent, fingerprint, banner }));
             });
         }
 
-        if (false !== bannerClickedEventName) {
+        if (bannerClickedEvent.enabled) {
             eventBus.subscribe(Events.ON_BANNER_LINK_CLICKED, ({ fingerprint, banner, target }) => {
-                const params = this.#createBaseMetricsParams({ config, fingerprint, banner });
-                params[config.params.link] = target.href || '';
+                const params = this.#createBaseMetricsParams({ event: bannerClickedEvent, fingerprint, banner });
+                params[bannerClickedEvent.params.link] = target.href || '';
 
-                metricsSender.send(bannerClickedEventName, params);
+                metricsSender.send(bannerClickedEvent.name, params);
             });
         }
 
-        if (false !== bannerClosedEventName) {
+        if (bannerClosedEvent.enabled) {
             eventBus.subscribe(Events.ON_BANNER_AFTER_CLOSE, ({ fingerprint, banner }) => {
-                metricsSender.send(bannerClosedEventName, this.#createBaseMetricsParams({ config, fingerprint, banner }));
+                metricsSender.send(bannerClosedEvent.name, this.#createBaseMetricsParams({ event: bannerClosedEvent, fingerprint, banner }));
             });
         }
     }
 
-    /**
-     * @param {EventsConfig} config
-     * @param {Fingerprint} fingerprint
-     * @param {Banner} banner
-     *
-     * @return {Object}
-     */
-    #createBaseMetricsParams = ({ config, fingerprint, banner }) => {
+    #createBaseMetricsParams = ({ event, fingerprint, banner }) => {
         let breakpoint = banner.getCurrentBreakpoint(fingerprint.bannerId);
         breakpoint = null === breakpoint ? 'default' : `${'min' === banner.positionData.breakpointType ? '>=' : '<='}${breakpoint}`;
 
         const params = {};
-        params[config.params.channel_code] = this.#channelCode;
-        params[config.params.banner_id] = fingerprint.bannerId;
-        params[config.params.banner_name] = fingerprint.bannerName;
-        params[config.params.position_id] = fingerprint.positionId;
-        params[config.params.position_code] = fingerprint.positionCode;
-        params[config.params.position_name] = fingerprint.positionName;
-        params[config.params.campaign_id] = fingerprint.campaignId;
-        params[config.params.campaign_code] = fingerprint.campaignCode;
-        params[config.params.campaign_name] = fingerprint.campaignName;
-        params[config.params.breakpoint] = breakpoint;
+        params[event.params.channel_code] = this.#channelCode;
+        params[event.params.banner_id] = fingerprint.bannerId;
+        params[event.params.banner_name] = fingerprint.bannerName;
+        params[event.params.position_id] = fingerprint.positionId;
+        params[event.params.position_code] = fingerprint.positionCode;
+        params[event.params.position_name] = fingerprint.positionName;
+        params[event.params.campaign_id] = fingerprint.campaignId;
+        params[event.params.campaign_code] = fingerprint.campaignCode;
+        params[event.params.campaign_name] = fingerprint.campaignName;
+        params[event.params.breakpoint] = breakpoint;
 
-        return params;
+        return {
+            ...params,
+            ...event.extraParams,
+        };
     };
 
     #clearBeforeAttachedQueue() {
