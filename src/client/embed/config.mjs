@@ -23,6 +23,10 @@ export function createExtendedConfig(options) {
             intersectionRatioMap: {},
             firstTimeSeenTimeout: 1000,
         },
+        metrics: {
+            events: {},
+            params: {},
+        },
     }, options);
 
     // interaction
@@ -54,6 +58,19 @@ export function createExtendedConfig(options) {
 
     if (!Number.isInteger(config.interaction.firstTimeSeenTimeout) || 500 > config.interaction.firstTimeSeenTimeout) {
         throw new Error(`The option "interaction.firstTimeSeenTimeout" must be a int with a minimum value of 500, "${config.interaction.firstTimeSeenTimeout}" passed.`);
+    }
+
+    // metrics
+    if ('object' !== typeof config.metrics) {
+        throw new Error(`The option "metrics" must be an object of the format { events: object{ *: string|false }, params: object{ *: string } }, ${JSON.stringify(config.metrics)} passed.`);
+    }
+
+    if ('object' !== typeof config.metrics.events) {
+        throw new Error(`The option "metrics.event" must be an object of the format { *: string|false }, ${JSON.stringify(config.metrics.events)} passed.`);
+    }
+
+    if ('object' !== typeof config.metrics.params) {
+        throw new Error(`The option "metrics.params" must be an object of the format { *: string }, ${JSON.stringify(config.metrics.params)} passed.`);
     }
 
     return config;
