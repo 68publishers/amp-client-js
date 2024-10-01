@@ -80,6 +80,10 @@ export class Client {
             connectionData: {
                 extendedConfig: {
                     interaction: options.interaction,
+                    metrics: {
+                        events: options.metrics.events,
+                        params: options.metrics.params,
+                    },
                 },
             },
             bannerManager: this.#bannerManager,
