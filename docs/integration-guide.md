@@ -50,7 +50,8 @@ const AMPClient = AMPClientFactory.create({
 | **interaction.intersectionRatioMap**     |                   `object`                    |          `{}`          |                 No                 | The "map" of intersection ratios. Keys must be numeric and represents a number of pixels. The values must match the same criteria as the option `interaction.defaultIntersectionRatio`. If a banner does not have an equal or greater pixel count than any option, then `defaultIntersectionRatio` is used.            |
 | **interaction.firstTimeSeenTimeout**     |                   `integer`                   |         `1000`         |                 No                 | The value indicates, in milliseconds, how long the banner must be visible in the user's viewport before it is evaluated as having been seen for the first time. The minimum allowed value is 500.                                                                                                                      |
 | **metrics.receiver**                     | `null/string/function/array<string/function>` |         `null`         |                 No                 | Metrics are sent to the selected receiver if the value is set. The value can be a custom function, or one of the following strings: `"plausible"`, `"gtag"`, `"gtm"` or `"debug"`. Alternatively, an array can be passed if we would like to send metrics to multiple receivers. For example, `["plausible", "gtag"]`. |
-| **metrics.disabledEvents**               |                `array<string>`                |          `[]`          |                 No                 | Names of metric events that should not be sent.                                                                                                                                                                                                                                                                        |
+| **metrics.events**                       |                   `object`                    |          `{}`          |                 No                 | Used to rename metric events, or to disable them completely if `false` is specified instead of an event name.                                                                                                                                                                                                          |
+| **metrics.params**                       |                   `object`                    |          `{}`          |                 No                 | Used to rename metric event parameters.                                                                                                                                                                                                                                                                                |
 | **closing.storage**                      |                   `string`                    |   `"memoryStorage"`    |                 No                 | The storage where information about banners closed by the user is stored. Allowed values are `memoryStorage` (default, banners are not closed permanently), `localStorage` and `sessionStorage`.                                                                                                                       |
 | **closing.key**                          |                   `string`                    | `"amp-closed-banners"` |                 No                 | The storage key under which information about closed banners is stored.                                                                                                                                                                                                                                                |
 | **closing.maxItems**                     |                   `integer`                   |         `500`          |                 No                 | Maximum number of closed items (banners) in the storage.                                                                                                                                                                                                                                                               |
@@ -81,7 +82,26 @@ const AMPClient = AMPClientFactory.create({
   },
   metrics: {
     receiver: 'gtm',
-    disabledEvents: ['amp:banner:loaded'],
+    events: {
+      'amp:banner:loaded': 'BannerLoaded',
+      'amp:banner:displayed': 'BannerDisplayed',
+      'amp:banner:fully-displayed': false,
+      'amp:banner:clicked': 'BannerClicked',
+      'amp:banner:closed': 'BannerClosed',
+    },
+    params: {
+      channel_code: 'amp_channelCode',
+      banner_id: 'amp_bannerId',
+      banner_name: 'amp_bannerName',
+      position_id: 'amp_positionId',
+      position_code: 'amp_positionCode',
+      position_name: 'amp_positionName',
+      campaign_id: 'amp_campaignId',
+      campaign_code: 'amp_campaignCode',
+      campaign_name: 'amp_campaignName',
+      breakpoint: 'amp_breakpoint',
+      link: 'amp_clickedLink',
+    }
   },
   closing: {
     storage: 'localStorage',
