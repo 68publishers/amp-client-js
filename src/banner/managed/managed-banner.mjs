@@ -197,7 +197,6 @@ export class ManagedBanner extends Banner {
             rotationSeconds: responseData['rotation_seconds'],
             displayType: responseData['display_type'],
             breakpointType: responseData['breakpoint_type'],
-            dimensions: responseData['dimensions'] || { width: null, height: null },
         });
 
         if ('options' in responseData) {

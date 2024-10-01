@@ -11,6 +11,10 @@ export class BannerData {
         this.#contents = new Contents(dimensionsProvider, breakpointType);
 
         for (let content of this.#data.contents) {
+            if ('img' === content.type && !('dimensions' in content)) { // BC compatibility
+                content.dimensions = { width: null, height: null };
+            }
+
             this.#contents.addContent(content['breakpoint'], content);
         }
     }
