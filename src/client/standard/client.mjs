@@ -83,6 +83,7 @@ export class Client {
                     metrics: {
                         events: options.metrics.events,
                         params: options.metrics.params,
+                        extraParams: options.metrics.extraParams,
                     },
                 },
             },
