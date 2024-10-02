@@ -28,7 +28,9 @@ export function createConfig(options) {
         },
         metrics: {
             receiver: null,
-            disabledEvents: [],
+            events: {},
+            params: {},
+            extraParams: {},
         },
         closing: {
             storage: 'memoryStorage',
@@ -118,7 +120,7 @@ export function createConfig(options) {
 
     // metrics
     if ('object' !== typeof config.metrics) {
-        throw new Error(`The option "metrics" must be an object of the format { receiver: null|string|function|array<string|function>, disabledEvents: array<string> }, ${config.metrics} passed.`);
+        throw new Error(`The option "metrics" must be an object of the format { receiver: null|string|function|array<string|function>, events: object, params: object }, ${config.metrics} passed.`);
     }
 
     if (null !== config.metrics.receiver && -1 === ['string', 'function'].indexOf(typeof config.metrics.receiver) && !Array.isArray(config.metrics.receiver)) {
@@ -135,14 +137,16 @@ export function createConfig(options) {
         config.metrics.receiver = null !== config.metrics.receiver ? [config.metrics.receiver] : [];
     }
 
-    if (!Array.isArray(config.metrics.disabledEvents)) {
-        throw new Error(`The option "metrics.disabledEvents" must an array of strings (event names), "${config.metrics.disabledEvents}" passed.`);
+    if ('object' !== typeof config.metrics.events) {
+        throw new Error(`The option "metrics.event" must be an object of the format { *: string|false|{ name?: string, params?: { *: string }, extraParams?: { *: scalar } } }, ${JSON.stringify(config.metrics.events)} passed.`);
     }
 
-    for (let disabledEventIndex in config.metrics.disabledEvents) {
-        if ('string' !== typeof config.metrics.disabledEvents[disabledEventIndex]) {
-            throw new Error(`The option "metrics.disabledEvents.${disabledEventIndex}" must be a string, "${config.metrics.disabledEvents[disabledEventIndex]}" passed.`);
-        }
+    if ('object' !== typeof config.metrics.params) {
+        throw new Error(`The option "metrics.params" must be an object of the format { *: string }, ${JSON.stringify(config.metrics.params)} passed.`);
+    }
+
+    if ('object' !== typeof config.metrics.extraParams) {
+        throw new Error(`The option "metrics.extraParams" must be an object of the format { *: scalar }, ${JSON.stringify(config.metrics.params)} passed.`);
     }
 
     // closing

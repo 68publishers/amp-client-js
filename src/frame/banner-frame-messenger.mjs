@@ -123,7 +123,7 @@ export class BannerFrameMessenger extends FrameMessenger {
     #onMetricsMessage({ data }) {
         const { eventName, eventArgs } = data;
 
-        if (this.#metricsSender.hasAnyReceiver() && this.#metricsSender.isEventEnabled(eventName)) {
+        if (this.#metricsSender.hasAnyReceiver()) {
             this.#metricsSender.send(eventName, eventArgs);
         }
     }
