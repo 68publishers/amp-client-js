@@ -23,8 +23,8 @@ export default `
                                      src="<%= b.content.src %>"
                                      sizes="<%- b.content.sizes %>"
                                      alt="<%- b.content.alt %>"
-                                     <% if(null !== banner.positionData.dimensions.width) { %>width="<%- banner.positionData.dimensions.width %>"<% } %>
-                                     <% if(null !== banner.positionData.dimensions.height) { %>height="<%- banner.positionData.dimensions.height %>"<% } %>
+                                     <% if(null !== b.content.dimensions.width) { %>width="<%- b.content.dimensions.width %>"<% } %>
+                                     <% if(null !== b.content.dimensions.height) { %>height="<%- b.content.dimensions.height %>"<% } %>
                                      <% if('' !== b.content.title) { %>title="<%- b.content.title %>"<% } %>
                                      <% var loading; if(loading = banner.options.evaluate('loading', index)) { %>loading="<%- loading %>"<% } %>
                                      <% var fetchPriority; if(fetchPriority = banner.options.evaluate('fetchpriority', index)) { %>fetchpriority="<%- fetchPriority %>"<% } %>>

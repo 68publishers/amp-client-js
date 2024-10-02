@@ -20,8 +20,8 @@ export default `
                          src="<%= data.content.src %>"
                          sizes="<%- data.content.sizes %>"
                          alt="<%- data.content.alt %>"
-                         <% if(null !== banner.positionData.dimensions.width) { %>width="<%- banner.positionData.dimensions.width %>"<% } %>
-                         <% if(null !== banner.positionData.dimensions.height) { %>height="<%- banner.positionData.dimensions.height %>"<% } %>
+                         <% if(null !== data.content.dimensions.width) { %>width="<%- data.content.dimensions.width %>"<% } %>
+                         <% if(null !== data.content.dimensions.height) { %>height="<%- data.content.dimensions.height %>"<% } %>
                          <% if('' !== data.content.title) { %>title="<%- data.content.title %>"<% } %>
                          <% var loading; if(loading = banner.options.evaluate('loading', 0)) { %>loading="<%- loading %>"<% } %>
                          <% var fetchPriority; if(fetchPriority = banner.options.evaluate('fetchpriority', 0)) { %>fetchpriority="<%- fetchPriority %>"<% } %>>

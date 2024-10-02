@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Changed arguments that are passed to the listeners `amp:banner:attached`, `amp:banner:state-changed`, `amp:fetch:error` and `amp:fetch:success`. Arguments are now passed as an object, so instead of `(banner) => {}` it is necessary to write `({ banner }) => {}`, respectively `({ response }) => {}` in case of events `amp:fetch:error` and `amp:fetch:success`.
+- Moved `dimensions` field from the `positionData` to the content object of type `img` according to changes in AMP v2.16.0 API changes.
 - Updated docs.
 
 ### Removed
