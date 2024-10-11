@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2024-10-11
 ### Added
 - Added support for banners closing.
 - HTML banners can be simply closed via any element with a data attribute `data-amp-banner-close=""`.
@@ -126,7 +127,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added missing getter `Banner.resources`.
 
-[Unreleased]: https://github.com/68publishers/amp-client-js/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/68publishers/amp-client-js/compare/v1.6.1...HEAD
+[1.6.1]: https://github.com/68publishers/amp-client-js/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/68publishers/amp-client-js/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/68publishers/amp-client-js/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/68publishers/amp-client-js/compare/v1.3.1...v1.4.0
