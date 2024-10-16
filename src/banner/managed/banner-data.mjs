@@ -64,6 +64,10 @@ export class BannerData {
         return this.#data.campaign_name || null;
     }
 
+    get closeExpiration() {
+        return 'close_expiration' in this.#data ? this.#data.close_expiration : null;
+    }
+
     get content() {
         return this.#contents.content.data;
     }

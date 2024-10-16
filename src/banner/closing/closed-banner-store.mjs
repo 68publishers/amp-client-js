@@ -1,3 +1,5 @@
+import { EntryKey } from './closing-entry.mjs';
+
 export class ClosedBannerStore {
     #storage;
     #key;
@@ -40,46 +42,100 @@ export class ClosedBannerStore {
                     return;
                 }
 
-                const currentItems = this.#loadedItems || [];
-                const newItems = null !== event.newValue && '' !== event.newValue ? event.newValue.split(',') : [];
-                const diff = newItems.filter(id => !currentItems.includes(id));
+                const currentItems = this.#loadedItems || {};
+                const newItems = null !== event.newValue && '' !== event.newValue ? JSON.parse(event.newValue) : {};
+
+                const currentKeys = Object.keys(currentItems);
+                const diffKeys = Object.keys(newItems)
+                    .filter(key => !currentKeys.includes(key))
+                    .map(key => EntryKey.tryParse(key))
+                    .filter(key => null !== key);
 
                 this.#loadedItems = newItems;
 
-                if (0 < diff.length) {
-                    onExternalChange(diff);
+                if (0 < diffKeys.length) {
+                    onExternalChange(diffKeys);
                 }
             });
         }
     }
 
-    persist(bannerId, closed) {
+    close(entries) {
         const items = this.#getItems();
-        const index = items.indexOf(bannerId);
+        const now = this.#getNow();
         let changed = false;
 
-        if (closed && -1 === index) {
-            items.push(bannerId);
-            changed = true;
-        } else if (!closed && -1 !== index) {
-            items.splice(index, 1);
-            changed = true;
+        for (let i in entries) {
+            const entry = entries[i];
+
+            if (false !== entry.expiresAt && entry.expiresAt <= now) {
+                continue;
+            }
+
+            const key = entry.key.toString();
+
+            if (!(key in items) || items[key] !== entry.expiresAt) {
+                items[key] = entry.expiresAt;
+                changed = true;
+            }
         }
 
         if (!changed) {
             return;
         }
 
-        if (items.length > this.#maxItems) {
-            items.splice(items.length - this.#maxItems);
+        const length = Object.values(items).length;
+
+        if (length > this.#maxItems) {
+            Object.entries(items)
+                .sort((a, b) => (a[1] || Number.MAX_SAFE_INTEGER) - (b[1] || Number.MAX_SAFE_INTEGER))
+                .slice(0, length - this.#maxItems)
+                .forEach(item => {
+                    delete items[item[0]];
+                })
         }
 
         this.#loadedItems = items;
         this.#flush();
     }
 
-    isClosed(bannerId) {
-        return -1 !== this.#getItems().indexOf(bannerId);
+    release(keys) {
+        const items = this.#getItems();
+        let changed = false;
+
+        for (let i in keys) {
+            const key = keys[i];
+            const keyNative = key.toString();
+
+            if (keyNative in items) {
+                delete items[keyNative];
+                changed = true;
+            }
+        }
+
+        if (!changed) {
+            return;
+        }
+
+        this.#loadedItems = items;
+        this.#flush();
+    }
+
+    isClosed(key) {
+        const items = this.#getItems();
+        const keyNative = key.toString();
+
+        if (!(keyNative in items)) {
+            return false;
+        }
+
+        if (false === items[keyNative] || items[keyNative] > this.#getNow()) {
+            return true;
+        }
+
+        setTimeout(() => this.release([key]), 0);
+
+        return false;
     }
 
     #getItems() {
@@ -88,14 +144,19 @@ export class ClosedBannerStore {
         }
 
         const storedValue = this.#storage.getItem(this.#key);
-        const listOfItems = null !== storedValue && '' !== storedValue ? storedValue.split(',') : [];
+        let listOfItems = null !== storedValue && '' !== storedValue ? JSON.parse(storedValue) : {};
+
+        if (Array.isArray(listOfItems)) { // back compatibility - flush already persisted item
+            listOfItems = {};
+            this.#storage.setItem(this.#key, '{}');
+        }
 
         return this.#loadedItems = listOfItems;
     }
 
     #flush() {
         if (null !== this.#loadedItems) {
-            this.#storage.setItem(this.#key, this.#loadedItems.join(','));
+            this.#storage.setItem(this.#key, JSON.stringify(this.#loadedItems));
         }
     }
 
@@ -114,5 +175,9 @@ export class ClosedBannerStore {
         storage.getItem = getItem.bind(storage);
 
         return storage;
+    }
+
+    #getNow() {
+        return Math.round((+new Date() / 1000));
     }
 }

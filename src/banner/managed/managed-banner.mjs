@@ -122,6 +122,7 @@ export class ManagedBanner extends Banner {
             campaignId: bannerData.campaignId,
             campaignCode: bannerData.campaignCode,
             campaignName: bannerData.campaignName,
+            closeExpiration: bannerData.closeExpiration,
         });
 
         switch (true) {
@@ -197,6 +198,7 @@ export class ManagedBanner extends Banner {
             rotationSeconds: responseData['rotation_seconds'],
             displayType: responseData['display_type'],
             breakpointType: responseData['breakpoint_type'],
+            closeExpiration: responseData['close_expiration'] || null,
         });
 
         if ('options' in responseData) {

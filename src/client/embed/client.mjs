@@ -43,19 +43,18 @@ export class Client {
                 return this.#parentWindowWidth || window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
             }),
         );
+        this.#frameMessenger = new ParentFrameMessenger({
+            clientEventBus: this.#eventBus,
+        });
         this.#closingManager = new ClosingManager({
             bannerManager: this.#bannerManager,
             eventBus: this.#eventBus,
-        });
-        this.#frameMessenger = new ParentFrameMessenger({
-            clientEventBus: this.#eventBus,
-            closingManager: this.#closingManager,
+            parentFrameMessenger: this.#frameMessenger,
         });
         this.#attached = false;
         this.#bannerInteractionWatcher = null;
         this.#metricsSender = new MetricsSender(
             [this.#sendMetricsEvent.bind(this)],
-            [],
         );
         this.#metricsEventsListener = new MetricsEventsListener(
             this.#metricsSender,
