@@ -1,5 +1,5 @@
 export class Fingerprint {
-    constructor(value, { bannerId, bannerName, positionId, positionCode, positionName, campaignId, campaignCode, campaignName }) {
+    constructor(value, { bannerId, bannerName, positionId, positionCode, positionName, campaignId, campaignCode, campaignName, closeExpiration = null }) {
         this.value = value;
         this.bannerId = bannerId;
         this.bannerName = bannerName;
@@ -9,6 +9,7 @@ export class Fingerprint {
         this.campaignId = campaignId;
         this.campaignCode = campaignCode;
         this.campaignName = campaignName;
+        this.closeExpiration = closeExpiration;
     }
 
     static createFromProperties(properties) {
