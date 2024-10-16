@@ -1,11 +1,14 @@
 import { Events } from '../../event/events.mjs';
 import { EmbedBanner } from '../embed/embed-banner.mjs';
 import { ClosedBannerStore } from './closed-banner-store.mjs';
+import { ClosingEntry, EntryKey } from './closing-entry.mjs';
+import { Fingerprint } from '../fingerprint.mjs';
 
 export class ClosingManager {
     #bannerManager;
     #eventBus;
-    #frameMessenger;
+    #bannerFrameMessenger;
+    #parentFrameMessenger;
     #store;
 
     constructor({
@@ -16,33 +19,52 @@ export class ClosingManager {
             key: 'amp-closed-banners',
             maxItems: 500,
         },
-        frameMessenger = undefined,
+        bannerFrameMessenger = undefined,
+        parentFrameMessenger = undefined,
     }) {
         this.#bannerManager = bannerManager;
         this.#eventBus = eventBus;
-        this.#frameMessenger = frameMessenger;
+        this.#bannerFrameMessenger = bannerFrameMessenger;
+        this.#parentFrameMessenger = parentFrameMessenger;
 
         const { storage, key, maxItems } = config;
         this.#store = new ClosedBannerStore({
             storage,
             key,
             maxItems,
-            onExternalChange: ids => {
-                ids.forEach(id => this.closeBanner(id));
+            onExternalChange: keys => {
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+
+                    if (key.isBanner()) {
+                        this.closeBanner(key.args.positionCode, key.args.bannerId);
+                    }
+                }
             },
         });
 
-        if (this.#frameMessenger) {
-            this.#frameMessenger.on('bannerClosed', ({ data }) => {
-                const { uid, bannerId, fingerprint } = data;
+        if (this.#bannerFrameMessenger) {
+            this.#bannerFrameMessenger.on('storeClosedEntries', ({ data }) => {
+                const { uid, entries, fingerprints } = data;
                 const banner = this.#bannerManager.getBannerByUid(uid);
 
                 if (!(banner instanceof EmbedBanner)) {
                     return;
                 }
 
-                this.#store.persist(bannerId, true);
-                banner.unsetFingerprint(fingerprint);
+                for (let i = 0; i < fingerprints.length; i++) {
+                    banner.unsetFingerprint(Fingerprint.createFromValue(fingerprints[i]));
+                }
+
+                this.#store.close(entries.map(e => new ClosingEntry({ key: EntryKey.tryParse(e.key), expiresAt: e.expiresAt })));
+            });
+        }
+
+        if (this.#parentFrameMessenger) {
+            this.#parentFrameMessenger.on('closeBanner', ({ data }) => {
+                const { positionCode, bannerId } = data;
+
+                positionCode && bannerId && this.closeBanner(positionCode, bannerId);
             });
         }
     }
@@ -71,7 +93,7 @@ export class ClosingManager {
                     const bannerFingerprint = bannerFingerprints[i];
 
                     if (bannerFingerprint.value === fingerprint) {
-                        this.closeBanner(bannerFingerprint.bannerId);
+                        this.closeBanner(banner.position, bannerFingerprint.bannerId);
                     }
                 }
             });
@@ -104,62 +126,111 @@ export class ClosingManager {
         });
     }
 
-    isClosed(bannerId) {
-        return this.#store.isClosed(bannerId);
+    isBannerClosed(positionCode, bannerId) {
+        return this.#store.isClosed(
+            EntryKey.banner(positionCode, bannerId),
+        );
     }
 
-    closeBanner(bannerId) {
-        const banners = this.#bannerManager.getBannersByState({
-            state: this.#bannerManager.STATE.RENDERED,
-        })
+    isPositionClosed(positionCode) {
+        return this.#store.isClosed(
+            EntryKey.position(positionCode),
+        );
+    }
 
-        for (let i = 0; i < banners.length; i++) {
-            const banner = banners[i];
-            const fingerprint = banner.fingerprints.filter(f => f.bannerId === bannerId)[0];
+    closeBanner(positionCode, bannerId) {
+        const banner = this.#bannerManager.getBannerByPosition(positionCode);
 
-            if (undefined === fingerprint) {
-                continue;
+        if (null === banner) {
+            return;
+        }
+
+        const allFingerprints = [...banner.fingerprints];
+        const fingerprint = allFingerprints.filter(f => f.bannerId === bannerId)[0];
+
+        if (undefined === fingerprint) {
+            return;
+        }
+
+        if (banner instanceof EmbedBanner) {
+            this.#bannerFrameMessenger && (this.#bannerFrameMessenger.sendToBanner(
+                banner,
+                'closeBanner',
+                {
+                    positionCode: positionCode,
+                    bannerId: bannerId,
+                },
+            ));
+
+            return;
+        }
+
+        const bannerExpiration = fingerprint.closeExpiration;
+
+        this.#closeFingerprint({ banner, fingerprint }).then(() => {
+            const entries = [];
+
+            entries.push(ClosingEntry.banner({
+                positionCode,
+                bannerId,
+                closingExpiration: bannerExpiration,
+            }));
+
+            if (null !== banner.positionData.closeExpiration) {
+                const promises = [];
+                const fingerprints = banner.fingerprints;
+
+                for (let i = 0; i < fingerprints.length; i++) {
+                    promises.push(this.#closeFingerprint({ banner, fingerprint: fingerprints[i] }));
+                }
+
+                Promise.all(promises).then(() => {
+                    entries.push(ClosingEntry.position({
+                        positionCode,
+                        closingExpiration: banner.positionData.closeExpiration,
+                    }));
+
+                    setTimeout(() => this.#store.close(entries), 0);
+                    this.#parentFrameMessenger && this.#parentFrameMessenger.sendToParent('storeClosedEntries', {
+                        entries: entries.map(e => ({ key: e.key.toString(), expiresAt: e.expiresAt })),
+                        fingerprints: allFingerprints.map(f => f.toString()),
+                    });
+                });
+            } else {
+                setTimeout(() => this.#store.close(entries), 0);
+                this.#parentFrameMessenger && this.#parentFrameMessenger.sendToParent('storeClosedEntries', {
+                    entries: entries.map(e => ({ key: e.key.toString(), expiresAt: e.expiresAt })),
+                    fingerprints: [fingerprint.toString()],
+                });
             }
+        });
+    }
 
-            if (banner instanceof EmbedBanner) {
-                this.#frameMessenger && (this.#frameMessenger.sendToBanner(
-                    banner,
-                    'closeBanner',
-                    {
-                        bannerId: bannerId,
-                    },
-                ));
+    #closeFingerprint({ banner, fingerprint }) {
+        const element = banner.element.querySelector(`[data-amp-banner-fingerprint="${fingerprint.value}"]`);
 
-                return;
-            }
+        if (!element) {
+            return Promise.resolve(undefined);
+        }
 
-            const element = banner.element.querySelector(`[data-amp-banner-fingerprint="${fingerprint.value}"]`);
+        let operation = (element) => element.remove();
+        const setOperation = (op) => operation = op;
 
-            if (!element) {
-                continue;
-            }
+        this.#eventBus.dispatch(Events.ON_BANNER_BEFORE_CLOSE, {
+            fingerprint,
+            element,
+            banner,
+            setOperation,
+        });
 
-            let operation = (element) => element.remove();
-            const setOperation = (op) => operation = op;
-
-            this.#eventBus.dispatch(Events.ON_BANNER_BEFORE_CLOSE, {
+        return Promise.resolve(operation(element)).then(() => {
+            this.#eventBus.dispatch(Events.ON_BANNER_AFTER_CLOSE, {
                 fingerprint,
                 element,
                 banner,
-                setOperation,
             });
 
-            Promise.resolve(operation(element)).then(() => {
-                this.#store.persist(bannerId, true);
-
-                this.#eventBus.dispatch(Events.ON_BANNER_AFTER_CLOSE, {
-                    fingerprint,
-                    element,
-                    banner,
-                });
-
-                banner.unsetFingerprint(fingerprint);
-            });
-        }
+            banner.unsetFingerprint(fingerprint);
+        });
     }
 }
