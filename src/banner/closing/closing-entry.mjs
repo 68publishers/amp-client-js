@@ -47,7 +47,7 @@ export class EntryKey {
             type: 'position',
             args: {
                 positionCode: positionCode,
-            }
+            },
         });
     }
 
@@ -58,7 +58,7 @@ export class EntryKey {
             args: {
                 positionCode: positionCode,
                 bannerId: bannerId,
-            }
+            },
         });
     }
 
