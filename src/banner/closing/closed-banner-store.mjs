@@ -63,7 +63,7 @@ export class ClosedBannerStore {
     close(entries) {
         const items = this.#getItems();
         const now = this.#getNow();
-        let changed = false;
+        const changedKeys = [];
 
         for (let i in entries) {
             const entry = entries[i];
@@ -76,11 +76,11 @@ export class ClosedBannerStore {
 
             if (!(key in items) || items[key] !== entry.expiresAt) {
                 items[key] = entry.expiresAt;
-                changed = true;
+                changedKeys.push(key);
             }
         }
 
-        if (!changed) {
+        if (0 >= changedKeys.length) {
             return;
         }
 
@@ -88,6 +88,7 @@ export class ClosedBannerStore {
 
         if (length > this.#maxItems) {
             Object.entries(items)
+                .filter(e => -1 === changedKeys.indexOf(e[0]))
                 .sort((a, b) => (a[1] || Number.MAX_SAFE_INTEGER) - (b[1] || Number.MAX_SAFE_INTEGER))
                 .slice(0, length - this.#maxItems)
                 .forEach(item => {
