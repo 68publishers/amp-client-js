@@ -138,4 +138,14 @@ export class BannerManager {
 
         return null;
     }
+
+    getBannerByPosition(positionCode) {
+        for (let banner of this.#banners) {
+            if (banner.position === positionCode) {
+                return banner;
+            }
+        }
+
+        return null;
+    }
 }

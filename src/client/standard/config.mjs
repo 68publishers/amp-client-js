@@ -33,7 +33,7 @@ export function createConfig(options) {
             extraParams: {},
         },
         closing: {
-            storage: 'memoryStorage',
+            storage: 'localStorage',
             key: 'amp-closed-banners',
             maxItems: 500,
         },
