@@ -5,6 +5,7 @@ import { Banner } from './banner.mjs';
 import { State } from './state.mjs';
 import { Fingerprint } from './fingerprint.mjs';
 import { SequenceGenerator } from '../utils/sequence-generator.mjs';
+import { Events } from '../event/events.mjs';
 import { getHtmlElement } from '../utils/dom-helpers.mjs';
 
 export class BannerManager {
@@ -13,6 +14,7 @@ export class BannerManager {
     #bannerRenderer;
     #sequenceGenerator;
     #banners = [];
+    #mutationObserver;
 
     /**
      * @param {EventBus} eventBus
@@ -28,22 +30,38 @@ export class BannerManager {
         this.#dimensionsProvider = dimensionsProvider;
         this.#bannerRenderer = bannerRenderer;
         this.#sequenceGenerator = new SequenceGenerator();
+        this.#mutationObserver = new MutationObserver((mutationList) => {
+            for (const mutation of mutationList) {
+                if (!(mutation.target instanceof HTMLElement)) {
+                    continue;
+                }
+
+                const uid = mutation.target.closest('[data-amp-attached]')?.dataset?.ampAttached;
+                const banner = undefined !== uid ? this.getBannerByUid(parseInt(uid)) : null;
+
+                if (banner) {
+                    this.#eventBus.dispatch(Events.ON_BANNER_MUTATED, { banner, mutation });
+                }
+            }
+        });
 
         this.STATE = State;
     }
 
     addExternalBanner(element, refWindow = window) {
         element = getHtmlElement(element, refWindow);
+        const uid = this.#sequenceGenerator.getNextIdentifier();
 
-        element.setAttribute('data-amp-attached', '');
+        element.setAttribute('data-amp-attached', uid);
 
         const banner = new ExternalBanner(
             this.#dimensionsProvider,
             this.#eventBus,
-            this.#sequenceGenerator.getNextIdentifier(),
+            uid,
             element,
         );
 
+        this.#observeMutations(element);
         this.#banners.push(banner);
 
         return banner;
@@ -55,20 +73,22 @@ export class BannerManager {
         }
 
         element = getHtmlElement(element, refWindow);
+        const uid = this.#sequenceGenerator.getNextIdentifier();
 
-        element.setAttribute('data-amp-attached', '');
+        element.setAttribute('data-amp-attached', uid);
 
         const banner = new ManagedBanner(
             this.#dimensionsProvider,
             this.#bannerRenderer,
             this.#eventBus,
-            this.#sequenceGenerator.getNextIdentifier(),
+            uid,
             element,
             position,
             resources,
             options,
         );
 
+        this.#observeMutations(element);
         this.#banners.push(banner);
 
         return banner;
@@ -77,18 +97,20 @@ export class BannerManager {
     addEmbedBanner(element, iframe, position, options) {
         element = getHtmlElement(element, window);
         iframe = getHtmlElement(iframe, window);
+        const uid = this.#sequenceGenerator.getNextIdentifier();
 
-        element.setAttribute('data-amp-attached', '');
+        element.setAttribute('data-amp-attached', uid);
 
         const banner = new EmbedBanner(
             this.#eventBus,
-            this.#sequenceGenerator.getNextIdentifier(),
+            uid,
             element,
             iframe,
             position,
             options,
         );
 
+        this.#observeMutations(element);
         this.#banners.push(banner);
 
         return banner;
@@ -137,5 +159,21 @@ export class BannerManager {
         }
 
         return null;
+    }
+
+    #observeMutations(element) {
+        if (!element._ampBannerMutationsObserved) {
+            this.#mutationObserver.observe(element, {
+                subtree: true,
+                childList: true,
+                characterData: false,
+                attributes: true,
+                attributeFilter: [
+                    'data-amp-banner-close',
+                ],
+            });
+
+            element._ampBannerMutationsObserved = true;
+        }
     }
 }

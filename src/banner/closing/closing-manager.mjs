@@ -48,34 +48,60 @@ export class ClosingManager {
     }
 
     attachUi() {
+        const attachClickEvent = ({ banner, button }) => {
+            if (button._ampCloseActionAttached) {
+                return;
+            }
+
+            button._ampCloseActionAttached = true;
+
+            button.addEventListener('click', event => {
+                event.preventDefault();
+
+                const fingerprintEl = button.closest('[data-amp-banner-fingerprint]');
+
+                if (!fingerprintEl) {
+                    return;
+                }
+
+                const fingerprint = fingerprintEl.dataset.ampBannerFingerprint;
+                const bannerFingerprints = banner.fingerprints;
+
+                for (let i = 0; i < bannerFingerprints.length; i++) {
+                    const bannerFingerprint = bannerFingerprints[i];
+
+                    if (bannerFingerprint.value === fingerprint) {
+                        this.closeBanner(bannerFingerprint.bannerId);
+                    }
+                }
+            });
+        };
+
         this.#eventBus.subscribe(Events.ON_BANNER_STATE_CHANGED, ({ banner }) => {
             if (banner.state === banner.STATE.RENDERED) {
                 Array.from(banner.element.querySelectorAll('[data-amp-banner-close]')).forEach(button => {
-                    button.addEventListener('click', event => {
-                        event.preventDefault();
-
-                        const fingerprintEl = button.closest('[data-amp-banner-fingerprint]');
-
-                        if (!fingerprintEl) {
-                            return;
-                        }
-
-                        const fingerprint = fingerprintEl.dataset.ampBannerFingerprint;
-                        const bannerFingerprints = banner.fingerprints;
-
-                        for (let i = 0; i < bannerFingerprints.length; i++) {
-                            const bannerFingerprint = bannerFingerprints[i];
-
-                            if (bannerFingerprint.value === fingerprint) {
-                                this.closeBanner(bannerFingerprint.bannerId);
-                            }
-                        }
-                    });
+                    attachClickEvent({ banner, button });
                 });
             } else if (banner.state === banner.STATE.CLOSED) {
                 banner.element.innerHTML = '';
             }
         }, null, -100);
+
+        this.#eventBus.subscribe(Events.ON_BANNER_MUTATED, ({ banner, mutation }) => {
+            if (banner.state !== banner.STATE.RENDERED) {
+                return;
+            }
+
+            if (0 < mutation.addedNodes.length) {
+                Array.from(banner.element.querySelectorAll('[data-amp-banner-close]')).forEach(button => {
+                    attachClickEvent({ banner, button });
+                });
+            }
+
+            if (mutation.attributeName) {
+                attachClickEvent({ banner, button: mutation.target });
+            }
+        });
     }
 
     isClosed(bannerId) {

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added new client event `amp:banner:mutated`.
+
+### Changed
+- Banners are now tracked by MutationObserver to be able to send metric events from cloned banners, or close banners with buttons that were added after rendering.
+
 ## [1.6.1] - 2024-10-11
 ### Added
 - Added support for banners closing.
