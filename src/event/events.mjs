@@ -110,6 +110,18 @@ export class Events {
     }
 
     /**
+     * Arguments: (
+     *     {
+     *         banner: {Banner},
+     *         mutation: {MutationRecord}
+     *     },
+     * )
+     */
+    static get ON_BANNER_MUTATED() {
+        return 'amp:banner:mutated';
+    }
+
+    /**
      * No arguments
      */
     static get ON_BEFORE_FETCH() {

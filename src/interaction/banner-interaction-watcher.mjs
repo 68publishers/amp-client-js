@@ -43,10 +43,16 @@ export class BannerInteractionWatcher {
             }
         }, null, -100);
 
+        this.#eventBus.subscribe(Events.ON_BANNER_MUTATED, ({ banner, mutation }) => {
+            if (State.RENDERED === banner.state && !banner.isEmbed() && 0 < mutation.addedNodes.length) {
+                this.#watchBanner(banner);
+            }
+        });
+
         const banners = this.#bannerManager.getBannersByState({
             state: State.RENDERED,
             embed: false,
-        })
+        });
 
         for (let banner of banners) {
             this.#watchBanner(banner);
@@ -75,8 +81,8 @@ export class BannerInteractionWatcher {
             }
 
             // when fingerprint element is not attached yet
-            if (undefined === element.dataset.ampBannerFingerprintObserved) {
-                element.dataset.ampBannerFingerprintObserved = 'true';
+            if (!element._ampBannerFingerprintObserved) {
+                element._ampBannerFingerprintObserved = true;
                 this.#intersectionObserver.observe(element);
             }
 
@@ -84,11 +90,11 @@ export class BannerInteractionWatcher {
 
             for (let linkElement of linkElements) {
                 // prevent multiple events
-                if (undefined !== linkElement.dataset.ampClickingAttached) {
+                if (linkElement._ampClickingMetricsAttached) {
                     continue;
                 }
 
-                linkElement.dataset.ampClickingAttached = 'true';
+                linkElement._ampClickingMetricsAttached = true;
 
                 linkElement.addEventListener('click', function (event) {
                     const fingerprintMetadata = self.#fingerprints[fingerprint];
