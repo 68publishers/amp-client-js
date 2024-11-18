@@ -6,7 +6,7 @@
   "main": "index.mjs",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/68publishers/projects/amp-client"
+    "url": "git+https://github.com/68publishers/amp-client-js.git"
   },
   "scripts": {
     "build:dev": "webpack --config webpack.config.dev.js --progress --profile",

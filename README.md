@@ -6,7 +6,15 @@
 
 ## Installation
 
-The preferred way to import AMP Client is CDN link. Two versions are available:
+The preferred installation method is using the package manager.
+
+```sh
+$ npm install @68publishers/amp-client
+# or
+$ yarn add @68publishers/amp-client
+```
+
+The client can also be imported from the CDN. Two versions are available:
 
 * `https://unpkg.com/@68publishers/amp-client/dist/amp-client.min.js`
 * `https://unpkg.com/@68publishers/amp-client/dist/amp-client.standalone.min.js`
@@ -18,22 +26,10 @@ In that case, lodash has to be imported as a first.
 Prefer to use CDN links with a labeled version to prevent BC breaks e.g.:
 
 ```html
-<script src="https://unpkg.com/@68publishers/amp-client@1.0/dist/amp-client.min.js"></script>
+<script src="https://unpkg.com/@68publishers/amp-client@1.7.0/dist/amp-client.min.js"></script>
 <!-- OR if you are using lodash on your website -->
-<script src="https://unpkg.com/@68publishers/amp-client@1.0/dist/amp-client.standalone.min.js"></script>
+<script src="https://unpkg.com/@68publishers/amp-client@1.7.0/dist/amp-client.standalone.min.js"></script>
 ```
-
-### Installation via NPM
-
-If you don't want to use CDN, you can install AMP Client manually via NPM.
-
-```bash
-$ npm install @68publishers/amp-client
-# or using yarn
-$ yarn add @68publishers/amp-client
-```
-
-After that, you can require AMP Client like any other JavaScript library.
 
 ## Versions compatibility matrix
 
@@ -52,8 +48,8 @@ After that, you can require AMP Client like any other JavaScript library.
 
 ## Integration
 
-For integration instructions follow the [Integration guide](docs/integration-guide.md).
+For integration instructions follow the [Integration guide](https://github.com/68publishers/amp-client-js/blob/main/docs/integration-guide.md).
 
 ## License
 
-@todo
+The package is distributed under the MIT License. See [LICENSE](LICENSE.md) for more information.
