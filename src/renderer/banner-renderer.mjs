@@ -11,10 +11,12 @@ export class BannerRenderer {
      * @param {ManagedBanner} banner
      */
     render(banner) {
+        let bannerData = banner.bannerData;
+        bannerData = !Array.isArray(bannerData) ? bannerData : bannerData.filter(d => null !== d.content);
+
         return this.#loader.getTemplate(banner.positionData.displayType)({
             banner: banner,
-            data: banner.bannerData,
+            data: bannerData,
         });
     }
 }
-

@@ -4,7 +4,7 @@ export class Contents {
     #dimensionsProvider;
     #breakpointType;
     #contents = [];
-    #resolvedContent = null;
+    #resolvedContent = undefined;
     #resolvedContentBounds = {
         min: null,
         max: null,
@@ -24,7 +24,7 @@ export class Contents {
 
     addContent(breakpoint, data) {
         this.#contents.push(new Content(breakpoint, data));
-        this.#resolvedContent = null;
+        this.#resolvedContent = undefined;
     }
 
     get contents() {
@@ -32,7 +32,7 @@ export class Contents {
     }
 
     get content() {
-        if (null !== this.#resolvedContent && !this.needRedraw()) {
+        if (undefined !== this.#resolvedContent && !this.needRedraw()) {
             return this.#resolvedContent;
         }
 
@@ -66,10 +66,6 @@ export class Contents {
             }
         });
 
-        if (null === alternativeContent && null === defaultContent) {
-            throw new Error(`Unable to resolve content, no contents found.`);
-        }
-
         // find bounds
         breakpoints.sort((a, b) => a - b);
 
@@ -93,7 +89,7 @@ export class Contents {
     }
 
     needRedraw() {
-        if (null === this.#resolvedContent) {
+        if (undefined === this.#resolvedContent) {
             return true;
         }
 
