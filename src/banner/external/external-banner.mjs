@@ -13,7 +13,7 @@ export class ExternalBanner extends Banner {
         dimensionsProvider,
         eventBus,
         uid,
-        element
+        element,
     ) {
         if (!('ampBannerExternal' in element.dataset)) {
             throw new Error(`Unable to initialize ExternalBanner from element that does not have an attribute "data-amp-external".`);
