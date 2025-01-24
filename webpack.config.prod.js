@@ -15,8 +15,14 @@ const config = {
                 ],
                 options: {
                     presets: [
-                        '@babel/preset-env'
-                    ]
+                        ['@babel/preset-env', {
+                            useBuiltIns: 'usage',
+                            corejs: {
+                                version: '3.40',
+                            },
+                            targets: "defaults",
+                        }],
+                    ],
                 },
             }
         ],

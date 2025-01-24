@@ -6,10 +6,15 @@ import { Contents } from '../responsive/contents.mjs';
 
 export class ExternalBanner extends Banner {
     #fingerprints = [];
-    #contentsByBannerId = null;
-    #responsiveBehaviourDelegated = false;
+    #contentsByBannerId = {};
+    #innerRootElement = null;
 
-    constructor(dimensionsProvider, eventBus, uid, element) {
+    constructor(
+        dimensionsProvider,
+        eventBus,
+        uid,
+        element
+    ) {
         if (!('ampBannerExternal' in element.dataset)) {
             throw new Error(`Unable to initialize ExternalBanner from element that does not have an attribute "data-amp-external".`);
         }
@@ -29,7 +34,17 @@ export class ExternalBanner extends Banner {
         const fingerprints = [];
         const contentsByBannerId = {};
 
-        for (let banner of element.querySelectorAll('[data-amp-banner-fingerprint]')) {
+        const elementClone = element.cloneNode(true);
+        const bannerElements = elementClone.querySelectorAll('[data-amp-banner-fingerprint]');
+
+        const bannersListElement = bannerElements.item(0)?.parentElement;
+        let innerRootElement = bannersListElement;
+
+        while (null !== innerRootElement && innerRootElement !== elementClone && innerRootElement.parentElement !== elementClone) {
+            innerRootElement = innerRootElement.parentElement;
+        }
+
+        for (let banner of bannerElements) {
             const fingerprint = Fingerprint.createFromValue(banner.dataset.ampBannerFingerprint);
 
             fingerprints.push(fingerprint);
@@ -42,14 +57,25 @@ export class ExternalBanner extends Banner {
                     contentsByBannerId[fingerprint.bannerId] = new Contents(dimensionsProvider, positionData.breakpointType);
                 }
 
-                contentsByBannerId[fingerprint.bannerId].addContent(breakpoint, content);
+                const bannerClone = banner.cloneNode(false);
+
+                bannerClone.insertAdjacentElement('afterbegin', content);
+
+                contentsByBannerId[fingerprint.bannerId].addContent(breakpoint, {
+                    html: bannerClone.outerHTML,
+                });
             }
         }
+
+        bannersListElement && (bannersListElement.dataset.ampBannerList = 'true');
+        bannersListElement && (bannersListElement.innerHTML = '');
 
         this._positionData = positionData;
         this.#fingerprints = fingerprints;
         this.#contentsByBannerId = contentsByBannerId;
+        this.#innerRootElement = innerRootElement;
 
+        this.#redraw(false);
         this.setState(state.value, state.info);
     }
 
@@ -78,26 +104,13 @@ export class ExternalBanner extends Banner {
      * @returns {number|null}
      */
     getCurrentBreakpoint(bannerId) {
-        const contentsByBannerId = this.#contentsByBannerId;
-        const contents = contentsByBannerId[bannerId] || null;
+        const contents = this.#contentsByBannerId[bannerId] || null;
 
         if (null === contents) {
             return null;
         }
 
-        if (this.#responsiveBehaviourDelegated) {
-            return contents.content ? contents.content.breakpoint : null;
-        }
-
-        for (let content of contents.contents) {
-            const style = getComputedStyle(content.data);
-
-            if ('none' !== style.display) {
-                return content.breakpoint;
-            }
-        }
-
-        return null;
+        return contents.content?.breakpoint || null;
     }
 
     isExternal() {
@@ -105,37 +118,58 @@ export class ExternalBanner extends Banner {
     }
 
     delegateResponsiveBehaviour() {
-        if (this.#responsiveBehaviourDelegated) {
-            return;
-        }
 
-        this.#responsiveBehaviourDelegated = true;
-        const styles = this.element.querySelectorAll('style');
-
-        for (let style of styles) {
-            style.remove();
-        }
-
-        this.redrawIfNeeded();
     }
 
     redrawIfNeeded() {
-        if (!this.#responsiveBehaviourDelegated) {
-            return;
+        if (this.#redraw(true)) {
+            this.setState(this.STATE.RENDERED, 'Banner was successfully redrawn.');
         }
+    }
+
+    #redraw(ifNeeded) {
+        let redraw = !ifNeeded;
+
+        if (!redraw) {
+            for (let bannerId in this.#contentsByBannerId) {
+                const contents = this.#contentsByBannerId[bannerId];
+
+                if (contents.needRedraw()) {
+                    redraw = true;
+                    break;
+                }
+            }
+        }
+
+        if (!redraw) {
+            return false;
+        }
+
+        const banners = [];
 
         for (let bannerId in this.#contentsByBannerId) {
-            const contents = this.#contentsByBannerId[bannerId];
+            const content = this.#contentsByBannerId[bannerId].content;
 
-            if (!contents.needRedraw()) {
-                continue;
-            }
-
-            const currentContent = contents.content;
-
-            for (let content of contents.contents) {
-                content.data.style.display = content === currentContent ? 'block' : 'none';
+            if (null !== content) {
+                banners.push(content.data.html);
             }
         }
+
+        if (0 >= banners.length) {
+            this.element.innerHTML = '';
+
+            return true;
+        }
+
+        const rootEl = this.#innerRootElement ? this.#innerRootElement.cloneNode(true) : null;
+        let listEl = null !== rootEl && undefined === rootEl.dataset.ampBannerList ? rootEl.querySelector('[data-amp-banner-list]') : null;
+
+        (listEl ?? rootEl ?? this.element).innerHTML = banners.join("\n");
+
+        if (null !== rootEl) {
+            this.element.innerHTML = rootEl.outerHTML;
+        }
+
+        return true;
     }
 }

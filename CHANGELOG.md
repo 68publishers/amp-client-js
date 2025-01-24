@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Reduced compiled bundle size.
+- Server-side banners are now managed by the client similarly like client-side rendered banners which fixes initialization of sliders on window resize.
+
+### Fixed
+- Fixed banners re-rendering when the default content is missing.
+
 ## [1.7.0] - 2024-11-14
 ### Added
 - Added new client event `amp:banner:mutated`.

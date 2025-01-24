@@ -65,7 +65,7 @@ export class BannerData {
     }
 
     get content() {
-        return this.#contents.content.data;
+        return this.#contents.content?.data || null;
     }
 
     needRedraw() {

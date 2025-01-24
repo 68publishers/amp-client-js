@@ -55,7 +55,6 @@ export class Client {
         this.#bannerInteractionWatcher = null;
         this.#metricsSender = new MetricsSender(
             [this.#sendMetricsEvent.bind(this)],
-            [],
         );
         this.#metricsEventsListener = new MetricsEventsListener(
             this.#metricsSender,
@@ -113,11 +112,6 @@ export class Client {
 
         const banner = this.#bannerManager.addExternalBanner(element);
         this.#attached = true;
-
-        if (window.self !== window.top) {
-            banner.delegateResponsiveBehaviour();
-        }
-
         this.#eventBus.dispatch(this.EVENTS.ON_BANNER_ATTACHED, { banner });
     }
 
