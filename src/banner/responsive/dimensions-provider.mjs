@@ -7,7 +7,7 @@ export class DimensionsProvider {
 
     static fromCurrentWindow() {
         return new DimensionsProvider(() => {
-            return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            return document.documentElement.clientWidth || document.body.clientWidth;
         });
     }
 

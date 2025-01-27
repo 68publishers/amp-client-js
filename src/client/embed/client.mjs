@@ -40,7 +40,7 @@ export class Client {
         this.#bannerManager = new BannerManager(
             this.#eventBus,
             new DimensionsProvider(() => {
-                return this.#parentWindowWidth || window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+                return this.#parentWindowWidth || document.documentElement.clientWidth || document.body.clientWidth;
             }),
         );
         this.#closingManager = new ClosingManager({
