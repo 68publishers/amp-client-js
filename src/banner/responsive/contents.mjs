@@ -78,11 +78,11 @@ export class Contents {
         const currentBreakpointIndex = breakpoints.indexOf(currentBreakpoint);
 
         if ('max' === breakpointType && (currentBreakpointIndex - 1) in breakpoints) {
-            this.#resolvedContentBounds.min = breakpoints[currentBreakpointIndex - 1];
+            this.#resolvedContentBounds.min = breakpoints[currentBreakpointIndex - 1] + 1;
         }
 
         if ('min' === breakpointType && (currentBreakpointIndex + 1) in breakpoints) {
-            this.#resolvedContentBounds.max = breakpoints[currentBreakpointIndex + 1];
+            this.#resolvedContentBounds.max = breakpoints[currentBreakpointIndex + 1] - 1;
         }
 
         return this.#resolvedContent = null !== alternativeContent ? alternativeContent : defaultContent;
