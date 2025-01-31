@@ -40,7 +40,7 @@ export class ExternalBanner extends Banner {
         const bannersListElement = bannerElements.item(0)?.parentElement;
         let innerRootElement = bannersListElement;
 
-        while (null !== innerRootElement && innerRootElement !== elementClone && innerRootElement.parentElement !== elementClone) {
+        while (null !== innerRootElement && innerRootElement !== elementClone && innerRootElement?.parentElement !== elementClone) {
             innerRootElement = innerRootElement.parentElement;
         }
 
@@ -115,10 +115,6 @@ export class ExternalBanner extends Banner {
 
     isExternal() {
         return true;
-    }
-
-    delegateResponsiveBehaviour() {
-
     }
 
     redrawIfNeeded() {
