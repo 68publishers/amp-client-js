@@ -37,11 +37,11 @@ export class ExternalBanner extends Banner {
         const elementClone = element.cloneNode(true);
         const bannerElements = elementClone.querySelectorAll('[data-amp-banner-fingerprint]');
 
-        const bannersListElement = bannerElements.item(0)?.parentElement;
+        const bannersListElement = bannerElements.item(0)?.parentElement || null;
         let innerRootElement = bannersListElement;
 
-        while (null !== innerRootElement && innerRootElement !== elementClone && innerRootElement.parentElement !== elementClone) {
-            innerRootElement = innerRootElement.parentElement;
+        while (null !== innerRootElement && innerRootElement !== elementClone && innerRootElement?.parentElement !== elementClone) {
+            innerRootElement = innerRootElement.parentElement || null;
         }
 
         for (let banner of bannerElements) {
@@ -115,10 +115,6 @@ export class ExternalBanner extends Banner {
 
     isExternal() {
         return true;
-    }
-
-    delegateResponsiveBehaviour() {
-
     }
 
     redrawIfNeeded() {
