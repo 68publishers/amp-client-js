@@ -5,6 +5,7 @@ import { ResponseData } from './response-data.mjs';
 import { Randomizer } from '../../utils/randomizer.mjs';
 import { Fingerprint } from '../fingerprint.mjs';
 import { Resource } from '../../request/resource.mjs';
+import { evalScripts } from '../../utils/dom-helpers.mjs';
 
 export class ManagedBanner extends Banner {
     #dimensionsProvider;
@@ -50,6 +51,7 @@ export class ManagedBanner extends Banner {
 
     set html(html) {
         this.element.innerHTML = html;
+        evalScripts(this.element);
     }
 
     /**
