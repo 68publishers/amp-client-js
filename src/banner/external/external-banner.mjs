@@ -3,6 +3,7 @@ import { Fingerprint } from '../fingerprint.mjs';
 import { PositionData } from '../position-data.mjs';
 import { AttributesParser } from '../attributes-parser.mjs';
 import { Contents } from '../responsive/contents.mjs';
+import { evalScripts } from '../../utils/dom-helpers.mjs';
 
 export class ExternalBanner extends Banner {
     #fingerprints = [];
@@ -164,6 +165,7 @@ export class ExternalBanner extends Banner {
 
         if (null !== rootEl) {
             this.element.innerHTML = rootEl.outerHTML;
+            evalScripts(this.element);
         }
 
         return true;

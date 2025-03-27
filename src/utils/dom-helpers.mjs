@@ -27,3 +27,26 @@ export function getHtmlElement(el, refWindow) {
 
     return htmlEl;
 }
+
+/**
+ *
+ * @param {HTMLElement} el
+ * @returns {void}
+ */
+export function evalScripts(el) {
+    Array.from(el.getElementsByTagName('script'))
+        .forEach( script => {
+            if ('' !== script.type && 'text/javascript' !== script.type) {
+                return;
+            }
+
+            const newScript = document.createElement('script');
+
+            Array.from(script.attributes).forEach( attr => {
+                newScript.setAttribute(attr.name, attr.value)
+            });
+
+            newScript.appendChild(document.createTextNode(script.innerHTML));
+            script.parentNode.replaceChild(newScript, script);
+        });
+}
