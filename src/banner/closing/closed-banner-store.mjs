@@ -6,7 +6,23 @@ export class ClosedBannerStore {
     #maxItems;
     #loadedItems = null;
 
-    constructor({ storage, key, maxItems, onExternalChange }) {
+    /**
+     * @type {{
+     *     cookieName: string,
+     *     cookieDomain: string|null,
+     *     cookiePath: string,
+     *     cookieExpire: number,
+     * }|null}
+     */
+    #externalOptions = null;
+
+    constructor({
+        storage,
+        key,
+        maxItems,
+        externalOptions,
+        onStorageChange,
+    }) {
         switch (storage) {
             case 'localStorage':
                 if (!('localStorage' in window)) {
@@ -36,7 +52,16 @@ export class ClosedBannerStore {
         this.#key = key;
         this.#maxItems = maxItems;
 
-        if (onExternalChange && this.#storage instanceof Storage) {
+        if ('cookieName' in externalOptions && externalOptions.cookieName) {
+            this.#externalOptions = {
+                cookieName: externalOptions.cookieName,
+                cookieDomain: externalOptions.cookieDomain || null,
+                cookiePath: externalOptions.cookiePath || '/',
+                cookieExpire: externalOptions.cookieExpire || 1,
+            }
+        }
+
+        if (onStorageChange && this.#storage instanceof Storage) {
             window.addEventListener('storage', event => {
                 if (!(null === event.key || this.#key === event.key)) {
                     return;
@@ -54,16 +79,20 @@ export class ClosedBannerStore {
                 this.#loadedItems = newItems;
 
                 if (0 < diffKeys.length) {
-                    onExternalChange(diffKeys);
+                    onStorageChange(diffKeys);
                 }
             });
         }
     }
 
     close(entries) {
-        const items = this.#getItems();
         const now = this.#getNow();
+
+        let items = null;
         const changedKeys = [];
+
+        let cookieItems = null;
+        const cookieChangedKeys = [];
 
         for (let i in entries) {
             const entry = entries[i];
@@ -74,35 +103,67 @@ export class ClosedBannerStore {
 
             const key = entry.key.toString();
 
+            if (null === items) {
+                items = this.#getItems();
+            }
+
             if (!(key in items) || items[key] !== entry.expiresAt) {
                 items[key] = entry.expiresAt;
                 changedKeys.push(key);
             }
+
+            if (null !== this.#externalOptions && 'external' in entry.metadata && true === entry.metadata.external) {
+                cookieItems = null !== cookieItems ? cookieItems : this.#loadCookieItems();
+
+                if (!(key in cookieItems) || items[key] !== entry.expiresAt) {
+                    cookieItems[key] = entry.expiresAt;
+                    cookieChangedKeys.push(key);
+                }
+            }
         }
 
-        if (0 >= changedKeys.length) {
-            return;
+        if (0 < changedKeys.length) {
+            const length = Object.values(items || {}).length;
+
+            if (length > this.#maxItems) {
+                Object.entries(items)
+                    .filter(e => -1 === changedKeys.indexOf(e[0]))
+                    .sort((a, b) => (a[1] || Number.MAX_SAFE_INTEGER) - (b[1] || Number.MAX_SAFE_INTEGER))
+                    .slice(0, length - this.#maxItems)
+                    .forEach(item => {
+                        delete items[item[0]];
+                    });
+            }
+
+            this.#loadedItems = items;
+            this.#flush();
         }
 
-        const length = Object.values(items).length;
+        if (0 < cookieChangedKeys.length) {
+            let cookieFlushed = false;
 
-        if (length > this.#maxItems) {
-            Object.entries(items)
-                .filter(e => -1 === changedKeys.indexOf(e[0]))
-                .sort((a, b) => (a[1] || Number.MAX_SAFE_INTEGER) - (b[1] || Number.MAX_SAFE_INTEGER))
-                .slice(0, length - this.#maxItems)
-                .forEach(item => {
-                    delete items[item[0]];
-                })
+            do {
+                cookieFlushed = this.#flushCookie(cookieItems);
+
+                if (!cookieFlushed) {
+                    Object.entries(cookieItems)
+                        .filter(e => -1 === cookieChangedKeys.indexOf(e[0]))
+                        .sort((a, b) => (a[1] || Number.MAX_SAFE_INTEGER) - (b[1] || Number.MAX_SAFE_INTEGER))
+                        .slice(0, Object.values(cookieItems || {}).length - 1)
+                        .forEach(item => {
+                            delete cookieItems[item[0]];
+                        });
+                }
+            } while (!cookieFlushed);
         }
-
-        this.#loadedItems = items;
-        this.#flush();
     }
 
-    release(keys) {
+    release(keys, { includeExternal = false }) {
         const items = this.#getItems();
+        const cookieItems = includeExternal && null !== this.#externalOptions ? this.#loadCookieItems() : null;
+
         let changed = false;
+        let cookieChanged = false;
 
         for (let i in keys) {
             const key = keys[i];
@@ -112,14 +173,21 @@ export class ClosedBannerStore {
                 delete items[keyNative];
                 changed = true;
             }
+
+            if (null !== cookieItems && keyNative in cookieItems) {
+                delete cookieItems[keyNative];
+                cookieChanged = true;
+            }
         }
 
-        if (!changed) {
-            return;
+        if (changed) {
+            this.#loadedItems = items;
+            this.#flush();
         }
 
-        this.#loadedItems = items;
-        this.#flush();
+        if (cookieChanged) {
+            this.#flushCookie(cookieItems);
+        }
     }
 
     isClosed(key) {
@@ -134,7 +202,7 @@ export class ClosedBannerStore {
             return true;
         }
 
-        setTimeout(() => this.release([key]), 0);
+        setTimeout(() => this.release([key], { includeExternal: false }), 0);
 
         return false;
     }
@@ -145,9 +213,14 @@ export class ClosedBannerStore {
         }
 
         const storedValue = this.#storage.getItem(this.#key);
-        let listOfItems = null !== storedValue && '' !== storedValue ? JSON.parse(storedValue) : {};
+        let listOfItems = {};
 
-        if (Array.isArray(listOfItems)) { // back compatibility - flush already persisted item
+        try {
+            listOfItems = null !== storedValue && '' !== storedValue ? JSON.parse(storedValue) : {};
+        } catch (e) {
+        }
+
+        if ('object' !== typeof listOfItems || Array.isArray(listOfItems)) { // flush invalid state
             listOfItems = {};
             this.#storage.setItem(this.#key, '{}');
         }
@@ -155,10 +228,59 @@ export class ClosedBannerStore {
         return this.#loadedItems = listOfItems;
     }
 
+    #loadCookieItems() {
+        if (null === this.#externalOptions) {
+            return {};
+        }
+
+        const cookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith(this.#externalOptions.cookieName + '='));
+
+        if (!cookie) {
+            return {};
+        }
+
+        try {
+            const items = JSON.parse(decodeURIComponent(cookie.split('=')[1]));
+
+            return items && 'object' === typeof items && !Array.isArray(items) ? items : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
     #flush() {
         if (null !== this.#loadedItems) {
             this.#storage.setItem(this.#key, JSON.stringify(this.#loadedItems));
         }
+    }
+
+    #flushCookie(items) {
+        if (null === this.#externalOptions) {
+            return false;
+        }
+
+        const date = new Date();
+        date.setTime(date.getTime() + (1000 * (this.#externalOptions.cookieExpire * 24 * 60 * 60)));
+
+        let cookieValue = `${this.#externalOptions.cookieName}=${encodeURIComponent(JSON.stringify(items))}; path=${this.#externalOptions.cookiePath}; expires=${date.toUTCString()}; samesite=Lax`;
+
+        if (this.#externalOptions.cookieDomain) {
+            cookieValue += `; domain=${this.#externalOptions.cookieDomain}`;
+        }
+
+        if ('https:' === window.location.protocol) {
+            cookieValue += `; secure`;
+        }
+
+        if (cookieValue.length > 4096) { // 4kb
+            return false;
+        }
+
+        document.cookie = cookieValue;
+
+        return true;
     }
 
     #createMemoryStorage() {

@@ -94,11 +94,7 @@ export class Client {
         this.#closingManager = new ClosingManager({
             bannerManager: this.#bannerManager,
             eventBus: this.#eventBus,
-            config: {
-                storage: options.closing.storage,
-                key: options.closing.key,
-                maxItems: options.closing.maxItems,
-            },
+            config: {...options.closing},
             bannerFrameMessenger: this.#frameMessenger,
         });
 

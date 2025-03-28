@@ -1,5 +1,4 @@
 import { Events } from '../../event/events.mjs';
-import { EmbedBanner } from '../embed/embed-banner.mjs';
 import { ClosedBannerStore } from './closed-banner-store.mjs';
 import { ClosingEntry, EntryKey } from './closing-entry.mjs';
 import { Fingerprint } from '../fingerprint.mjs';
@@ -18,6 +17,9 @@ export class ClosingManager {
             storage: 'memoryStorage',
             key: 'amp-closed-banners',
             maxItems: 500,
+            external: {
+                cookieName: null,
+            },
         },
         bannerFrameMessenger = undefined,
         parentFrameMessenger = undefined,
@@ -27,12 +29,14 @@ export class ClosingManager {
         this.#bannerFrameMessenger = bannerFrameMessenger;
         this.#parentFrameMessenger = parentFrameMessenger;
 
-        const { storage, key, maxItems } = config;
+        const { storage, key, maxItems, external } = config;
+
         this.#store = new ClosedBannerStore({
             storage,
             key,
             maxItems,
-            onExternalChange: keys => {
+            externalOptions: external,
+            onStorageChange: keys => {
                 for (let i = 0; i < keys.length; i++) {
                     const key = keys[i];
 
@@ -48,7 +52,7 @@ export class ClosingManager {
                 const { uid, entries, fingerprints } = data;
                 const banner = this.#bannerManager.getBannerByUid(uid);
 
-                if (!(banner instanceof EmbedBanner)) {
+                if (!banner.isEmbed()) {
                     return;
                 }
 
@@ -152,7 +156,7 @@ export class ClosingManager {
             return;
         }
 
-        if (banner instanceof EmbedBanner) {
+        if (banner.isEmbed()) {
             this.#bannerFrameMessenger && (this.#bannerFrameMessenger.sendToBanner(
                 banner,
                 'closeBanner',
@@ -174,6 +178,9 @@ export class ClosingManager {
                 positionCode,
                 bannerId,
                 closingExpiration: bannerExpiration,
+                metadata: {
+                    external: banner.isExternal(),
+                },
             }));
 
             if (null !== banner.positionData.closeExpiration) {
@@ -188,6 +195,9 @@ export class ClosingManager {
                     entries.push(ClosingEntry.position({
                         positionCode,
                         closingExpiration: banner.positionData.closeExpiration,
+                        metadata: {
+                            external: banner.isExternal(),
+                        },
                     }));
 
                     setTimeout(() => this.#store.close(entries), 0);

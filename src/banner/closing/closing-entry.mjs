@@ -1,5 +1,5 @@
 export class ClosingEntry {
-    constructor({ key, expiresAt }) {
+    constructor({ key, expiresAt, metadata = {} }) {
         /**
          * @type {EntryKey}
          */
@@ -9,9 +9,15 @@ export class ClosingEntry {
          * @type {Number|Boolean} Integer or false
          */
         this.expiresAt = expiresAt;
+
+        /**
+         *
+         * @type {Object}
+         */
+        this.metadata = metadata;
     }
 
-    static position({ positionCode, closingExpiration }) {
+    static position({ positionCode, closingExpiration, metadata = {} }) {
         if ('number' !== typeof closingExpiration) {
             throw new Error(`Unable to create position entry via factory ClosingEntry::position({ positionCode: ${positionCode}, closingExpiration: ${closingExpiration} }), argument "closingExpiration" must be a number.`);
         }
@@ -19,13 +25,15 @@ export class ClosingEntry {
         return new ClosingEntry({
             key: EntryKey.position(positionCode),
             expiresAt: Math.round((+new Date() / 1000) + closingExpiration),
+            metadata: metadata,
         });
     }
 
-    static banner({ positionCode, bannerId, closingExpiration }) {
+    static banner({ positionCode, bannerId, closingExpiration, metadata }) {
         return new ClosingEntry({
             key: EntryKey.banner(positionCode, bannerId),
             expiresAt: 'number' === typeof closingExpiration ? Math.round((+new Date() / 1000) + closingExpiration) : false,
+            metadata: metadata,
         });
     }
 }
