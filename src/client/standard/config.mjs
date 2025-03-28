@@ -36,6 +36,12 @@ export function createConfig(options) {
             storage: 'localStorage',
             key: 'amp-closed-banners',
             maxItems: 500,
+            external: {
+                cookieName: 'amp-c',
+                cookieDomain: null,
+                cookiePath: '/',
+                cookieExpire: 365, // days
+            },
         },
     }, options);
 
@@ -151,7 +157,16 @@ export function createConfig(options) {
 
     // closing
     if ('object' !== typeof config.closing || 'string' !== typeof config.closing.storage || 'string' !== typeof config.closing.key || !Number.isInteger(config.closing.maxItems) || 1 > config.closing.maxItems) {
-        throw new Error(`The option "closing" must be an object of the format { storage: "memoryStorage"|"localStorage"|"sessionStorage", key: string, maxItems: integer<1, max> }, ${JSON.stringify(config.closing)} passed.`);
+        throw new Error(`The option "closing" must be an object of the format { storage?: "memoryStorage"|"localStorage"|"sessionStorage", key?: string, maxItems?: integer<1, max> }, ${JSON.stringify(config.closing)} passed.`);
+    }
+
+    if ('object' !== typeof config.closing.external
+        || ('string' !== typeof config.closing.external.cookieName)
+        || (null !== config.closing.external.cookieDomain && 'string' !== typeof config.closing.external.cookieDomain)
+        || ('string' !== typeof config.closing.external.cookiePath)
+        || ('number' !== typeof config.closing.external.cookieExpire || !Number.isInteger(config.closing.external.cookieExpire) || 1 > config.closing.external.cookieExpire)
+    ) {
+        throw new Error(`The option "closing.external" must be an object of the format { cookieName?: string, cookieDomain?: string|null, cookiePath?: string, cookieExpire?: integer<1, max> }, ${JSON.stringify(config.closing.external)} passed.`);
     }
 
     return config;
