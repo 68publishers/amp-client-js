@@ -213,11 +213,12 @@ export class ClosedBannerStore {
         }
 
         const storedValue = this.#storage.getItem(this.#key);
-        let listOfItems = {};
+        let listOfItems;
 
         try {
             listOfItems = null !== storedValue && '' !== storedValue ? JSON.parse(storedValue) : {};
         } catch (e) {
+            listOfItems = {};
         }
 
         if ('object' !== typeof listOfItems || Array.isArray(listOfItems)) { // flush invalid state
