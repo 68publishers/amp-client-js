@@ -3,6 +3,7 @@ import { Fingerprint } from '../fingerprint.mjs';
 import { PositionData } from '../position-data.mjs';
 import { AttributesParser } from '../attributes-parser.mjs';
 import { Contents } from '../responsive/contents.mjs';
+import { evalScripts } from '../../utils/dom-helpers.mjs';
 
 export class ExternalBanner extends Banner {
     #fingerprints = [];
@@ -37,11 +38,15 @@ export class ExternalBanner extends Banner {
         const elementClone = element.cloneNode(true);
         const bannerElements = elementClone.querySelectorAll('[data-amp-banner-fingerprint]');
 
-        const bannersListElement = bannerElements.item(0)?.parentElement || null;
+        let bannersListElement = bannerElements.item(0)?.parentElement || null;
         let innerRootElement = bannersListElement;
 
-        while (null !== innerRootElement && innerRootElement !== elementClone && innerRootElement?.parentElement !== elementClone) {
-            innerRootElement = innerRootElement.parentElement || null;
+        if (bannersListElement === elementClone) {
+            bannersListElement = innerRootElement = null;
+        } else {
+            while (null !== innerRootElement && innerRootElement !== elementClone && innerRootElement?.parentElement !== elementClone) {
+                innerRootElement = innerRootElement.parentElement || null;
+            }
         }
 
         for (let banner of bannerElements) {
@@ -165,6 +170,8 @@ export class ExternalBanner extends Banner {
         if (null !== rootEl) {
             this.element.innerHTML = rootEl.outerHTML;
         }
+
+        evalScripts(this.element);
 
         return true;
     }

@@ -94,12 +94,8 @@ export class Client {
         this.#closingManager = new ClosingManager({
             bannerManager: this.#bannerManager,
             eventBus: this.#eventBus,
-            config: {
-                storage: options.closing.storage,
-                key: options.closing.key,
-                maxItems: options.closing.maxItems,
-            },
-            frameMessenger: this.#frameMessenger,
+            config: {...options.closing},
+            bannerFrameMessenger: this.#frameMessenger,
         });
 
         this.setLocale(options.locale);
@@ -184,8 +180,8 @@ export class Client {
         return this.#bannerManager.addManagedBanner(element, position, resources, options, refWindow);
     }
 
-    closeBanner(bannerId) {
-        this.#closingManager.closeBanner(bannerId);
+    closeBanner(positionCode, bannerId) {
+        this.#closingManager.closeBanner(positionCode, bannerId);
     }
 
     attachBanners(snippet = document, refWindow = window) {
@@ -248,18 +244,23 @@ export class Client {
                 }
 
                 const positionData = data[banner.position];
-                const banners = Array.isArray(positionData['banners']) ? positionData['banners'] : Object.values(positionData['banners']);
-                const validBanners = [];
 
-                for (let i = 0; i < banners.length; i++) {
-                    const banner = banners[i];
+                if (this.#closingManager.isPositionClosed(banner.position)) {
+                    positionData.banners = [];
+                } else {
+                    const banners = Array.isArray(positionData['banners']) ? positionData['banners'] : Object.values(positionData['banners']);
+                    const validBanners = [];
 
-                    if (banner.id && !this.#closingManager.isClosed(banner.id)) {
-                        validBanners.push(banner);
+                    for (let i = 0; i < banners.length; i++) {
+                        const bannerData = banners[i];
+
+                        if (bannerData.id && !this.#closingManager.isBannerClosed(banner.position, bannerData.id)) {
+                            validBanners.push(bannerData);
+                        }
                     }
-                }
 
-                positionData.banners = validBanners;
+                    positionData.banners = validBanners;
+                }
 
                 if ('embed' === positionData.mode && 0 < positionData.banners.length) {
                     if ('options' in positionData) {

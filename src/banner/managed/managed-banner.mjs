@@ -5,6 +5,7 @@ import { ResponseData } from './response-data.mjs';
 import { Randomizer } from '../../utils/randomizer.mjs';
 import { Fingerprint } from '../fingerprint.mjs';
 import { Resource } from '../../request/resource.mjs';
+import { evalScripts } from '../../utils/dom-helpers.mjs';
 
 export class ManagedBanner extends Banner {
     #dimensionsProvider;
@@ -50,6 +51,7 @@ export class ManagedBanner extends Banner {
 
     set html(html) {
         this.element.innerHTML = html;
+        evalScripts(this.element);
     }
 
     /**
@@ -122,6 +124,7 @@ export class ManagedBanner extends Banner {
             campaignId: bannerData.campaignId,
             campaignCode: bannerData.campaignCode,
             campaignName: bannerData.campaignName,
+            closeExpiration: bannerData.closeExpiration,
         });
 
         switch (true) {
@@ -197,6 +200,7 @@ export class ManagedBanner extends Banner {
             rotationSeconds: responseData['rotation_seconds'],
             displayType: responseData['display_type'],
             breakpointType: responseData['breakpoint_type'],
+            closeExpiration: responseData['close_expiration'] || null,
         });
 
         if ('options' in responseData) {

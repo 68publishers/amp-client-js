@@ -63,7 +63,7 @@
     <!-- AMP Client initialization -->
     <script>
         var AMPClient = AMPClientFactory.create({
-            url: 'http://localhost:8888',
+            url: 'https://amp.local',
             channel: 'amp-demo',
             resources: {
                 roles: 'guest',
@@ -250,6 +250,7 @@
                 case 'splide':
                     initSplide(banner);
                     break;
+                case '1':
                 case 'swiper':
                     const swiper = initSwiper(banner);
                     banner.on('amp:banner:before-close', ({ setOperation }) => {

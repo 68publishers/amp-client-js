@@ -57,6 +57,10 @@ const AMPClient = AMPClientFactory.create({
 | **closing.storage**                      |                   `string`                    |   `"memoryStorage"`    |                 No                 | The storage where information about banners closed by the user is stored. Allowed values are `memoryStorage` (default, banners are not closed permanently), `localStorage` and `sessionStorage`.                                                                                                                       |
 | **closing.key**                          |                   `string`                    | `"amp-closed-banners"` |                 No                 | The storage key under which information about closed banners is stored.                                                                                                                                                                                                                                                |
 | **closing.maxItems**                     |                   `integer`                   |         `500`          |                 No                 | Maximum number of closed items (banners) in the storage.                                                                                                                                                                                                                                                               |
+| **closing.external.cookieName**          |                 `string/null`                 |        `amp-c`         |                 No                 | To close banners that are rendered server-side, it is necessary to transfer the information in the cookie as well. If set to `null` the cookie will not be transferred and closing these banners will not be persistent.                                                                                               |
+| **closing.external.cookieDomain**        |                 `string/null`                 |         `null`         |                 No                 | A cookie domain used to persist closed server-side banners. If the value is set to `null`, the cookie domain is not set and the cookie is only valid for the current domain without subdomains.                                                                                                                        |
+| **closing.external.cookiePath**          |                   `string`                    |          `/`           |                 No                 | Path for a cookie that is used to persist closed server-side banners.                                                                                                                                                                                                                                                  |
+| **closing.external.cookieExpire**        |                   `integer`                   |         `365`          |                 No                 | Expiration for a cookie used to persist closed server-side banners. The value is given in days.                                                                                                                                                                                                                        |
 
 The full configuration can look like this:
 
@@ -125,6 +129,12 @@ const AMPClient = AMPClientFactory.create({
     storage: 'localStorage',
     key: 'permanently-closed-banners',
     maxItems: 100,
+    external: {
+      cookieName: 'pcb',
+      cookieDomain: '.my-website.com',
+      cookiePath: '/',
+      cookieExpire: 365,
+    },
   }
 });
 ```
@@ -418,8 +428,6 @@ AMPClient.on('amp:banner:state-changed', function ({ banner }) {
 ```
 
 ## Closing banners
-
-> ⚠️Currently integrated for HTML banners only.
 
 A banner is closed by clicking on the element with the data attribute `data-amp-banner-close`. The attribute does not require any value and must be inside the banner to be closed.
 
