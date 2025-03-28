@@ -68,7 +68,14 @@ export class ClosedBannerStore {
                 }
 
                 const currentItems = this.#loadedItems || {};
-                const newItems = null !== event.newValue && '' !== event.newValue ? JSON.parse(event.newValue) : {};
+                let newItems;
+
+                try {
+                    newItems = null !== event.newValue && '' !== event.newValue ? JSON.parse(event.newValue) : {};
+                } catch (e) {
+                    console.warn('Failed to parse storage data as JSON, skipping closed items synchronization.', e);
+                    return;
+                }
 
                 const currentKeys = Object.keys(currentItems);
                 const diffKeys = Object.keys(newItems)
@@ -115,7 +122,7 @@ export class ClosedBannerStore {
             if (null !== this.#externalOptions && 'external' in entry.metadata && true === entry.metadata.external) {
                 cookieItems = null !== cookieItems ? cookieItems : this.#loadCookieItems();
 
-                if (!(key in cookieItems) || items[key] !== entry.expiresAt) {
+                if (!(key in cookieItems) || cookieItems[key] !== entry.expiresAt) {
                     cookieItems[key] = entry.expiresAt;
                     cookieChangedKeys.push(key);
                 }
@@ -141,11 +148,18 @@ export class ClosedBannerStore {
 
         if (0 < cookieChangedKeys.length) {
             let cookieFlushed = false;
+            let attempts = 0;
+            const MAX_ATTEMPTS = 10;
 
             do {
                 cookieFlushed = this.#flushCookie(cookieItems);
 
                 if (!cookieFlushed) {
+                    if (attempts >= MAX_ATTEMPTS) {
+                        console.warn('Failed to flush cookie after multiple attempts, discarding remaining items.');
+                        break;
+                    }
+
                     Object.entries(cookieItems)
                         .filter(e => -1 === cookieChangedKeys.indexOf(e[0]))
                         .sort((a, b) => (a[1] || Number.MAX_SAFE_INTEGER) - (b[1] || Number.MAX_SAFE_INTEGER))
@@ -153,6 +167,8 @@ export class ClosedBannerStore {
                         .forEach(item => {
                             delete cookieItems[item[0]];
                         });
+
+                    attempts++;
                 }
             } while (!cookieFlushed);
         }
