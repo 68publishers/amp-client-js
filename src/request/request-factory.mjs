@@ -5,6 +5,7 @@ export class RequestFactory {
     #method;
     #endpoint;
     #locale;
+    #version;
     #defaultResources;
     #origin;
 
@@ -12,6 +13,7 @@ export class RequestFactory {
         this.#method = method;
         this.#endpoint = `${url}/api/v${version}/content/${encodeURIComponent(channel)}`;
         this.#locale = null;
+        this.#version = version;
         this.#defaultResources = [];
         this.#origin = null;
     }
@@ -38,6 +40,13 @@ export class RequestFactory {
             });
         }
 
-        return new Request(this.#method, this.#endpoint, this.#locale, this.#defaultResources, headers);
+        return new Request({
+            method: this.#method,
+            endpoint: this.#endpoint,
+            version: this.#version,
+            locale: this.#locale,
+            defaultResources: this.#defaultResources,
+            headers,
+        });
     }
 }

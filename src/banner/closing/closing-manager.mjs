@@ -41,7 +41,7 @@ export class ClosingManager {
                     const key = keys[i];
 
                     if (key.isBanner()) {
-                        this.closeBanner(key.args.positionCode, key.args.bannerId);
+                        this.closeBanner(key.args.positionCode, key.args.bannerId, {});
                     }
                 }
             },
@@ -66,11 +66,15 @@ export class ClosingManager {
 
         if (this.#parentFrameMessenger) {
             this.#parentFrameMessenger.on('closeBanner', ({ data }) => {
-                const { positionCode, bannerId } = data;
+                const { positionCode, bannerId, options } = data;
 
-                positionCode && bannerId && this.closeBanner(positionCode, bannerId);
+                positionCode && bannerId && this.closeBanner(positionCode, bannerId, options || {});
             });
         }
+    }
+
+    setRevision(revision) {
+        this.#store.setRevision(revision);
     }
 
     attachUi() {
@@ -97,7 +101,9 @@ export class ClosingManager {
                     const bannerFingerprint = bannerFingerprints[i];
 
                     if (bannerFingerprint.value === fingerprint) {
-                        this.closeBanner(banner.position, bannerFingerprint.bannerId);
+                        this.closeBanner(banner.position, bannerFingerprint.bannerId, {
+                            animation: button.dataset.ampBannerClose || undefined,
+                        });
                     }
                 }
             });
@@ -142,7 +148,7 @@ export class ClosingManager {
         );
     }
 
-    closeBanner(positionCode, bannerId) {
+    closeBanner(positionCode, bannerId, { animation = undefined }) {
         const banner = this.#bannerManager.getBannerByPosition(positionCode);
 
         if (null === banner) {
@@ -163,6 +169,9 @@ export class ClosingManager {
                 {
                     positionCode: positionCode,
                     bannerId: bannerId,
+                    options: {
+                        animation,
+                    },
                 },
             ));
 
@@ -171,7 +180,7 @@ export class ClosingManager {
 
         const bannerExpiration = fingerprint.closeExpiration;
 
-        this.#closeFingerprint({ banner, fingerprint }).then(() => {
+        this.#closeFingerprint({ banner, fingerprint, animation }).then(() => {
             const entries = [];
 
             entries.push(ClosingEntry.banner({
@@ -188,7 +197,7 @@ export class ClosingManager {
                 const fingerprints = banner.fingerprints;
 
                 for (let i = 0; i < fingerprints.length; i++) {
-                    promises.push(this.#closeFingerprint({ banner, fingerprint: fingerprints[i] }));
+                    promises.push(this.#closeFingerprint({ banner, fingerprint: fingerprints[i], animation }));
                 }
 
                 Promise.all(promises).then(() => {
@@ -216,14 +225,25 @@ export class ClosingManager {
         });
     }
 
-    #closeFingerprint({ banner, fingerprint }) {
+    #closeFingerprint({ banner, fingerprint, animation }) {
         const element = banner.element.querySelector(`[data-amp-banner-fingerprint="${fingerprint.value}"]`);
 
         if (!element) {
             return Promise.resolve(undefined);
         }
 
-        let operation = (element) => element.remove();
+        let fn = undefined;
+        let options = [];
+
+        if ('string' === typeof animation) {
+            const matches = animation.match(/^(?<fn>[a-zA-Z\d]+)(\((?<options>.+)?\))?$/)?.groups ?? {};
+
+            fn = matches.fn ? matches.fn.trim() : undefined;
+            options = matches.options && '' !== matches.options.trim() ? matches.options.split(',').map(opt => opt.trim()) : [];
+        }
+
+        let operation = this.#resolveOperation(fn, options);
+
         const setOperation = (op) => operation = op;
 
         this.#eventBus.dispatch(Events.ON_BANNER_BEFORE_CLOSE, {
@@ -242,5 +262,44 @@ export class ClosingManager {
 
             banner.unsetFingerprint(fingerprint);
         });
+    }
+
+    #resolveOperation(fn, options) {
+        if ('slideUp' === fn) {
+            return (element) => {
+                let duration = 200;
+                let timingFn = options[1] || 'ease-in-out';
+
+                try {
+                    duration = parseInt(options[0] || '200');
+
+                    if (!(duration > 0)) {
+                        console.error(`Unable to parse animation duration.`, options[0]);
+                        duration = 200;
+                    }
+                } catch (e) {
+                    console.error(`Unable to parse animation duration.`, options[0]);
+                }
+
+                element.style.transitionProperty = 'height, margin, padding';
+                element.style.transitionDuration = `${duration}ms`;
+                element.style.transitionTimingFunction = timingFn;
+                element.style.boxSizing = 'border-box';
+                element.style.height = element.offsetHeight + 'px';
+                element.offsetHeight;
+                element.style.overflow = 'hidden';
+                element.style.height = '0';
+                element.style.paddingTop = '0';
+                element.style.paddingBottom = '0';
+                element.style.marginTop = '0';
+                element.style.marginBottom = '0';
+
+                return new Promise(resolve => {
+                    setTimeout(resolve, duration);
+                });
+            };
+        }
+
+        return (element) => element.remove();
     }
 }

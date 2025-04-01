@@ -5,6 +5,7 @@ export class ClosedBannerStore {
     #key;
     #maxItems;
     #loadedItems = null;
+    #revision = 0;
 
     /**
      * @type {{
@@ -67,7 +68,9 @@ export class ClosedBannerStore {
                     return;
                 }
 
-                const currentItems = this.#loadedItems || {};
+                const currentItems = this.#loadedItems || {
+                    r: this.#revision,
+                };
                 let newItems;
 
                 try {
@@ -77,9 +80,13 @@ export class ClosedBannerStore {
                     return;
                 }
 
+                if ('r' in newItems && newItems.r !== currentItems.r) {
+                    this.setRevision(newItems.r);
+                }
+
                 const currentKeys = Object.keys(currentItems);
                 const diffKeys = Object.keys(newItems)
-                    .filter(key => !currentKeys.includes(key))
+                    .filter(key => 'r' !== key && !currentKeys.includes(key))
                     .map(key => EntryKey.tryParse(key))
                     .filter(key => null !== key);
 
@@ -89,6 +96,13 @@ export class ClosedBannerStore {
                     onStorageChange(diffKeys);
                 }
             });
+        }
+    }
+
+    setRevision(revision) {
+        if ('number' === typeof revision && Number.isInteger(revision)) {
+            this.#revision = revision;
+            this.#loadedItems = null;
         }
     }
 
@@ -134,7 +148,7 @@ export class ClosedBannerStore {
 
             if (length > this.#maxItems) {
                 Object.entries(items)
-                    .filter(e => -1 === changedKeys.indexOf(e[0]))
+                    .filter(e => 'r' !== e[0] && -1 === changedKeys.indexOf(e[0]))
                     .sort((a, b) => (a[1] || Number.MAX_SAFE_INTEGER) - (b[1] || Number.MAX_SAFE_INTEGER))
                     .slice(0, length - this.#maxItems)
                     .forEach(item => {
@@ -161,7 +175,7 @@ export class ClosedBannerStore {
                     }
 
                     Object.entries(cookieItems)
-                        .filter(e => -1 === cookieChangedKeys.indexOf(e[0]))
+                        .filter(e => 'r' !== e[0] && -1 === cookieChangedKeys.indexOf(e[0]))
                         .sort((a, b) => (a[1] || Number.MAX_SAFE_INTEGER) - (b[1] || Number.MAX_SAFE_INTEGER))
                         .slice(0, Object.values(cookieItems || {}).length - 1)
                         .forEach(item => {
@@ -225,21 +239,29 @@ export class ClosedBannerStore {
 
     #getItems() {
         if (null !== this.#loadedItems) {
-            return this.#loadedItems;
+            if (this.#revision === this.#loadedItems.r) {
+                return this.#loadedItems;
+            }
+
+            this.#loadedItems = null;
         }
 
         const storedValue = this.#storage.getItem(this.#key);
         let listOfItems;
 
         try {
-            listOfItems = null !== storedValue && '' !== storedValue ? JSON.parse(storedValue) : {};
+            listOfItems = null !== storedValue && '' !== storedValue ? JSON.parse(storedValue) : {
+                r: this.#revision,
+            };
         } catch (e) {
             listOfItems = {};
         }
 
-        if ('object' !== typeof listOfItems || Array.isArray(listOfItems)) { // flush invalid state
-            listOfItems = {};
-            this.#storage.setItem(this.#key, '{}');
+        if ('object' !== typeof listOfItems || Array.isArray(listOfItems) || listOfItems.r !== this.#revision) { // flush invalid state
+            listOfItems = {
+                r: this.#revision,
+            };
+            this.#storage.removeItem(this.#key);
         }
 
         return this.#loadedItems = listOfItems;
@@ -247,7 +269,9 @@ export class ClosedBannerStore {
 
     #loadCookieItems() {
         if (null === this.#externalOptions) {
-            return {};
+            return {
+                r: this.#revision,
+            };
         }
 
         const cookie = document.cookie
@@ -255,21 +279,38 @@ export class ClosedBannerStore {
             .find(row => row.startsWith(this.#externalOptions.cookieName + '='));
 
         if (!cookie) {
-            return {};
+            return {
+                r: this.#revision,
+            };
         }
+
+        let listOfItems;
 
         try {
-            const items = JSON.parse(decodeURIComponent(cookie.split('=')[1]));
-
-            return items && 'object' === typeof items && !Array.isArray(items) ? items : {};
+            listOfItems = JSON.parse(decodeURIComponent(cookie.split('=')[1]));
         } catch (e) {
-            return {};
+            listOfItems = {};
         }
+
+        if ('object' !== typeof listOfItems || Array.isArray(listOfItems) || listOfItems.r !== this.#revision) { // flush invalid state
+            listOfItems = {
+                r: this.#revision,
+            };
+            this.#flushCookie({});
+        }
+
+        return listOfItems;
     }
 
     #flush() {
         if (null !== this.#loadedItems) {
-            this.#storage.setItem(this.#key, JSON.stringify(this.#loadedItems));
+            const length = Object.keys(this.#loadedItems).length;
+
+            if (0 >= length || ('r' in this.#loadedItems && 1 === length)) {
+                this.#storage.removeItem(this.#key);
+            } else {
+                this.#storage.setItem(this.#key, JSON.stringify(this.#loadedItems));
+            }
         }
     }
 
@@ -278,10 +319,19 @@ export class ClosedBannerStore {
             return false;
         }
 
-        const date = new Date();
-        date.setTime(date.getTime() + (1000 * (this.#externalOptions.cookieExpire * 24 * 60 * 60)));
+        const length = Object.keys(items).length;
+        let expires;
 
-        let cookieValue = `${this.#externalOptions.cookieName}=${encodeURIComponent(JSON.stringify(items))}; path=${this.#externalOptions.cookiePath}; expires=${date.toUTCString()}; samesite=Lax`;
+        if (0 >= length || ('r' in this.#loadedItems && 1 === length)) {
+            expires = 'Thu, 01 Jan 1970 00:00:01 GMT';
+        } else {
+            const date = new Date();
+            date.setTime(date.getTime() + (1000 * (this.#externalOptions.cookieExpire * 24 * 60 * 60)));
+
+            expires = date.toUTCString();
+        }
+
+        let cookieValue = `${this.#externalOptions.cookieName}=${encodeURIComponent(JSON.stringify(items))}; path=${this.#externalOptions.cookiePath}; expires=${expires}; samesite=Lax`;
 
         if (this.#externalOptions.cookieDomain) {
             cookieValue += `; domain=${this.#externalOptions.cookieDomain}`;
@@ -310,9 +360,13 @@ export class ClosedBannerStore {
         const getItem = function (key) {
             return key in this.items ? this.items[key] : null;
         };
+        const removeItem = function (key) {
+            key in this.items && (delete this.items[key]);
+        };
 
         storage.setItem = setItem.bind(storage);
         storage.getItem = getItem.bind(storage);
+        storage.removeItem = removeItem.bind(storage);
 
         return storage;
     }

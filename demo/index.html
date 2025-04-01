@@ -260,23 +260,6 @@
             }
         });
 
-        window.AMPClient.on('amp:banner:before-close', ({ banner, setOperation }) => {
-            if (null === banner.options.get('slider', null)) {
-                setOperation(element => {
-                    anime({
-                        targets: element,
-                        opacity: 0,
-                        height: 0,
-                        duration: 100,
-                        easing: 'linear',
-                        complete: () => {
-                            element.remove();
-                        }
-                    });
-                });
-            }
-        });
-
         AMPClient.attachBanners();
         AMPClient.fetch();
     </script>

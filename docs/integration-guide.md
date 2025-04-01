@@ -429,19 +429,31 @@ AMPClient.on('amp:banner:state-changed', function ({ banner }) {
 
 ## Closing banners
 
-A banner is closed by clicking on the element with the data attribute `data-amp-banner-close`. The attribute does not require any value and must be inside the banner to be closed.
+A banner is closed by clicking on the element with the data attribute `data-amp-banner-close`. For the default behaviour, the attribute does not require any value and must be inside the banner to be closed.
 
-By default, the banner is simply removed from the page after closing. To change this behavior (for example, remove by animation), you can bind a listener to the `amp:banner:before-close` event:
+By default, the banner is simply removed from the page after closing.
+The attribute value can define an animation for hiding.
+The entry should be in the format `data-amp-banner-close="<fn>"`, or `data-amp-banner-close="<fn>(<options>)"` if the animation function supports any options.
+Options are written as a comma-separated list of values with optional spaces.
+
+The following functions are supported:
+
+| Name      | Options                                                                          | Examples                                                         |
+|-----------|----------------------------------------------------------------------------------|------------------------------------------------------------------|
+| `slideUp` | 1. Duration in ms (default `200`)<br/>2. Timing function (default `ease-in-out`) | 1. `slideUp`<br/>2. `slideUp(500)`<br/>3. `slideUp(500, linear)` |
+
+
+For custom animation implementation, it is possible to listen to the `amp:banner:before-close` event:
 
 ```javascript
 AMPClient.on('amp:banner:before-close', ({ setOperation }) => {
   setOperation(element => {
-      // animate the element
+    // animate the element and return a Promise
   });
 });
 ```
 
-The callback passed to the `setOperation` function can return Promise. At that point, the banner will actually be removed once the Promise has succeeded.
+The callback passed to the `setOperation` function should return a Promise. At that point, the banner will actually be removed once the Promise has succeeded.
 
 ## Metrics events
 

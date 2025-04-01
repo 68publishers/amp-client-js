@@ -6,13 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Added support for closing server-side banners with the state stored in a cookie.
+- Added support for animated closing. The first animation type `slideUp` implemented.
+- Added support for Content API v2.
 
 ### Changed
 - Reduced compiled bundle size.
 - Server-side banners are now managed by the client similarly like client-side rendered banners which fixes initialization of sliders on window resize.
+- Updated integration guide.
+- Changed the default API version in the configuration to `2`.
 
 ### Fixed
 - Fixed banners re-rendering when the default content is missing.
+- Fixed scripts evaluation in HTML banners.
 
 ## [1.7.0] - 2024-11-14
 ### Added
