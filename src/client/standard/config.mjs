@@ -15,7 +15,7 @@ export function createConfig(options) {
     const config = merge({
         method: 'GET',
         url: null,
-        version: 1,
+        version: 2,
         channel: null,
         locale: null,
         resources: {},

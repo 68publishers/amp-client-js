@@ -3,14 +3,16 @@ import { Resource } from './resource.mjs';
 export class Request {
     #method;
     #endpoint;
+    #version;
     #locale;
     #query;
     #defaultResources;
     #headers;
 
-    constructor(method, endpoint, locale = null, defaultResources = [], headers = []) {
+    constructor({ method, endpoint, version, locale = null, defaultResources = [], headers = [] }) {
         this.#method = method;
         this.#endpoint = endpoint;
+        this.#version = version;
         this.#locale = locale;
         this.#query = {};
         this.#defaultResources = defaultResources;
@@ -67,6 +69,10 @@ export class Request {
 
     get endpoint() {
         return this.#endpoint;
+    }
+
+    get version() {
+        return this.#version;
     }
 
     get locale() {

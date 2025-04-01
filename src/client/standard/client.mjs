@@ -180,8 +180,10 @@ export class Client {
         return this.#bannerManager.addManagedBanner(element, position, resources, options, refWindow);
     }
 
-    closeBanner(positionCode, bannerId) {
-        this.#closingManager.closeBanner(positionCode, bannerId);
+    closeBanner(positionCode, bannerId, { animation = undefined }) {
+        this.#closingManager.closeBanner(positionCode, bannerId, {
+            animation,
+        });
     }
 
     attachBanners(snippet = document, refWindow = window) {
@@ -230,20 +232,23 @@ export class Client {
             request.addPosition(banner.position, banner.resources, '1' !== banner.options.get('omit-default-resources', '0').toString())
         }
 
-        const success = (response) => {
-            const data = response.data;
+        const success = ({ positions, settings, response }) => {
+            console.log(settings);
+            if ('close_revision' in settings) {
+                this.#closingManager.setRevision(settings.close_revision);
+            }
 
             for (let banner of banners) {
-                if (!(banner.position in data)
-                    || !('banners' in data[banner.position])
-                    || !Object.values(data[banner.position]['banners']).length) {
+                if (!(banner.position in positions)
+                    || !('banners' in positions[banner.position])
+                    || !Object.values(positions[banner.position]['banners']).length) {
 
                     banner.setState(this.#bannerManager.STATE.NOT_FOUND, 'Banner not found in fetched response.');
 
                     continue;
                 }
 
-                const positionData = data[banner.position];
+                const positionData = positions[banner.position];
 
                 if (this.#closingManager.isPositionClosed(banner.position)) {
                     positionData.banners = [];
