@@ -233,7 +233,6 @@ export class Client {
         }
 
         const success = ({ positions, settings, response }) => {
-            console.log(settings);
             if ('close_revision' in settings) {
                 this.#closingManager.setRevision(settings.close_revision);
             }
