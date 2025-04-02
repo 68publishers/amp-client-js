@@ -30,6 +30,7 @@ export class Client {
     #metricsSender;
     #metricsEventsListener;
     #frameMessenger;
+    #apiSettings = null;
 
     /**
      * @param {ClientVersion} version
@@ -222,7 +223,7 @@ export class Client {
             embed: false,
         });
 
-        if (!banners.length) {
+        if (!banners.length && null !== this.#apiSettings) {
             return;
         }
 
@@ -233,9 +234,7 @@ export class Client {
         }
 
         const success = ({ positions, settings, response }) => {
-            if ('closed_revision' in settings) {
-                this.#closingManager.setRevision(settings.closed_revision);
-            }
+            this.#processApiSettings(settings);
 
             for (let banner of banners) {
                 if (!(banner.position in positions)
@@ -332,5 +331,13 @@ export class Client {
         iframe.src = src;
 
         return iframe;
+    }
+
+    #processApiSettings(settings) {
+        this.#apiSettings = settings;
+
+        if ('closed_revision' in settings) {
+            this.#closingManager.setRevision(settings.closed_revision);
+        }
     }
 }
