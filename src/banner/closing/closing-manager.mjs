@@ -178,7 +178,7 @@ export class ClosingManager {
             return;
         }
 
-        const bannerExpiration = fingerprint.closeExpiration;
+        const bannerExpiration = fingerprint.closedExpiration;
 
         this.#closeFingerprint({ banner, fingerprint, animation }).then(() => {
             const entries = [];
@@ -192,7 +192,7 @@ export class ClosingManager {
                 },
             }));
 
-            if (null !== banner.positionData.closeExpiration) {
+            if (null !== banner.positionData.closedExpiration) {
                 const promises = [];
                 const fingerprints = banner.fingerprints;
 
@@ -203,7 +203,7 @@ export class ClosingManager {
                 Promise.all(promises).then(() => {
                     entries.push(ClosingEntry.position({
                         positionCode,
-                        closingExpiration: banner.positionData.closeExpiration,
+                        closingExpiration: banner.positionData.closedExpiration,
                         metadata: {
                             external: banner.isExternal(),
                         },
