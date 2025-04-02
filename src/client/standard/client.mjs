@@ -233,8 +233,8 @@ export class Client {
         }
 
         const success = ({ positions, settings, response }) => {
-            if ('close_revision' in settings) {
-                this.#closingManager.setRevision(settings.close_revision);
+            if ('closed_revision' in settings) {
+                this.#closingManager.setRevision(settings.closed_revision);
             }
 
             for (let banner of banners) {
