@@ -68,6 +68,7 @@ export class ExternalBanner extends Banner {
 
                 contentsByBannerId[fingerprint.bannerId].addContent(breakpoint, {
                     html: bannerClone.outerHTML,
+                    contentType: content.dataset.ampContentType || 'unknown',
                 });
             }
         }
@@ -151,7 +152,7 @@ export class ExternalBanner extends Banner {
         for (let bannerId in this.#contentsByBannerId) {
             const content = this.#contentsByBannerId[bannerId].content;
 
-            if (null !== content) {
+            if (null !== content && 'noContent' !== content.data.contentType) {
                 banners.push(content.data.html);
             }
         }
