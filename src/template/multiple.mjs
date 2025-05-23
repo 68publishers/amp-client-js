@@ -3,7 +3,7 @@
  * {Array<BannerData>} data
  */
 export default `
-    <% if(data.length) { %>
+    <% data = data.filter(d => 'noContent' !== d.content.type); if(data.length) { %>
         <div class="amp-banner amp-banner--multiple">
             <div class="amp-banner__list">
                 <% for (index in data) { var b = data[index]; %>

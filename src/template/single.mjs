@@ -3,7 +3,7 @@
  * {BannerData} data
  */
 export default `
-    <% if(null !== data.content) { %>
+    <% if(null !== data.content && 'noContent' !== data.content.type) { %>
         <div class="amp-banner amp-banner--single"
              data-amp-banner-fingerprint="<%= data.fingerprint %>">
     
